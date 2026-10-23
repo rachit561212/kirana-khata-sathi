@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dateLabel, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
+import { NoBillEntry } from "@/components/NoBillEntry";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -81,6 +82,8 @@ function UploadScreen() {
           <Button size="sm" className="mt-4 w-full bg-accent font-semibold text-accent-foreground hover:bg-accent/90" onClick={() => add(SAMPLE_FILES)}>Read all three</Button>
         </div>
       </div>
+
+      <NoBillEntry onAdded={(id) => setAdded((a) => [id, ...a])} />
 
       <div className="rounded-xl border bg-card">
         <div className="border-b px-5 py-3 text-sm font-semibold">Just read</div>
