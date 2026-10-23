@@ -288,7 +288,7 @@ function Person({
     const speed = Math.hypot(g.position.x - prevX, g.position.z - prevZ) / Math.max(dt, 1e-3);
     moving.current = damp(moving.current, speed, 6, dt);
     if (speed > 0.05) g.rotation.y = damp(g.rotation.y, Math.atan2(tx - prevX, tz - prevZ), 6, dt);
-    else g.rotation.y = damp(g.rotation.y, Math.atan2(-g.position.x * 0.25, -1), 3, dt);
+    else g.rotation.y = damp(g.rotation.y, standYaw ?? Math.atan2(-g.position.x * 0.25, -1), 3, dt);
     const waving = wave && p > wave[0] && p < wave[1];
     if (SNAP) { play(waving ? "Wave" : "Idle"); Object.values(actions).forEach((a) => a && (a.paused = true)); return; }
     Object.values(actions).forEach((a) => a && (a.paused = false));
