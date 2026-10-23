@@ -15,3 +15,4 @@
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
 - Transaction extraction runs through AI Gateway in a server function, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
 - AI entries and repeat orders use the existing session-only khata store, independent of Xano authentication; repeat orders copy item lines so edits cannot alter their source bill.
+- Spoken bill entry records audio in the browser and forwards it as base64 through a server function to a gateway transcription model before extraction; keep the clip transient (never stored) and the language hint optional so any spoken language can be read.
