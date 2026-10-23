@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Phone layouts: app navigation, upload, review, receipts, duplicates, summary, ask and landing page; verify at narrow widths
 - [x] Scroll-driven, more realistic 3D shop story
 - [x] Remove "Watch 3D Shutter Demo" button
 - [x] Remove AI-looking styling/copy
