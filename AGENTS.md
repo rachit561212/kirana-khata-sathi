@@ -12,3 +12,4 @@
 - Xano authentication uses same-origin server functions and an HTTP-only session cookie; never expose Xano tokens to browser storage or return them to components.
 - Keep synthetic receipt records separate from Xano authentication until documented, implemented receipt endpoints exist; placeholder null responses are not saved records.
 - On phones, receipt lists use compact records and editable items use stacked fields; retain desktop tables so no page requires sideways scrolling to read or edit receipts.
+- Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.

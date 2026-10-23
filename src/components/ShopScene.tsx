@@ -3,6 +3,7 @@ import { Environment, Lightformer, ContactShadows, useGLTF, useAnimations } from
 import { useRef, useMemo, Suspense } from "react";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 import * as THREE from "three";
+import { shopFraming } from "@/lib/shop-framing";
 
 /** Scroll progress 0..1 shared by the page. */
 export type Progress = { current: number; reduced?: boolean };
@@ -408,19 +409,20 @@ function LedgerFlow({ progress }: { progress: Progress }) {
 
 /* ---------- Camera dolly ---------- */
 function CameraRig({ progress }: { progress: Progress }) {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
+  const framing = shopFraming(size.width, size.height);
   const look = useRef(new THREE.Vector3(2.6, 1, 0));
   useFrame(({ pointer }, dt) => {
     const p = progress.current;
     const a = seg(p, 0, 0.45);
     const b = seg(p, 0.6, 0.95);
     // wide street → mid → close on counter
-    const x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 0.8, b) + pointer.x * 0.4;
-    const y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 1.6, b) + pointer.y * 0.2;
-    const z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 5.2, b);
+    const x = framing.mobile ? 2.6 : THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 0.8, b) + pointer.x * 0.4;
+    const y = framing.mobile ? 2.1 : THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 1.6, b) + pointer.y * 0.2;
+    const z = framing.mobile ? framing.distance + (1 - a) * 0.8 : THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 5.2, b);
     camera.position.set(damp(camera.position.x, x, 4, dt), damp(camera.position.y, y, 4, dt), damp(camera.position.z, z, 4, dt));
-    const lx = THREE.MathUtils.lerp(0.4, 1.2, b);
-    const ly = THREE.MathUtils.lerp(0.9, 0.0, b);
+    const lx = framing.mobile ? 2.6 : THREE.MathUtils.lerp(0.4, 1.2, b);
+    const ly = framing.mobile ? 0.4 : THREE.MathUtils.lerp(0.9, 0.0, b);
     look.current.set(damp(look.current.x, lx, 4, dt), damp(look.current.y, ly, 4, dt), 0);
     camera.lookAt(look.current);
   });
@@ -428,6 +430,8 @@ function CameraRig({ progress }: { progress: Progress }) {
 }
 
 function Sky({ progress }: { progress: Progress }) {
+  const { size } = useThree();
+  const { fogScale } = shopFraming(size.width, size.height);
   const fog = useRef<THREE.Fog>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
   const dawn = new THREE.Color("#2a1a14"), day = new THREE.Color("#7a4a2a");
@@ -435,7 +439,11 @@ function Sky({ progress }: { progress: Progress }) {
   useFrame(({ scene }) => {
     const k = seg(progress.current, 0, 0.5);
     c.copy(dawn).lerp(day, k);
-    if (fog.current) fog.current.color.copy(c);
+    if (fog.current) {
+      fog.current.color.copy(c);
+      fog.current.near = 11 * fogScale;
+      fog.current.far = 26 * fogScale;
+    }
     if (scene.background instanceof THREE.Color) scene.background.copy(c);
     if (hemi.current) hemi.current.intensity = 0.25 + k * 0.5;
   });
