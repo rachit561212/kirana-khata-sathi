@@ -588,13 +588,13 @@ export default function ShopScene({ progress }: { progress: Progress }) {
         </mesh>
         <mesh position={[0, 1.7, -1]} receiveShadow><boxGeometry args={[6.4, 3.4, 0.2]} /><meshStandardMaterial map={wall} roughness={0.95} /></mesh>
         <mesh position={[0, 0.02, 0]} receiveShadow rotation-x={-Math.PI / 2}><planeGeometry args={[5.8, 2.2]} /><meshStandardMaterial color="#8c6a4a" roughness={0.8} /></mesh>
-        <mesh position={[-3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#b23f28" roughness={0.8} /></mesh>
-        <mesh position={[3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#b23f28" roughness={0.8} /></mesh>
-        <mesh position={[0, 3.6, 0.2]} castShadow><boxGeometry args={[6.6, 0.7, 2.4]} /><meshStandardMaterial color="#2f5d3a" roughness={0.8} /></mesh>
+        <mesh position={[-3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#706c61" roughness={0.8} /></mesh>
+        <mesh position={[3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#706c61" roughness={0.8} /></mesh>
+        <mesh position={[0, 3.6, 0.2]} castShadow><boxGeometry args={[6.6, 0.7, 2.4]} /><meshStandardMaterial color="#2a2b2a" roughness={0.8} /></mesh>
         {Array.from({ length: 11 }).map((_, i) => (
           <mesh key={i} position={[-3 + i * 0.6, 3.15, 1.55]} rotation-x={0.5} castShadow>
             <boxGeometry args={[0.6, 0.04, 0.7]} />
-            <meshStandardMaterial color={i % 2 ? "#fff3d6" : "#c2452d"} roughness={0.9} />
+            <meshStandardMaterial color={i % 2 ? "#f8f4e3" : "#e5446d"} roughness={0.9} />
           </mesh>
         ))}
         <ShopLights progress={progress} />
