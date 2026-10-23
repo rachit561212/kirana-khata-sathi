@@ -83,3 +83,28 @@
 @utility ruled {
   background-image: repeating-linear-gradient(0deg, transparent 0 27px, color-mix(in oklab, var(--secondary) 14%, transparent) 27px 28px);
 }
+
+.dark {
+  --background: oklch(0.19 0.02 50);
+  --foreground: oklch(0.93 0.02 85);
+  --card: oklch(0.23 0.02 50);
+  --card-foreground: oklch(0.93 0.02 85);
+  --popover: oklch(0.23 0.02 50);
+  --popover-foreground: oklch(0.93 0.02 85);
+  --secondary: oklch(0.3 0.06 155);
+  --secondary-foreground: oklch(0.95 0.02 85);
+  --muted: oklch(0.26 0.02 50);
+  --muted-foreground: oklch(0.7 0.03 75);
+  --border: oklch(0.34 0.02 55);
+  --input: oklch(0.34 0.02 55);
+  --paper: oklch(0.27 0.015 60);
+  --spent: oklch(0.7 0.15 35);
+  --received: oklch(0.72 0.13 155);
+}
+
+html { scroll-behavior: smooth; scrollbar-color: var(--color-muted-foreground) var(--color-background); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--color-muted-foreground) 60%, transparent); border-radius: 8px; border: 2px solid var(--color-background); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted-foreground); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
