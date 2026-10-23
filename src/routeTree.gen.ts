@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppAskRouteImport } from './routes/app/ask'
+import { Route as AppDuplicatesRouteImport } from './routes/app/duplicates'
+import { Route as AppReceiptsRouteImport } from './routes/app/receipts'
+import { Route as AppReviewRouteImport } from './routes/app/review'
+import { Route as AppSummaryRouteImport } from './routes/app/summary'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +28,102 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAskRoute = AppAskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDuplicatesRoute = AppDuplicatesRouteImport.update({
+  id: '/duplicates',
+  path: '/duplicates',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReceiptsRoute = AppReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReviewRoute = AppReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSummaryRoute = AppSummaryRouteImport.update({
+  id: '/summary',
+  path: '/summary',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/ask': typeof AppAskRoute
+  '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/receipts': typeof AppReceiptsRoute
+  '/app/review': typeof AppReviewRoute
+  '/app/summary': typeof AppSummaryRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app/ask': typeof AppAskRoute
+  '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/receipts': typeof AppReceiptsRoute
+  '/app/review': typeof AppReviewRoute
+  '/app/summary': typeof AppSummaryRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/ask': typeof AppAskRoute
+  '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/receipts': typeof AppReceiptsRoute
+  '/app/review': typeof AppReviewRoute
+  '/app/summary': typeof AppSummaryRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/ask'
+    | '/app/duplicates'
+    | '/app/receipts'
+    | '/app/review'
+    | '/app/summary'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app'
-  id: '__root__' | '/' | '/app'
+  to:
+    | '/'
+    | '/app/ask'
+    | '/app/duplicates'
+    | '/app/receipts'
+    | '/app/review'
+    | '/app/summary'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/ask'
+    | '/app/duplicates'
+    | '/app/receipts'
+    | '/app/review'
+    | '/app/summary'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +142,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ask': {
+      id: '/app/ask'
+      path: '/ask'
+      fullPath: '/app/ask'
+      preLoaderRoute: typeof AppAskRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/duplicates': {
+      id: '/app/duplicates'
+      path: '/duplicates'
+      fullPath: '/app/duplicates'
+      preLoaderRoute: typeof AppDuplicatesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/receipts': {
+      id: '/app/receipts'
+      path: '/receipts'
+      fullPath: '/app/receipts'
+      preLoaderRoute: typeof AppReceiptsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/review': {
+      id: '/app/review'
+      path: '/review'
+      fullPath: '/app/review'
+      preLoaderRoute: typeof AppReviewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/summary': {
+      id: '/app/summary'
+      path: '/summary'
+      fullPath: '/app/summary'
+      preLoaderRoute: typeof AppSummaryRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAskRoute: typeof AppAskRoute
+  AppDuplicatesRoute: typeof AppDuplicatesRoute
+  AppReceiptsRoute: typeof AppReceiptsRoute
+  AppReviewRoute: typeof AppReviewRoute
+  AppSummaryRoute: typeof AppSummaryRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAskRoute: AppAskRoute,
+  AppDuplicatesRoute: AppDuplicatesRoute,
+  AppReceiptsRoute: AppReceiptsRoute,
+  AppReviewRoute: AppReviewRoute,
+  AppSummaryRoute: AppSummaryRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
