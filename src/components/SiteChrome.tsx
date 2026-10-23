@@ -58,9 +58,10 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
   return (
     <header className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${solid ? "border-b bg-background/95 text-foreground" : "text-ink-foreground"}`}>
       <nav className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-2.5 sm:flex sm:justify-between sm:px-5 sm:py-3.5">
-        <a href="/" className="flex min-w-0 items-center gap-2 font-display text-xl font-bold">
+        <a href="/" aria-label="Hisaab home" className="flex min-w-0 items-center gap-2 font-display text-xl font-bold">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground">₹</span>
-          <span className="truncate">Kirana Khata</span>
+          <span className="min-w-0 truncate">हिसाब</span>
+          <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] opacity-60 lg:inline">Hisaab</span>
         </a>
         <div className="hidden items-center gap-1 text-sm md:flex">
           {NAV.map((n) => n.cta ? (

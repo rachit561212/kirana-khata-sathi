@@ -14,8 +14,8 @@ export const Route = createFileRoute("/app/receipts")({
   }),
   head: () => ({
     meta: [
-      { title: "All receipts — ShopLedger" },
-      { property: "og:title", content: "All receipts — ShopLedger" },
+      { title: "All receipts — Hisaab" },
+      { property: "og:title", content: "All receipts — Hisaab" },
       { property: "og:description", content: "Search your receipt records and export confirmed purchases as CSV." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -61,7 +61,7 @@ function ReceiptsScreen() {
 
   const download = () => {
     if (!confirmed.length) return;
-    deliverCsv(csv, "shopledger-confirmed-receipts.csv");
+    deliverCsv(csv, "hisaab-confirmed-receipts.csv");
     toast.success("CSV downloaded", { description: `${confirmed.length} confirmed records · vendor, date, items, category, total.` });
   };
 

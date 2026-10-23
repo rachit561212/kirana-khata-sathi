@@ -14,15 +14,15 @@ const ShopScene = lazy(() => import("@/components/ShopScene"));
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kirana Khata: upload shop bills, get your ledger" },
-      { name: "description", content: "Forward supplier bills, mandi receipts and UPI settlements. Kirana Khata turns them into a daily money in and money out ledger." },
-      { property: "og:title", content: "Kirana Khata: your shop ledger, filled in from your bills" },
+      { title: "Hisaab: upload shop bills, get your ledger" },
+      { name: "description", content: "Forward supplier bills, mandi receipts and UPI settlements. Hisaab turns them into a daily money in and money out ledger." },
+      { property: "og:title", content: "Hisaab: your shop ledger, filled in from your bills" },
       { property: "og:description", content: "Daily khata for kirana stores. Reads WhatsApp PDFs, thermal receipts and handwritten parchis in 7 Indian languages." },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "Kirana Khata" },
+      { property: "og:site_name", content: "Hisaab" },
       { property: "og:locale", content: "en_IN" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Kirana Khata: your shop ledger, filled in from your bills" },
+      { name: "twitter:title", content: "Hisaab: your shop ledger, filled in from your bills" },
       { name: "twitter:description", content: "Daily khata for kirana stores, built from the bills you already get." },
     ],
   }),
@@ -130,10 +130,10 @@ function Index() {
             <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-4 pb-5 pt-32 text-ink-foreground sm:px-6 sm:pb-8 md:pt-28">
               <div ref={introRef} className="max-w-xl">
                 <h1 className="text-3xl font-bold leading-[1.08] sm:text-5xl md:text-7xl">
-                  Forward the bill.<br /><span className="text-primary">Khata</span> fills itself.
+                  Bill bhejo.<br /><span className="text-primary">हिसाब</span> हो जाएगा।
                 </h1>
                 <p className="mt-3 max-w-md text-sm opacity-85 sm:mt-5 sm:text-base md:text-lg">
-                  Bills in. Entries out.
+                  Bills in. Hisaab out.
                 </p>
                 <div className="pointer-events-auto mt-4 flex flex-wrap gap-3 sm:mt-8">
                   <Button size="lg" className="font-semibold" onClick={openUpload}><Upload /> Scan a bill</Button>
@@ -264,7 +264,7 @@ function Sandbox() {
 
   return (
     <section id="sandbox" className="mx-auto max-w-7xl px-6 py-24">
-      <SectionHead eyebrow="Sample bill" title="Paper on the left." soft="Khata on the right." body="A sample distributor invoice, and the entries it turns into." />
+      <SectionHead eyebrow="Sample bill" title="Paper on the left." soft="Hisaab on the right." body="A sample distributor invoice, and the entries it turns into." />
       <div className="mb-10 mt-8 flex justify-center">
         <div className="flex rounded-full border bg-card p-1">
           {(["spent", "received"] as const).map((t) => (

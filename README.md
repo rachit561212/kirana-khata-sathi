@@ -1,4 +1,4 @@
-# Kirana Khata Sathi
+# Hisaab
 
 Design the frontend of a website that whose name is kirana khata that will make the user uplaod payment reciepts and will extract information from its a shop ledger appKey Highlights & Features:
 

@@ -12,8 +12,8 @@ import { RepeatOrder } from "@/components/RepeatOrder";
 export const Route = createFileRoute("/app/")({
   head: () => ({
     meta: [
-      { title: "Add a bill — ShopLedger" },
-      { property: "og:title", content: "Add a bill — ShopLedger" },
+      { title: "Add a bill — Hisaab" },
+      { property: "og:title", content: "Add a bill — Hisaab" },
       { property: "og:description", content: "Say a sale out loud, attach a bill photo or raise a purchase order — the khata fills itself." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

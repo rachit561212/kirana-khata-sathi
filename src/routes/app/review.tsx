@@ -10,8 +10,8 @@ import { dateLabel, fmt, khata, totalOf, useKhata, type Receipt } from "@/lib/kh
 export const Route = createFileRoute("/app/review")({
   head: () => ({
     meta: [
-      { title: "Review & edit — ShopLedger" },
-      { property: "og:title", content: "Review & edit — ShopLedger" },
+      { title: "Review & edit — Hisaab" },
+      { property: "og:title", content: "Review & edit — Hisaab" },
       { property: "og:description", content: "Check vendors, dates and items before confirming your receipt records." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
