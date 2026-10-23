@@ -450,7 +450,7 @@ function LedgerFlow({ progress }: { progress: Progress }) {
     });
     if (cover.current) {
       const open = seg(p, 0.56, 0.74);
-      cover.current.rotation.z = -open * Math.PI * 0.97;
+      cover.current.rotation.z = open * Math.PI * 0.97;
     }
     if (book.current && !SNAP) book.current.position.y = 1.13 + Math.sin(t * 0.8) * 0.004;
   });
@@ -473,10 +473,10 @@ function LedgerFlow({ progress }: { progress: Progress }) {
           <planeGeometry args={[0.64, 0.84]} />
           <meshStandardMaterial map={pageTex} roughness={0.85} />
         </mesh>
-        {/* opening side: cover + blank page flip over the spine */}
-        <group ref={cover} position={[0, 0.02, 0]}>
-          <mesh position={[-0.36, 0, 0]} castShadow><boxGeometry args={[0.72, 0.035, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
-          <mesh position={[-0.35, 0.022, 0]} rotation-x={-Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f7efdb" roughness={0.9} /></mesh>
+        {/* cover starts closed on top of the pages, flips open to the left */}
+        <group ref={cover} position={[0, 0.055, 0]}>
+          <mesh position={[0.36, 0, 0]} castShadow><boxGeometry args={[0.72, 0.035, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
+          <mesh position={[0.35, -0.02, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f7efdb" roughness={0.9} /></mesh>
         </group>
         {/* spine with red thread binding */}
         <mesh position={[0, 0.01, 0]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.92, 12]} /><meshStandardMaterial color="#6d1414" roughness={0.9} /></mesh>
