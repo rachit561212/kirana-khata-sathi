@@ -9,7 +9,8 @@ import { extractTransaction } from "@/lib/transaction-entry.functions";
 import { transcribeEntry } from "@/lib/audio-entry.functions";
 import { blobToBase64 } from "@/lib/audio-entry";
 import { AUTO_LANGUAGE, INDIAN_LANGUAGES, WORLD_LANGUAGES, languageLabel } from "@/lib/speech-languages";
-import { khata, type Item, type TransactionDraft } from "@/lib/khata";
+import { khata, type Item } from "@/lib/khata";
+import type { TransactionDraft } from "@/lib/transaction-entry";
 
 const MIN_BYTES = 2000; // shorter than this is a tap, not a sentence
 

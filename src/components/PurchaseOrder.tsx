@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CATEGORIES, khata, totalOf, useKhata, type Cat, type PaidState } from "@/lib/khata";
+import { CATS, khata, useKhata, type Cat, type PaidState } from "@/lib/khata";
 
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 const addDays = (days: number) => new Date(Date.now() + days * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
@@ -65,7 +65,7 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
         <div className="space-y-1.5">
           <Label htmlFor="po-cat">Category</Label>
           <select id="po-cat" className="h-11 w-full rounded-md border bg-background px-3 text-sm" value={cat} onChange={(e) => setCat(e.target.value as Cat)}>
-            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+            {CATS.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
         <div className="space-y-1.5">
