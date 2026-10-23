@@ -27,3 +27,4 @@
 - [x] Purchased-order option on the upload page: record goods ordered from a supplier with items, quantities and rates, as its own record; shows payment status in the receipts list
 - [x] Simplify the upload page: voice entry first and largest, bill scanning reduced to a small secondary option
 - [x] Voice entry that works in any language the shopkeeper speaks, not just Hindi and English; Hindi speech read back in Devanagari with no language hint
+- [x] Make the "Open the app" button clearly highlighted in the header and mobile menu; verified coral pill, bold, 44px tall, in desktop header and phone drawer
