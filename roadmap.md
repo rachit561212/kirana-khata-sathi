@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Verify 5–10 clearly synthetic bills through account saving, review and PDF export; remove test data afterward.
 - [ ] Add saved shop identity and business details to downloaded/emailed statements and visually check the PDF.
 - [x] Save bills privately to each account and transfer existing tab bills; 19 tests pass, real bill saved and read in a fresh phone browser after reload, cross-account reads/writes blocked, temporary test bills removed.
 - [ ] Connect hisaab12.page.gd (user's free page.gd domain) to this project, then set it up as the sender domain for welcome emails and PDF statements — DNS records must be added by the user at page.gd
