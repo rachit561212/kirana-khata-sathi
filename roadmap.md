@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Add a top-right supplier bill QR scanner to purchased orders, validate item details and review before saving.
+- [x] Add a top-right supplier bill QR scanner to purchased orders; camera/photo reading, strict itemized QR validation and editable review. Real QR photo transferred two item lines and GST without saving; UPI code rejected, seven tests pass. Physical camera and signed-in QR saving remain unverified because no requesting-account session is available.
 - [x] Checked text disguised as a PNG in “Scan a bill”: reproduced fabricated sample results, blocked file-to-demo substitution on both upload surfaces, retested unchanged 28-record count and visible rejection; three validation tests pass. Real document extraction is not connected.
 - [ ] Verify eight sample bills through signed-in saving and review — requesting user has no matching account session; needs preview sign-in. Eight synthetic bills already exported and all three PDF pages visually checked; no account test rows created.
 - [x] Add saved shop identity and business details to downloaded/emailed statements; visually checked three pages with eight synthetic bills, fixed Hindi rendering and split bill totals.
