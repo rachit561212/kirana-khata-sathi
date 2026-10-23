@@ -349,7 +349,42 @@ function ShopLights({ progress }: { progress: Progress }) {
   );
 }
 
-/* ---------- Coins & receipts that fly into the ledger ---------- */
+/* ---------- Dust motes drifting in the shop air (cinematic depth) ---------- */
+function DustMotes() {
+  const ref = useRef<THREE.Points>(null);
+  const { positions, seeds } = useMemo(() => {
+    const n = 90;
+    const positions = new Float32Array(n * 3);
+    const seeds = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 7;
+      positions[i * 3 + 1] = 0.3 + Math.random() * 3;
+      positions[i * 3 + 2] = -0.5 + Math.random() * 3;
+      seeds[i] = Math.random() * 10;
+    }
+    return { positions, seeds };
+  }, []);
+  useFrame(({ clock }) => {
+    if (!ref.current || SNAP) return;
+    const t = clock.elapsedTime;
+    const attr = ref.current.geometry.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < seeds.length; i++) {
+      attr.setY(i, 0.3 + ((seeds[i]! * 0.7 + t * 0.06) % 3));
+      attr.setX(i, attr.getX(i) + Math.sin(t * 0.5 + seeds[i]!) * 0.0012);
+    }
+    attr.needsUpdate = true;
+  });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial size={0.035} color="#ffd9a0" transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} sizeAttenuation />
+    </points>
+  );
+}
+
+/* ---------- The khata ledger: hero object, opens as you scroll ---------- */
 function LedgerFlow({ progress }: { progress: Progress }) {
   const items = useMemo(
     () => Array.from({ length: 14 }, (_, i) => ({
@@ -362,16 +397,48 @@ function LedgerFlow({ progress }: { progress: Progress }) {
   );
   const refs = useRef<(THREE.Mesh | null)[]>([]);
   const book = useRef<THREE.Group>(null);
-  const target = new THREE.Vector3(0, 1.1, 0.35);
+  const cover = useRef<THREE.Group>(null);
+  const target = new THREE.Vector3(0, 1.2, 0.3);
   const tmp = new THREE.Vector3();
+  const pageTex = useCanvasTexture((g, w, h) => {
+    g.fillStyle = "#fdf6e3"; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(150,110,60,${Math.random() * 0.05})`; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
+    g.strokeStyle = "rgba(160,40,30,0.55)"; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(w * 0.16, 0); g.lineTo(w * 0.16, h); g.stroke();
+    g.strokeStyle = "rgba(70,100,170,0.3)"; g.lineWidth = 1.5;
+    for (let y = h * 0.14; y < h; y += h * 0.095) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+    g.fillStyle = "#8a1c1c"; g.font = "bold 30px Georgia, serif"; g.textBaseline = "middle";
+    g.fillText("KHAATA — October", w * 0.2, h * 0.07);
+    g.fillStyle = "#3a2a1a"; g.font = "italic 24px Georgia, serif";
+    const rows = [
+      ["21 Oct", "Aashirvaad Atta 10kg x12", "5,780"], ["", "Fortune Oil 1L x24", "3,830"],
+      ["", "Tata Salt 1kg x40", "960"], ["", "Parle-G 800g x30", "2,760"],
+      ["", "UPI wasooli — Sharma ji", "1,200"], ["20 Oct", "Mandi — sabzi wholesale", "2,140"],
+      ["", "Cash counter (shaam)", "6,660"],
+    ];
+    rows.forEach((r, i) => {
+      const y = h * 0.14 + i * h * 0.095 + h * 0.048;
+      g.fillText(r[0]!, w * 0.02, y);
+      g.fillText(r[1]!, w * 0.2, y);
+      g.textAlign = "right"; g.fillText(r[2]!, w * 0.95, y); g.textAlign = "left";
+    });
+  }, 512, 640);
+  const clothTex = useCanvasTexture((g, w, h) => {
+    g.fillStyle = "#8a1c1c"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "rgba(0,0,0,0.18)";
+    for (let i = 0; i < w; i += 3) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); }
+    for (let i = 0; i < h; i += 3) { g.beginPath(); g.moveTo(0, i); g.lineTo(w, i); g.stroke(); }
+    g.strokeStyle = "rgba(242,182,50,0.8)"; g.lineWidth = 4;
+    g.strokeRect(10, 10, w - 20, h - 20);
+  }, 128, 128, [2, 2]);
   useFrame(({ clock, pointer }) => {
     const p = progress.current;
     const t = SNAP ? 0 : clock.elapsedTime;
     items.forEach((it, i) => {
       const m = refs.current[i];
       if (!m) return;
-      const appear = seg(p, 0.5 + it.delay * 0.5, 0.58 + it.delay * 0.5);
-      const fly = seg(p, 0.72 + it.delay, 0.82 + it.delay);
+      const appear = seg(p, 0.42 + it.delay * 0.5, 0.5 + it.delay * 0.5);
+      const fly = seg(p, 0.66 + it.delay, 0.78 + it.delay);
       tmp.copy(it.start);
       tmp.x += pointer.x * 0.6 + Math.sin(t * it.spin) * 0.08;
       tmp.y += pointer.y * 0.3 + Math.sin(t * 1.3 + i) * 0.15;
@@ -381,11 +448,11 @@ function LedgerFlow({ progress }: { progress: Progress }) {
       const s = appear * (1 - fly * 0.85);
       m.scale.setScalar(Math.max(0.001, s));
     });
-    if (book.current) {
-      const open = seg(p, 0.66, 0.74);
-      (book.current.children[1] as THREE.Object3D).rotation.z = -open * Math.PI * 0.95;
-      book.current.scale.setScalar(0.001 + seg(p, 0.6, 0.66));
+    if (cover.current) {
+      const open = seg(p, 0.56, 0.74);
+      cover.current.rotation.z = -open * Math.PI * 0.97;
     }
+    if (book.current && !SNAP) book.current.position.y = 1.055 + Math.sin(t * 0.8) * 0.004;
   });
   return (
     <>
@@ -397,11 +464,25 @@ function LedgerFlow({ progress }: { progress: Progress }) {
             : <meshStandardMaterial color="#fffaf0" emissive="#ffe9b0" emissiveIntensity={0.3} side={THREE.DoubleSide} />}
         </mesh>
       ))}
-      <group ref={book} position={[0, 1.04, 0.35]}>
-        <mesh position={[0.25, 0, 0]}><boxGeometry args={[0.5, 0.04, 0.6]} /><meshStandardMaterial color="#fdf6e3" /></mesh>
-        <group position={[0, 0.02, 0]}>
-          <mesh position={[0.25, 0, 0]}><boxGeometry args={[0.5, 0.03, 0.6]} /><meshStandardMaterial color="#9b1d1d" roughness={0.6} /></mesh>
+      {/* ledger on the counter, tilted toward the viewer */}
+      <group ref={book} position={[0, 1.055, 0.32]} rotation-x={-0.3}>
+        {/* base: red cloth cover + page block + written page */}
+        <mesh position={[0.36, 0, 0]} castShadow receiveShadow><boxGeometry args={[0.72, 0.04, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
+        <mesh position={[0.35, 0.045, 0]}><boxGeometry args={[0.66, 0.05, 0.86]} /><meshStandardMaterial color="#f3e8cd" roughness={0.9} /></mesh>
+        <mesh position={[0.35, 0.071, 0]} rotation-x={-Math.PI / 2}>
+          <planeGeometry args={[0.64, 0.84]} />
+          <meshStandardMaterial map={pageTex} roughness={0.85} />
+        </mesh>
+        {/* opening side: cover + blank page flip over the spine */}
+        <group ref={cover} position={[0, 0.02, 0]}>
+          <mesh position={[-0.36, 0, 0]} castShadow><boxGeometry args={[0.72, 0.035, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
+          <mesh position={[-0.35, 0.022, 0]} rotation-x={-Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f7efdb" roughness={0.9} /></mesh>
         </group>
+        {/* spine with red thread binding */}
+        <mesh position={[0, 0.01, 0]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.92, 12]} /><meshStandardMaterial color="#6d1414" roughness={0.9} /></mesh>
+        {[-0.3, 0, 0.3].map((z) => (
+          <mesh key={z} position={[0, 0.045, z]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /><meshStandardMaterial color="#c2452d" roughness={0.7} /></mesh>
+        ))}
       </group>
     </>
   );
