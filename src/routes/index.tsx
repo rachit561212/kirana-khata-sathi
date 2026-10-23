@@ -130,7 +130,7 @@ function Index() {
             <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-4 pb-5 pt-32 text-ink-foreground sm:px-6 sm:pb-8 md:pt-28">
               <div ref={introRef} className="max-w-xl">
                 <h1 className="text-3xl font-bold leading-[1.08] sm:text-5xl md:text-7xl">
-                  Forward the bill.<br /><span className="text-primary">Hisaab</span> fills itself.
+                  Forward the bill.<br /><span className="text-primary">हिसाब</span> fills itself.
                 </h1>
                 <p className="mt-3 max-w-md text-sm opacity-85 sm:mt-5 sm:text-base md:text-lg">
                   Bills in. Entries out.

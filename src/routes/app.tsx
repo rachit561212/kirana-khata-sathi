@@ -45,9 +45,9 @@ function AppShell() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:flex sm:flex-wrap sm:px-5">
-          <Link to="/app" className="flex min-w-0 items-center gap-2 font-display text-lg font-bold">
+          <Link to="/app" aria-label="Hisaab" className="flex min-w-0 items-center gap-2 font-display text-lg font-bold">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground"><ReceiptText className="h-4 w-4" /></span>
-            <span className="truncate">Hisaab</span>
+            <span className="truncate">हिसाब</span>
           </Link>
           <nav aria-label="Ledger pages" className="order-3 col-span-2 grid w-full grid-cols-3 items-center gap-1 text-sm sm:flex sm:overflow-x-auto lg:order-2 lg:w-auto">
             {TABS.map((t) => {

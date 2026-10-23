@@ -108,7 +108,7 @@ export function Compare() {
           <thead>
             <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
               <th className="px-5 py-4 text-left font-medium">What you need</th>
-              <th className="bg-primary/15 px-5 py-4 font-bold text-foreground">Hisaab</th>
+              <th className="bg-primary/15 px-5 py-4 font-bold text-foreground">हिसाब</th>
               <th className="px-5 py-4 font-medium">Paper bahi</th>
               <th className="px-5 py-4 font-medium">Spreadsheet</th>
             </tr>
@@ -158,7 +158,7 @@ export function SiteFooter({ extras }: { extras: React.ReactNode }) {
     <footer className="border-t">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[1.4fr_repeat(4,1fr)]">
         <div>
-          <div className="font-display text-xl font-bold">Hisaab</div>
+          <div className="font-display text-xl font-bold">हिसाब <span className="text-sm font-normal opacity-70">Hisaab</span></div>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">Your shop ledger, filled in from the bills you already get.</p>
         </div>
         {COLS.map(([h, links]) => (
