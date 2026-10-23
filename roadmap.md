@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Add on-request Hisaab PDF statements for a day, month, year or custom period — six date/filter tests pass; real download verified and all five PDF pages visually checked without clipping
+- [ ] Email statements to the account email with a PDF download link — blocked by missing user-owned sender domain; no phone or WhatsApp delivery
 - [x] Repair Gemini voice transcription; verified real browser microphone recording becomes accurate editable text and 13 regression tests pass
 - [ ] Verify spoken text reaches transaction review — blocked by Google's gemini-3.8-flash service returning HTTP 503; transcript remains editable and manual entry stays available
 - [x] Replace receipt drop-area wording with “Scan a bill”

@@ -11,6 +11,7 @@
 - 3D people in the hero use CC0 Quaternius GLBs in public/models (rigged, Idle/Walk/Wave clips); keep any new models CC0 so no attribution is needed.
 - Authentication is Lovable Cloud Auth (email/password + Google via @/integrations/lovable); display names live in public.profiles with an auth.users trigger. Xano auth was removed.
 - Receipt records remain in the session-only khata store and are not yet tied to signed-in users; placeholder null responses are not saved records.
+- Statements filter confirmed, non-duplicate session records into an explicit date-range snapshot and generate PDFs with embedded Hindi fonts; email delivery remains unavailable until managed sender setup, so never report a disabled action as sent.
 - On phones, receipt lists use compact records and editable items use stacked fields; retain desktop tables so no page requires sideways scrolling to read or edit receipts.
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
 - Transaction extraction uses the user's Gemini credential only inside server functions, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
