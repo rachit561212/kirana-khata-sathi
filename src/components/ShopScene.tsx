@@ -495,16 +495,26 @@ function CameraRig({ progress }: { progress: Progress }) {
   const look = useRef(new THREE.Vector3(2.6, 1, 0));
   useFrame(({ pointer }, dt) => {
     const p = progress.current;
-    const a = seg(p, 0, 0.45);
-    const b = seg(p, 0.6, 0.95);
-    // wide street → mid → close on counter
-    const x = framing.mobile ? 2.6 : THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 0.8, b) + pointer.x * 0.4;
-    const y = framing.mobile ? 2.1 : THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 1.6, b) + pointer.y * 0.2;
-    const z = framing.mobile ? framing.distance + (1 - a) * 0.8 : THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 5.2, b);
+    const a = seg(p, 0, 0.42);   // street → shop front
+    const b = seg(p, 0.38, 0.7); // glide in to the counter
+    const c = seg(p, 0.7, 1);    // dive into the open khata
+    const par = 1 - c * 0.85;    // parallax fades as the camera commits
+    let x: number, y: number, z: number, lx: number, ly: number, lz: number;
+    if (framing.mobile) {
+      x = THREE.MathUtils.lerp(2.6, 2.52, c);
+      y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.1, 0.6, b), 0.15, c);
+      z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(framing.distance + (1 - a) * 0.8, 3.4, b), 2.3, c);
+      lx = 2.55; ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, -0.2, b), -0.5, c); lz = THREE.MathUtils.lerp(0, 0.33, c);
+    } else {
+      x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 1.7, b), 2.25, c) + pointer.x * 0.4 * par;
+      y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 0.7, b), 0.12, c) + pointer.y * 0.2 * par;
+      z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 4.4, b), 2.3, c);
+      lx = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, 1.8, b), 2.5, c);
+      ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.9, -0.1, b), -0.5, c);
+      lz = THREE.MathUtils.lerp(0, 0.33, c);
+    }
     camera.position.set(damp(camera.position.x, x, 4, dt), damp(camera.position.y, y, 4, dt), damp(camera.position.z, z, 4, dt));
-    const lx = framing.mobile ? 2.6 : THREE.MathUtils.lerp(0.4, 1.2, b);
-    const ly = framing.mobile ? 0.4 : THREE.MathUtils.lerp(0.9, 0.0, b);
-    look.current.set(damp(look.current.x, lx, 4, dt), damp(look.current.y, ly, 4, dt), 0);
+    look.current.set(damp(look.current.x, lx, 4, dt), damp(look.current.y, ly, 4, dt), damp(look.current.z, lz, 4, dt));
     camera.lookAt(look.current);
   });
   return null;
