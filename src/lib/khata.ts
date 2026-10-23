@@ -234,6 +234,14 @@ export const khata = {
     });
     return ids;
   },
+  addManual(e: { vendor: string; note: string; amount: number; kind: Kind; payment: string; date: string }): string {
+    const id = `R-${900 + state.receipts.length}`;
+    setReceipts((rs) => [{
+      id, vendor: e.vendor || "Without bill", date: e.date, source: "Spoken / typed, no bill", payment: e.payment, kind: e.kind, conf: 100, status: "new",
+      items: [{ name: e.note || "Entry", qty: 1, rate: e.amount, gst: 0, cat: "Other" }],
+    }, ...rs]);
+    return id;
+  },
 };
 
 /* ---------- bills used by the upload screen so a demo always has something to read ---------- */
