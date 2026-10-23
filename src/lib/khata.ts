@@ -14,7 +14,7 @@ export type Receipt = {
   conf: number;
   items: Item[];
   status: Status;
-  dupOf?: string;
+  dupOf?: string | undefined;
 };
 
 export const CATS: Cat[] = ["Staples", "Oils", "Fresh", "Snacks", "Household", "Dairy", "Beverages", "Other"];
@@ -216,6 +216,9 @@ export const khata = {
   },
   keep(keepId: string, dropId: string) {
     setReceipts((rs) => rs.map((r) => (r.id === keepId ? { ...r, dupOf: undefined, status: "accepted" } : r.id === dropId ? { ...r, status: "dismissed" } : r)));
+  },
+  unflag(a: string, b: string) {
+    setReceipts((rs) => rs.map((r) => (r.id === a || r.id === b ? { ...r, dupOf: undefined, status: "accepted" } : r)));
   },
   addIncoming(names: string[]): string[] {
     const ids: string[] = [];

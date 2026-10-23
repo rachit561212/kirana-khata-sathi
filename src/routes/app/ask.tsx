@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { FileText, MessageSquareQuestion, Send } from "lucide-react";
+import { FileText, MessageSquareQuote, Send } from "lucide-react";
 import { answer, fmt, MONTH_LABEL, sums, SUGGESTIONS, totalOf, useKhata, vendorTotals } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/ask")({
@@ -58,7 +58,7 @@ function AskScreen() {
       {res ? (
         <div className="rounded-xl border bg-card">
           <div className="flex items-start gap-3 border-b px-5 py-4">
-            <MessageSquareQuestion className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <MessageSquareQuote className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
               <div className="text-xs text-muted-foreground">{asked}</div>
               <p className="mt-1.5 text-[15px] leading-relaxed">{res.text}</p>
