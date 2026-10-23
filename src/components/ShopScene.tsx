@@ -230,11 +230,11 @@ const MAN = { White: "#3f72af", LightBrown: "#3a3a40", Red_Dark: "#3f72af" };
 const HEIGHT = 1.72;
 
 function Person({
-  model, outfit = {}, bag, phase = 0, wave, path, progress,
+  model, outfit = {}, bag, phase = 0, wave, path, progress, standYaw,
 }: {
   model: string; outfit?: Record<string, string>; bag?: boolean; phase?: number; wave?: [number, number];
   path: { from: [number, number, number]; to: [number, number, number]; range: [number, number] };
-  progress: Progress;
+  progress: Progress; standYaw?: number;
 }) {
   const root = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(model);
@@ -288,7 +288,7 @@ function Person({
     const speed = Math.hypot(g.position.x - prevX, g.position.z - prevZ) / Math.max(dt, 1e-3);
     moving.current = damp(moving.current, speed, 6, dt);
     if (speed > 0.05) g.rotation.y = damp(g.rotation.y, Math.atan2(tx - prevX, tz - prevZ), 6, dt);
-    else g.rotation.y = damp(g.rotation.y, Math.atan2(-g.position.x * 0.25, -1), 3, dt);
+    else g.rotation.y = damp(g.rotation.y, standYaw ?? Math.atan2(-g.position.x * 0.25, -1), 3, dt);
     const waving = wave && p > wave[0] && p < wave[1];
     if (SNAP) { play(waving ? "Wave" : "Idle"); Object.values(actions).forEach((a) => a && (a.paused = true)); return; }
     Object.values(actions).forEach((a) => a && (a.paused = false));
@@ -508,7 +508,7 @@ export default function ShopScene({ progress }: { progress: Progress }) {
         <mesh position={[-0.7, 1.1, 0.35]} castShadow><boxGeometry args={[0.35, 0.12, 0.3]} /><meshStandardMaterial color="#d8dcdd" metalness={0.6} roughness={0.3} /></mesh>
         <Suspense fallback={null}>
           <Person model="/models/grocer.glb" outfit={GROCER} phase={0} wave={[0.36, 0.56]} progress={progress}
-            path={{ from: [0, 0.02, -0.3], to: [0, 0.02, -0.3], range: [0, 1] }} />
+            standYaw={0} path={{ from: [0, 0.02, -0.3], to: [0, 0.02, -0.3], range: [0, 1] }} />
           <Person model="/models/woman.glb" outfit={WOMAN} bag phase={1.3} progress={progress}
             path={{ from: [-7, 0, 4], to: [-0.7, 0, 1.45], range: [0.32, 0.55] }} />
           <Person model="/models/man.glb" outfit={MAN} bag phase={2.4} progress={progress}
