@@ -96,6 +96,19 @@ function Index() {
   };
   const st = STAGES[stage]!;
 
+  const [showScanFab, setShowScanFab] = useState(false);
+  useEffect(() => {
+    const upload = document.getElementById("upload");
+    if (!upload) return;
+    let uploadVisible = false;
+    const update = () => setShowScanFab(!uploadVisible && window.scrollY > window.innerHeight * 0.6);
+    const io = new IntersectionObserver((entries) => { uploadVisible = entries[0]?.isIntersecting ?? false; update(); });
+    io.observe(upload);
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => { io.disconnect(); window.removeEventListener("scroll", update); };
+  }, []);
+
   return (
     <>
       <SkipLink />
@@ -192,6 +205,15 @@ function Index() {
         }
       />
 
+      {showScanFab && (
+        <Button
+          size="lg"
+          onClick={openUpload}
+          className="fixed bottom-5 right-5 z-40 rounded-full font-semibold shadow-lg animate-in fade-in slide-in-from-bottom-3"
+        >
+          <ScanLine /> Scan a bill
+        </Button>
+      )}
       <SignupDialog open={signup} onOpenChange={setSignup} />
       <BackToTop />
       <CookieBanner />
