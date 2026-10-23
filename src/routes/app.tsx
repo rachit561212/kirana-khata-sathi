@@ -34,6 +34,7 @@ const TABS = [
   { to: "/app/summary", label: "Summary" },
 ];
 const MORE_TABS = [
+  { to: "/app/suppliers", label: "Suppliers" },
   { to: "/app/products", label: "Products" },
   { to: "/app/review", label: "Review & edit" },
   { to: "/app/duplicates", label: "Duplicates" },
