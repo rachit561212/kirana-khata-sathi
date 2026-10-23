@@ -29,5 +29,5 @@
 - [x] Voice entry that works in any language the shopkeeper speaks, not just Hindi and English; Hindi speech read back in Devanagari with no language hint
 - [x] Make the "Open the app" button clearly highlighted in the header and mobile menu; verified coral pill, bold, 44px tall, in desktop header and phone drawer
 - [x] Rename the app to Hisaab everywhere it is named (header, footer, titles, comparison table, app pages, CSV file name)
-- [ ] Show the name in Hindi as हिसाब with a font that actually renders Devanagari
-- [ ] Rewrite the tagline around hisaab (hero, sample section, closing banner, footer line)
+- [x] Show the name in Hindi as हिसाब in the header, hero, footer and app bar, with Tiro Devanagari Hindi + Mukta loaded so Devanagari renders properly
+- [x] Rewrite the tagline around hisaab: hero "Bill bhejo. / हिसाब हो जाएगा।", "Bills in. Hisaab out.", "Paper on the left. Hisaab on the right.", "Close the shop. Hisaab stays open.", footer "Your shop's hisaab…"
