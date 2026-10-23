@@ -125,9 +125,16 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setKhataAccount(data.session?.user.id ?? null));
+    let active = true;
+    let identityChanged = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && !identityChanged) setKhataAccount(data.session?.user.id ?? null);
+    });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "INITIAL_SESSION") setKhataAccount(session?.user.id ?? null);
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "INITIAL_SESSION") {
+        identityChanged = true;
+        setKhataAccount(session?.user.id ?? null);
+      }
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
@@ -137,7 +144,7 @@ function RootComponent() {
         }, 0);
       }
     });
-    return () => subscription.unsubscribe();
+    return () => { active = false; subscription.unsubscribe(); };
   }, [router, queryClient]);
 
   return (

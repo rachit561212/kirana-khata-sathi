@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CATS, khata, useKhata, type Cat, type PaidState } from "@/lib/khata";
+import { CATS, flushKhata, khata, useKhata, type Cat, type PaidState } from "@/lib/khata";
 
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 const addDays = (days: number) => new Date(Date.now() + days * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
@@ -29,7 +29,7 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
 
   const edit = (i: number, field: keyof Line, value: string) => setLines((old) => old.map((l, k) => (k === i ? { ...l, [field]: value } : l)));
 
-  const save = () => {
+  const save = async () => {
     const items = lines
       .filter((l) => l.name.trim())
       .map((l) => ({ name: l.name.trim(), qty: Number(l.qty), rate: Number(l.rate), gst: 0, cat }));
@@ -39,6 +39,7 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
     setSaving(true);
     try {
       const id = khata.addPurchaseOrder({ vendor, date, items, paidState, payment });
+      await flushKhata();
       toast.success("Purchase order saved", {
         description: paidState === "unpaid" ? `${items.length} items · nothing paid yet · ${id}` : `${items.length} items · ${paidState === "partial" ? "part paid" : "paid"} · ${id}`,
       });
@@ -127,7 +128,6 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
           Save purchase order
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">Session only — this order disappears when the page is reloaded.</p>
     </section>
   );
 }

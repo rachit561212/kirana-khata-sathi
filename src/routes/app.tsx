@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import ShopProfileDialog from "@/components/ShopProfileDialog";
+import { BillSyncGate } from "@/components/BillSyncGate";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -122,7 +123,7 @@ function AppShell() {
         </div>
       </header>
       <main className="mx-auto min-w-0 max-w-6xl px-4 py-6 sm:px-5 sm:py-8">
-        <Outlet />
+        <BillSyncGate key={account?.id ?? "guest"}><Outlet /></BillSyncGate>
       </main>
       <Toaster position="top-center" />
       <SignupDialog open={signup} onOpenChange={setSignup} />

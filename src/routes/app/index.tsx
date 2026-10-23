@@ -4,7 +4,7 @@ import { Check, FileText, ScanLine, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { dateLabel, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
+import { dateLabel, flushKhata, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
 import { VoiceEntry } from "@/components/VoiceEntry";
 import { PurchaseOrder } from "@/components/PurchaseOrder";
 import { RepeatOrder } from "@/components/RepeatOrder";
@@ -31,13 +31,16 @@ function UploadScreen() {
   const [over, setOver] = useState(false);
 
   const add = (names: string[]) => {
-    if (!names.length) return;
+    if (!names.length || loading) return;
     setLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
+      try {
       const ids = khata.addIncoming(names);
+      await flushKhata();
       setAdded((a) => [...ids, ...a]);
-      setLoading(false);
       toast.success(`${ids.length} bill${ids.length > 1 ? "s" : ""} read`, { description: "Check the details before they go into your khata." });
+      } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save your bills"); }
+      finally { setLoading(false); }
     }, 900);
   };
 
