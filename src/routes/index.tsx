@@ -183,8 +183,8 @@ function Index() {
 
 function Metric({ label, value, sub, tone }: { label: string; value: string; sub: string; tone: "spent" | "received" }) {
   return (
-    <div className="rounded-xl border border-ink-foreground/15 bg-ink/55 p-4 backdrop-blur-md">
-      <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider opacity-75">
+    <div className="rounded-lg border border-ink-foreground/15 bg-ink/85 p-4">
+      <div className="flex items-center gap-2 text-xs opacity-80">
         <span className={`h-2 w-2 rounded-full ${tone === "spent" ? "bg-spent" : "bg-received"}`} />
         {label}
       </div>
@@ -210,7 +210,7 @@ const RECEIVED: { doc: { from: string; no: string; date: string; gstin: string }
   rows: [
     { item: "UPI collections (142 txns)", qty: 1, rate: 21300, gst: 0, conf: 99 },
     { item: "Cash drawer count", qty: 1, rate: 6660, gst: 0, conf: 92 },
-    { item: "Udhaar repaid — Sharma ji", qty: 1, rate: 1200, gst: 0, conf: 96 },
+    { item: "Udhaar repaid, Sharma ji", qty: 1, rate: 1200, gst: 0, conf: 96 },
     { item: "MDR / charges", qty: 1, rate: -42, gst: 18, conf: 98 },
   ],
 };
@@ -225,17 +225,17 @@ function Sandbox() {
     <section id="sandbox" className="mx-auto max-w-7xl px-6 py-24">
       <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-accent">Live extraction sandbox</p>
-          <h2 className="mt-2 text-4xl font-bold md:text-5xl">Bill on the left. Ledger on the right.</h2>
+          <h2 className="text-4xl font-bold md:text-5xl">What a bill looks like after we read it</h2>
+          <p className="mt-2 max-w-lg text-muted-foreground">A real-looking distributor invoice from last Tuesday, and the entries it turned into.</p>
         </div>
-        <div className="flex rounded-full border bg-card p-1">
+        <div className="flex rounded-lg border bg-card p-1">
           {(["spent", "received"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${tab === t ? (t === "spent" ? "bg-spent text-accent-foreground" : "bg-received text-secondary-foreground") : "text-muted-foreground"}`}
+              className={`rounded-md px-4 py-2 text-sm font-semibold transition ${tab === t ? (t === "spent" ? "bg-spent text-accent-foreground" : "bg-received text-secondary-foreground") : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
-              {t === "spent" ? "Money Spent · Vendor" : "Money Received · Settlements"}
+              {t === "spent" ? "Money spent" : "Money received"}
             </button>
           ))}
         </div>
@@ -259,25 +259,24 @@ function Sandbox() {
             </tbody>
           </table>
           <div className="mt-4 flex justify-between border-t-2 border-double pt-3 text-sm font-semibold"><span>Grand Total</span><span>{fmt(total)}</span></div>
-          <div className="pointer-events-none absolute inset-x-6 top-1/3 h-0.5 animate-pulse bg-primary shadow-[0_0_20px_var(--primary)]" />
         </div>
 
         {/* Extracted */}
-        <div className="ruled rounded-xl border bg-card p-6 shadow-ledger">
+        <div className="ruled rounded-lg border bg-card p-6 shadow-ledger">
           <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 font-semibold"><ScanLine className="h-4 w-4 text-secondary" /> Extracted entries</div>
-            <span className="rounded-full bg-received/15 px-2 py-0.5 font-mono text-xs text-received">{data.rows.length} lines · 1.4s</span>
+            <div className="flex items-center gap-2 font-semibold"><ScanLine className="h-4 w-4 text-secondary" /> Entries for your khata</div>
+            <CopyButton label="Copy entries" text={data.rows.map((r) => `${r.item}\t${r.qty}\t${r.rate}\t${r.gst}%`).join("\n")} />
           </div>
           <div className="space-y-2">
             {data.rows.map((r) => (
-              <div key={r.item} className="rounded-lg border bg-paper p-3">
+              <div key={r.item} className="rounded-md border bg-paper p-3 transition hover:border-foreground/30">
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-medium">{r.item}</span>
                   <span className={`font-mono font-semibold ${tab === "spent" ? "text-spent" : "text-received"}`}>
                     {tab === "spent" ? "−" : "+"}{fmt(r.qty * r.rate * (1 + r.gst / 100))}
                   </span>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-muted-foreground">
+                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <span>{r.qty} × ₹{r.rate}</span>
                   <span>GST {r.gst}%</span>
                   <span className="flex items-center gap-1">
@@ -285,7 +284,7 @@ function Sandbox() {
                     {r.conf}%
                   </span>
                   {r.alert && (
-                    <span className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-destructive"><AlertTriangle className="h-3 w-3" /> Margin hike {r.alert}</span>
+                    <span className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-destructive"><AlertTriangle className="h-3 w-3" /> Price up {r.alert.replace("+", "").replace(" vs last bill", "")} since last bill</span>
                   )}
                 </div>
               </div>
@@ -302,24 +301,23 @@ function Sandbox() {
 }
 
 const FEATURES = [
-  { icon: MessageCircle, title: "Any bill, any format", body: "WhatsApp PDFs, faded thermal receipts, handwritten vouchers and mandi parchis — just forward or snap." },
-  { icon: BookOpen, title: "Udhaar Khata reconciled", body: "Vendor and customer credit tallied automatically, with polite WhatsApp payment reminders sent for you." },
-  { icon: Moon, title: "Nightly daybook", body: "Before the shutter comes down, get one screen: cash, UPI, purchases, and the difference to check." },
-  { icon: Languages, title: "7 Indian languages", body: "Hindi, Marathi, Gujarati, Tamil, Telugu, Kannada and Bengali — bills read and ledgers shown in yours." },
+  { icon: MessageCircle, title: "Any bill, any format", body: "WhatsApp PDFs, faded thermal receipts, handwritten vouchers, mandi parchis. Forward it or take a photo." },
+  { icon: BookOpen, title: "Udhaar khata", body: "See who owes you and whom you owe. Payment reminders go out on WhatsApp in your name." },
+  { icon: Moon, title: "Nightly daybook", body: "At closing time, one screen: cash, UPI, purchases, and anything that doesn't add up." },
+  { icon: Languages, title: "7 Indian languages", body: "Hindi, Marathi, Gujarati, Tamil, Telugu, Kannada and Bengali. Bills in any of them, khata in yours." },
 ];
 
 function Features() {
   return (
     <section id="features" className="bg-secondary py-24 text-secondary-foreground">
       <div className="mx-auto max-w-7xl px-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-primary">Built for the gully, not the boardroom</p>
-        <h2 className="mt-2 max-w-2xl text-4xl font-bold md:text-5xl">Street-commerce tools that respect your 14-hour day.</h2>
-        <div className="mt-12 grid gap-px overflow-hidden rounded-xl bg-secondary-foreground/15 md:grid-cols-2 lg:grid-cols-4">
+        <h2 className="max-w-2xl text-4xl font-bold md:text-5xl">What it does for your shop</h2>
+        <div className="mt-12 grid gap-px overflow-hidden rounded-lg bg-secondary-foreground/15 md:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (
-            <div key={f.title} className="bg-secondary p-7">
+            <div key={f.title} className="bg-secondary p-7 transition hover:bg-secondary-foreground/5">
               <f.icon className="h-7 w-7 text-primary" />
               <h3 className="mt-5 text-xl font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm opacity-80">{f.body}</p>
+              <p className="mt-2 text-[15px] leading-relaxed opacity-85">{f.body}</p>
             </div>
           ))}
         </div>
@@ -337,14 +335,13 @@ const REVIEWS = [
 function Reviews() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-24">
-      <h2 className="text-4xl font-bold md:text-5xl">Shopkeepers who closed the books early.</h2>
+      <h2 className="text-4xl font-bold md:text-5xl">From shops already using it</h2>
       <div className="mt-10 grid gap-6 md:grid-cols-3">
         {REVIEWS.map((r) => (
-          <figure key={r.name} className="rounded-xl border bg-card p-6 shadow-ledger">
-            <div className="flex gap-0.5 text-primary">{Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
-            <blockquote className="mt-4 font-display text-lg leading-snug">“{r.text}”</blockquote>
+          <figure key={r.name} className="rounded-lg border bg-card p-6">
+            <blockquote className=" font-display text-lg leading-snug">“{r.text}”</blockquote>
             <figcaption className="mt-5 text-sm">
-              <div className="flex items-center gap-1 font-semibold">{r.name} <BadgeCheck className="h-4 w-4 text-received" /></div>
+              <div className="flex items-center gap-1 font-semibold">{r.name} <BadgeCheck aria-label="Verified shop" className="h-4 w-4 text-received" /></div>
               <div className="text-muted-foreground">{r.shop}</div>
             </figcaption>
           </figure>
@@ -354,25 +351,25 @@ function Reviews() {
   );
 }
 
-function Pricing() {
+function Pricing({ onSignup }: { onSignup: () => void }) {
   const tiers = [
-    { name: "Chhota Khata", price: "₹0", note: "forever", items: ["50 bills / month", "Money in/out daybook", "1 language", "WhatsApp upload"], cta: "Start free", featured: false },
-    { name: "Pura Hisaab", price: "₹499", note: "/ month", items: ["Unlimited bills & settlements", "Udhaar Khata + WhatsApp reminders", "Margin-hike alerts", "All 7 languages", "GST-ready export for your CA"], cta: "Try 30 days free", featured: true },
+    { name: "Chhota Khata", price: "₹0", note: "forever", items: ["50 bills a month", "Daily money in and out", "1 language", "WhatsApp upload"], cta: "Start free", featured: false },
+    { name: "Pura Hisaab", price: "₹499", note: "/ month", items: ["Unlimited bills and settlements", "Udhaar khata with WhatsApp reminders", "Alerts when supplier prices go up", "All 7 languages", "GST-ready export for your CA"], cta: "Try 30 days free", featured: true },
   ];
   return (
     <section id="pricing" className="bg-muted py-24">
       <div className="mx-auto max-w-4xl px-6">
-        <h2 className="text-center text-4xl font-bold md:text-5xl">Saaf hisaab. Saaf pricing.</h2>
-        <p className="mt-3 text-center text-muted-foreground">No setup fee. No hidden charges. Cancel anytime.</p>
+        <h2 className="text-center text-4xl font-bold md:text-5xl">Pricing</h2>
+        <p className="mt-3 text-center text-muted-foreground">Start free. Upgrade when the free limit feels small.</p>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {tiers.map((t) => (
-            <div key={t.name} className={`rounded-2xl border p-8 ${t.featured ? "bg-ink text-ink-foreground shadow-ledger" : "bg-card"}`}>
-              <div className="font-mono text-xs uppercase tracking-widest opacity-70">{t.name}</div>
+            <div key={t.name} className={`rounded-lg border p-8 ${t.featured ? "bg-ink text-ink-foreground shadow-ledger" : "bg-card"}`}>
+              <div className="font-semibold">{t.name}</div>
               <div className="mt-3 flex items-baseline gap-1"><span className="font-display text-5xl font-bold">{t.price}</span><span className="opacity-70">{t.note}</span></div>
               <ul className="mt-6 space-y-3 text-sm">
                 {t.items.map((i) => <li key={i} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{i}</li>)}
               </ul>
-              <Button className="mt-8 w-full font-semibold" variant={t.featured ? "default" : "outline"}>{t.cta}</Button>
+              <Button className="mt-8 w-full font-semibold" variant={t.featured ? "default" : "outline"} onClick={onSignup}>{t.cta}</Button>
             </div>
           ))}
         </div>
@@ -382,10 +379,10 @@ function Pricing() {
 }
 
 const FAQS = [
-  { q: "Does it read handwritten bills?", a: "Yes. Clear handwritten vouchers and mandi parchis are read with a confidence score — anything uncertain is flagged for a quick check." },
+  { q: "Does it read handwritten bills?", a: "Yes. Clear handwritten vouchers and mandi parchis are read with a confidence score. Anything uncertain is flagged for a quick check." },
   { q: "Is my shop data safe?", a: "Your bills and ledger stay private to your account and are encrypted. We never share them with distributors or anyone else." },
   { q: "Can my CA use this?", a: "On Pura Hisaab you can export a GST-ready report in one tap, or share read-only access with your accountant." },
-  { q: "Do I need a computer?", a: "No. Everything works on your phone — forward a PDF on WhatsApp or take a photo of the bill." },
+  { q: "Do I need a computer?", a: "No. Everything works on your phone. Forward a PDF on WhatsApp or take a photo of the bill." },
 ];
 
 function Faq() {
