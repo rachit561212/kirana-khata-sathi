@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ArrowUp, Check, Copy, Eye, EyeOff, FileText, Menu, Moon, Sun, Upload, X, Keyboard } from "lucide-react";
+import { ArrowRight, ArrowUp, Check, Copy, Eye, EyeOff, FileText, Menu, Moon, Sun, Upload, X, Keyboard } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -10,11 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useServerFn } from "@tanstack/react-start";
 import { authenticateXano } from "@/lib/xano.functions";
 
-const NAV = [
+const NAV: { href: string; label: string; cta?: boolean }[] = [
   { href: "#sandbox", label: "Demo" },
   { href: "#features", label: "Features" },
   { href: "#faq", label: "FAQ" },
-  { href: "/app", label: "Open the app" },
+  { href: "/app", label: "Open the app", cta: true },
 ];
 
 export function SkipLink() {
@@ -63,7 +63,16 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
           <span className="truncate">Kirana Khata</span>
         </a>
         <div className="hidden items-center gap-1 text-sm md:flex">
-          {NAV.map((n) => (
+          {NAV.map((n) => n.cta ? (
+            <a
+              key={n.href}
+              href={n.href}
+              className="ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-full bg-accent px-4 py-2 font-bold text-accent-foreground shadow-ledger ring-2 ring-accent/35 transition hover:-translate-y-0.5 hover:brightness-105"
+            >
+              {n.label}
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          ) : (
             <a key={n.href} href={n.href} className="rounded-md px-3 py-2 opacity-80 transition hover:bg-foreground/10 hover:opacity-100">{n.label}</a>
           ))}
         </div>
@@ -79,10 +88,20 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
             <SheetContent side="right" className="w-72">
               <SheetTitle className="font-display">Menu</SheetTitle>
               <div className="mt-6 flex flex-col">
-                {NAV.map((n) => (
+                {NAV.map((n) => n.cta ? (
+                  <a
+                    key={n.href}
+                    href={n.href}
+                    onClick={() => setOpen(false)}
+                    className="mt-5 inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-accent px-4 py-3 text-lg font-bold text-accent-foreground shadow-ledger ring-2 ring-accent/35"
+                  >
+                    {n.label}
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                ) : (
                   <a key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-b py-3 text-lg">{n.label}</a>
                 ))}
-                <Button className="mt-6" onClick={() => { setOpen(false); onSignup(); }}>Start free</Button>
+                <Button className="mt-4" onClick={() => { setOpen(false); onSignup(); }}>Start free</Button>
               </div>
             </SheetContent>
           </Sheet>
