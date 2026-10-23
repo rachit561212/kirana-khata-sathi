@@ -31,3 +31,4 @@
 - [x] Rename the app to Hisaab everywhere it is named (header, footer, titles, comparison table, app pages, CSV file name)
 - [x] Show the name in Hindi as हिसाब in the header, hero, footer and app bar, with Tiro Devanagari Hindi + Mukta loaded so Devanagari renders properly
 - [x] Rewrite the tagline around hisaab: hero "Bill bhejo. / हिसाब हो जाएगा।", "Bills in. Hisaab out.", "Paper on the left. Hisaab on the right.", "Close the shop. Hisaab stays open.", footer "Your shop's hisaab…"
+- [x] Replace Xano sign-in with Lovable Cloud auth: email/password (with email confirmation) + Google, display name in public.profiles, session-aware app header, Xano code removed
