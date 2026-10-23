@@ -27,11 +27,13 @@ describe("Customer sales and refunds", () => {
     expect(moneyBalance([{ ...sale, dupOf: "other" }, { ...sale, status: "new" }, { ...sale, payment: "Credit" }, { ...sale, paidState: "unpaid" }, { ...sale, paidState: "partial" }])).toEqual({ received: 0, spent: 0, net: 0 });
   });
   it("rejects missing quantities, customer, payment, impossible dates and invalid GST", () => {
+    const item = entry.items[0];
+    if (!item) throw new Error("Missing test item");
     expect(() => customerReceipt({ ...entry, customer: "" }, "bad")).toThrow();
     expect(() => customerReceipt({ ...entry, payment: "" }, "bad")).toThrow();
     expect(() => customerReceipt({ ...entry, date: "2026-02-30" }, "bad")).toThrow();
-    expect(() => customerReceipt({ ...entry, items: [{ ...entry.items[0], qty: 0 }] }, "bad")).toThrow();
-    expect(() => customerReceipt({ ...entry, items: [{ ...entry.items[0], gst: 101 }] }, "bad")).toThrow();
+    expect(() => customerReceipt({ ...entry, items: [{ ...item, qty: 0 }] }, "bad")).toThrow();
+    expect(() => customerReceipt({ ...entry, items: [{ ...item, gst: 101 }] }, "bad")).toThrow();
   });
   it("reads customer QR items but never trusts QR payment claims", () => {
     const draft = parseBillQr(JSON.stringify({ customer: { name: "Ram" }, items: entry.items, payment: "UPI", paid: true }), "customer");
