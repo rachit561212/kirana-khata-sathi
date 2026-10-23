@@ -1,6 +1,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer, ContactShadows } from "@react-three/drei";
-import { useRef, useMemo } from "react";
+import { Environment, Lightformer, ContactShadows, useGLTF, useAnimations } from "@react-three/drei";
+import { useRef, useMemo, Suspense } from "react";
+import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 import * as THREE from "three";
 
 /** Scroll progress 0..1 shared by the page. */
@@ -222,6 +223,9 @@ function Crate({ p, fruit }: { p: [number, number, number]; fruit: string }) {
 
 /* ---------- People (CC0 rigged Quaternius characters) ---------- */
 const SKIN = "#9a6a48";
+const GROCER = { White: "#f1ead8", LightBrown: "#5a3d26", Red_Dark: "#2f5d3a", LightBlue: "#e9e2cf" };
+const WOMAN = { White: "#c94f7c", Grey: "#d9a441", Brown: "#5a2f2a", Orange: "#c94f7c" };
+const MAN = { White: "#3f72af", LightBrown: "#3a3a40", Red_Dark: "#3f72af" };
 const HEIGHT = 1.72;
 
 function Person({
@@ -311,6 +315,14 @@ function ShopLights({ progress }: { progress: Progress }) {
   const tube = useRef<THREE.MeshStandardMaterial>(null);
   const point = useRef<THREE.PointLight>(null);
   const sign = useRef<THREE.MeshStandardMaterial>(null);
+  const signTex = useCanvasTexture((g, w, h) => {
+    g.fillStyle = "#f2b632"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "#8a1c1c"; g.lineWidth = 6; g.strokeRect(8, 8, w - 16, h - 16);
+    g.fillStyle = "#8a1c1c"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "bold 46px Georgia, serif"; g.fillText("SHARMA KIRANA STORE", w / 2, h * 0.42);
+    g.font = "bold 22px sans-serif"; g.fillStyle = "#2f5d3a";
+    g.fillText("शर्मा किराना स्टोर  ·  Ph. 98765 43210  ·  UPI accepted", w / 2, h * 0.8);
+  }, 1024, 104);
   useFrame(({ clock }) => {
     const p = progress.current;
     const on = seg(p, 0.2, 0.32);
@@ -330,7 +342,7 @@ function ShopLights({ progress }: { progress: Progress }) {
       <pointLight ref={point} position={[0, 2.6, 0.4]} intensity={0} distance={7} decay={1.6} color="#ffd59a" castShadow shadow-mapSize={[512, 512]} />
       <mesh position={[0, 3.6, 1.42]}>
         <boxGeometry args={[4.4, 0.45, 0.02]} />
-        <meshStandardMaterial ref={sign} color="#f2b632" emissive="#f2a020" emissiveIntensity={0.05} />
+        <meshStandardMaterial ref={sign} map={signTex} emissiveMap={signTex} color="#ffffff" emissive="#ffffff" emissiveIntensity={0.05} />
       </mesh>
     </>
   );
@@ -486,16 +498,24 @@ export default function ShopScene({ progress }: { progress: Progress }) {
         <mesh position={[0, 1.01, 0.3]} receiveShadow><boxGeometry args={[2.3, 0.04, 0.8]} /><meshStandardMaterial color="#3d2a1c" roughness={0.4} /></mesh>
         {/* weighing scale */}
         <mesh position={[-0.7, 1.1, 0.35]} castShadow><boxGeometry args={[0.35, 0.12, 0.3]} /><meshStandardMaterial color="#d8dcdd" metalness={0.6} roughness={0.3} /></mesh>
-        <Person shirt="#e8d4b0" apron phase={0} wave={[0.36, 0.56]} progress={progress}
-          path={{ from: [0, 0.1, -0.35], to: [0, 0.1, -0.35], range: [0, 1] }} />
+        <Suspense fallback={null}>
+          <Person model="/models/grocer.glb" outfit={GROCER} phase={0} wave={[0.36, 0.56]} progress={progress}
+            path={{ from: [0, 0.02, -0.3], to: [0, 0.02, -0.3], range: [0, 1] }} />
+          <Person model="/models/woman.glb" outfit={WOMAN} bag phase={1.3} progress={progress}
+            path={{ from: [-7, 0, 4], to: [-0.7, 0, 1.45], range: [0.32, 0.55] }} />
+          <Person model="/models/man.glb" outfit={MAN} bag phase={2.4} progress={progress}
+            path={{ from: [8, 0, 4.5], to: [0.85, 0, 1.55], range: [0.38, 0.62] }} />
+        </Suspense>
         <Shutter progress={progress} />
         <Crate p={[-2.2, 0.2, 1.7]} fruit="#d93b2b" />
         <Crate p={[-1.3, 0.2, 1.9]} fruit="#f2a531" />
         <Crate p={[2.0, 0.2, 1.8]} fruit="#7ab648" />
-        <Person shirt="#c96f9a" bag phase={1.3} progress={progress}
-          path={{ from: [-7, 0, 4], to: [-0.7, 0, 1.4], range: [0.32, 0.55] }} />
-        <Person shirt="#3f72af" bag phase={2.4} progress={progress}
-          path={{ from: [8, 0, 4.5], to: [0.8, 0, 1.5], range: [0.38, 0.62] }} />
+        <Sack p={[2.6, 0, 1.3]} grain="#f4efe2" />
+        <Sack p={[-2.65, 0, 1.25]} grain="#e8b84a" />
+        <Sack p={[2.8, 0, 2.0]} grain="#a8572b" />
+        {[-2.5, -2.2, 2.2, 2.5].map((x, i) => <SnackStrip key={x} x={x} color={["#e8452d", "#2d6fb0", "#f2c230", "#3f8f3a"][i]!} />)}
+        {/* pavement step in front of the shop */}
+        <mesh position={[0, 0.06, 1.35]} receiveShadow castShadow><boxGeometry args={[6.6, 0.12, 0.6]} /><meshStandardMaterial color="#8d8478" roughness={0.95} /></mesh>
         <LedgerFlow progress={progress} />
         <ContactShadows position={[0, 0.01, 2]} opacity={0.5} scale={14} blur={2.5} far={4} />
       </group>
