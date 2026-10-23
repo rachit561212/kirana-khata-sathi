@@ -20,3 +20,4 @@
 - [x] Add persistent floating "Scan a bill" button visible while scrolling past the hero animation
 - [ ] Suggest half-English half-Hindi app names (answered in chat; user to pick if a rename is wanted)
 - [x] No-bill entry on the upload page with voice input in Hindi or English
+- [ ] AI Gateway transaction reading: spoken/typed Hindi or English, editable vendor/items/amount/payment, uncertain-field review, tests and live verification
