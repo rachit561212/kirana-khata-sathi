@@ -24,7 +24,7 @@ export const Route = createFileRoute("/app/review")({
 
 function ReviewScreen() {
   const receipts = useKhata();
-  const need = receipts.filter((r) => r.status === "new" || r.status === "corrected");
+  const need = receipts.filter((r) => r.status === "new" || r.status === "corrected" || (r.status === "accepted" && !r.stockMovement && r.items.length > 0));
   const [sel, setSel] = useState<string | null>(null);
   const active = need.find((r) => r.id === sel) ?? need[0];
 

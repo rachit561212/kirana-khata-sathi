@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.products IS 'DEPRECATED: manual catalogue unused; product stock is derived from reviewed public.receipts record item quantities with explicit stockMovement.';

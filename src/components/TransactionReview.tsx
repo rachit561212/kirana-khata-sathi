@@ -24,6 +24,7 @@ export function TransactionReview({ draft, note, hi, onAdded }: { draft: Transac
   const edit = (idx: number, field: "name" | "quantity" | "lineAmount", value: string) => setItems((old) => old.map((i, k) => k === idx ? { ...i, [field]: value } : i));
   const save = async () => {
     if (!stockMovement) { toast.error("Check stock movement before saving"); return; }
+    if (stockMovement !== "none" && !items.length) { toast.error("Add the goods and quantities before changing stock"); return; }
     const n = Number(amount);
     if (!vendor.trim() || !Number.isFinite(n) || n <= 0 || !payment || (kind !== "spent" && kind !== "received")) { toast.error(hi ? "नाम, रकम और भुगतान जाँचें" : "Check person, amount and payment"); return; }
     if (items.some((i) => !i.name.trim() || !i.quantity || !i.lineAmount || !Number.isFinite(Number(i.quantity)) || Number(i.quantity) <= 0 || !Number.isFinite(Number(i.lineAmount)) || Number(i.lineAmount) < 0)) { toast.error(hi ? "हर सामान की मात्रा और कीमत लिखें" : "Enter quantity and line amount for every item"); return; }
