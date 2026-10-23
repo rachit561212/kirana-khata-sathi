@@ -19,3 +19,4 @@
 - [x] Identify unimplemented Xano shopkeeper endpoints: invoices, ledger, summary and assistant history return null; existing receipts remain synthetic
 - [x] Add persistent floating "Scan a bill" button visible while scrolling past the hero animation
 - [ ] Suggest half-English half-Hindi app names (answered in chat; user to pick if a rename is wanted)
+- [x] No-bill entry on the upload page with voice input in Hindi or English
