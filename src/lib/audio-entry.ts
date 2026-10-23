@@ -12,12 +12,13 @@ export type AudioEntryInput = z.infer<typeof audioInputSchema>;
 export const MAX_CLIP_SECONDS = 200;
 
 /** Strips an optional `data:audio/webm;base64,` prefix and decodes to bytes. Throws on junk. */
-export function decodeAudioBase64(value: string): Uint8Array {
+export function decodeAudioBase64(value: string): Uint8Array<ArrayBuffer> {
   const raw = value.includes(",") ? value.slice(value.indexOf(",") + 1) : value;
   const clean = raw.replace(/\s/g, "");
-  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length < 64) throw new Error("Audio clip is not readable");
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length % 4 === 1) throw new Error("Audio clip is not readable");
   const bin = atob(clean);
-  const bytes = new Uint8Array(bin.length);
+  const buffer = new ArrayBuffer(bin.length);
+  const bytes = new Uint8Array(buffer);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return bytes;
 }
