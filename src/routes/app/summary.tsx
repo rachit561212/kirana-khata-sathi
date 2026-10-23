@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { ChevronDown, FileText, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { categoryTotals, daySeries, MONTH_LABEL, monthSeries, sums, useKhata, vendorTotals, type Receipt } from "@/lib/khata";
+import StatementExport from "@/components/StatementExport";
 
 export const Route = createFileRoute("/app/summary")({
   head: () => ({
@@ -39,6 +40,8 @@ function SummaryScreen() {
         <h1 className="font-display text-3xl font-bold">Spending summary</h1>
         <p className="mt-1 text-muted-foreground">{MONTH_LABEL} · every figure below comes from the bills listed under it.</p>
       </div>
+
+      <StatementExport receipts={receipts} />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat label="Money out" value={s.spent} sub={`${s.bills} supplier, mandi and distributor bills`} tone="spent" />
