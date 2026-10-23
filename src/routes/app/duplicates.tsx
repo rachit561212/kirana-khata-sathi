@@ -7,8 +7,8 @@ import { dateLabel, dupPairs, fmt, khata, totalOf, useKhata, type Receipt } from
 export const Route = createFileRoute("/app/duplicates")({
   head: () => ({
     meta: [
-      { title: "Duplicates — ShopLedger" },
-      { property: "og:title", content: "Duplicates — ShopLedger" },
+      { title: "Duplicates — Hisaab" },
+      { property: "og:title", content: "Duplicates — Hisaab" },
       { property: "og:description", content: "Compare possible duplicate receipts side by side." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

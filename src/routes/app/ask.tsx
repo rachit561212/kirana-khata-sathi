@@ -7,8 +7,8 @@ import { answer, fmt, MONTH_LABEL, sums, SUGGESTIONS, totalOf, useKhata, vendorT
 export const Route = createFileRoute("/app/ask")({
   head: () => ({
     meta: [
-      { title: "Ask about your spending — ShopLedger" },
-      { property: "og:title", content: "Ask about your spending — ShopLedger" },
+      { title: "Ask about your spending — Hisaab" },
+      { property: "og:title", content: "Ask about your spending — Hisaab" },
       { property: "og:description", content: "Explore confirmed spending records with receipt-linked answers." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

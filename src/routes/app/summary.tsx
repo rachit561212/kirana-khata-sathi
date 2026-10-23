@@ -8,8 +8,8 @@ import { categoryTotals, daySeries, MONTH_LABEL, sums, useKhata, vendorTotals, t
 export const Route = createFileRoute("/app/summary")({
   head: () => ({
     meta: [
-      { title: "Spending summary — ShopLedger" },
-      { property: "og:title", content: "Spending summary — ShopLedger" },
+      { title: "Spending summary — Hisaab" },
+      { property: "og:title", content: "Spending summary — Hisaab" },
       { property: "og:description", content: "Spending totals and category breakdowns linked to underlying receipts." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
