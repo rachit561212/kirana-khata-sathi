@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Upload, Play, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, Star, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -20,19 +20,53 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const STAGES = [
+  { at: 0, tag: "6:00 AM", title: "The gully wakes up", body: "Scroll to roll up the shutter." },
+  { at: 0.12, tag: "Shutter up", title: "Dukaan khul gayi", body: "Yesterday's bills are already in your khata." },
+  { at: 0.26, tag: "Lights on", title: "Shelves lit, stock counted", body: "Every distributor invoice matched to what's on the shelf." },
+  { at: 0.4, tag: "First customers", title: "Namaste, bhaiya!", body: "UPI and cash sales get logged as money comes in." },
+  { at: 0.6, tag: "Bills to ledger", title: "Every receipt lands in the khata", body: "Coins and parchis go straight into your daybook, line by line." },
+  { at: 0.85, tag: "Day closed", title: "Hisaab ready before shutter-down", body: "Money in, money out, udhaar due — on one screen." },
+];
+
 function Index() {
   const [mounted, setMounted] = useState(false);
-  const [open, setOpen] = useState(false);
+  const progress = useRef({ current: 0 }).current;
+  const heroRef = useRef<HTMLElement>(null);
+  const introRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState(0);
+
   useEffect(() => {
     setMounted(true);
-    const t = setTimeout(() => setOpen(true), 900);
-    return () => clearTimeout(t);
-  }, []);
+    const onScroll = () => {
+      const el = heroRef.current;
+      if (!el) return;
+      const total = el.offsetHeight - window.innerHeight;
+      const p = Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total));
+      progress.current = p;
+      if (introRef.current) {
+        introRef.current.style.opacity = String(Math.max(0, 1 - p * 5));
+        introRef.current.style.transform = `translateY(${-p * 120}px)`;
+      }
+      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+      let s = 0;
+      STAGES.forEach((st, i) => { if (p >= st.at) s = i; });
+      setStage(s);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); };
+  }, [progress]);
+
   const replay = () => {
-    setOpen(false);
-    setTimeout(() => setOpen(true), 1600);
-    document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
+    const el = heroRef.current;
+    if (!el) return;
+    window.scrollTo({ top: el.offsetTop, behavior: "instant" as ScrollBehavior });
+    setTimeout(() => window.scrollTo({ top: el.offsetTop + el.offsetHeight - window.innerHeight, behavior: "smooth" }), 50);
   };
+  const st = STAGES[stage]!;
 
   return (
     <main className="min-h-screen">
@@ -52,36 +86,49 @@ function Index() {
         </nav>
       </header>
 
-      {/* HERO */}
-      <section id="hero" className="relative h-[100svh] min-h-[680px] overflow-hidden bg-dusk">
-        <div className="absolute inset-0">
-          {mounted && (
-            <Suspense fallback={null}>
-              <ShopScene open={open} />
-            </Suspense>
-          )}
-        </div>
-        <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 pb-10 pt-28 text-ink-foreground">
-          <div className="max-w-xl">
-            <p className="mb-4 inline-block rounded-full border border-primary/40 bg-ink/40 px-3 py-1 font-mono text-xs uppercase tracking-widest text-primary backdrop-blur">
-              Dukaan ka hisaab, automatic
-            </p>
-            <h1 className="text-5xl font-bold leading-[1.02] md:text-7xl">
-              Snap the bill.<br /><span className="text-primary">The khata</span> writes itself.
-            </h1>
-            <p className="mt-5 max-w-md text-base opacity-85 md:text-lg">
-              Upload wholesale invoices, mandi parchis and UPI settlements. We extract every rupee in and out — before you pull down the shutter.
-            </p>
-            <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
-              <Button size="lg" className="font-semibold"><Upload /> Drop Your First PDF Bill</Button>
-              <Button size="lg" variant="outline" onClick={replay} className="border-ink-foreground/40 bg-ink/30 text-ink-foreground backdrop-blur hover:bg-ink/50 hover:text-ink-foreground">
-                <Play /> Watch 3D Shutter Demo
-              </Button>
-            </div>
+      {/* HERO — scroll-driven story */}
+      <section id="hero" ref={heroRef} className="relative h-[420vh] bg-dusk">
+        <div className="sticky top-0 h-[100svh] min-h-[640px] overflow-hidden">
+          <div className="absolute inset-0">
+            {mounted && (
+              <Suspense fallback={null}>
+                <ShopScene progress={progress} />
+              </Suspense>
+            )}
           </div>
-          <div className="grid max-w-2xl grid-cols-2 gap-3">
-            <Metric label="Money Spent · today" value="₹18,420" sub="6 supplier bills · 2 mandi receipts" tone="spent" />
-            <Metric label="Money Received · today" value="₹27,960" sub="UPI ₹21,300 · Cash ₹6,660" tone="received" />
+          <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 pb-8 pt-28 text-ink-foreground">
+            <div ref={introRef} className="max-w-xl">
+              <p className="mb-4 inline-block rounded-full border border-primary/40 bg-ink/40 px-3 py-1 font-mono text-xs uppercase tracking-widest text-primary backdrop-blur">
+                Dukaan ka hisaab, automatic
+              </p>
+              <h1 className="text-5xl font-bold leading-[1.02] md:text-7xl">
+                Snap the bill.<br /><span className="text-primary">The khata</span> writes itself.
+              </h1>
+              <p className="mt-5 max-w-md text-base opacity-85 md:text-lg">
+                Upload wholesale invoices, mandi parchis and UPI settlements. We extract every rupee in and out — before you pull down the shutter.
+              </p>
+              <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
+                <Button size="lg" className="font-semibold"><Upload /> Drop Your First PDF Bill</Button>
+                <Button size="lg" variant="outline" onClick={replay} className="border-ink-foreground/40 bg-ink/30 text-ink-foreground backdrop-blur hover:bg-ink/50 hover:text-ink-foreground">
+                  <Play /> Watch 3D Shutter Demo
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div key={stage} className="max-w-sm animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-ink-foreground/15 bg-ink/60 p-5 backdrop-blur-md duration-500">
+                <div className="font-mono text-[11px] uppercase tracking-widest text-primary">{String(stage + 1).padStart(2, "0")} · {st.tag}</div>
+                <div className="mt-1 font-display text-2xl font-bold">{st.title}</div>
+                <p className="mt-1 text-sm opacity-80">{st.body}</p>
+              </div>
+              <div className={`grid grid-cols-2 gap-3 transition-all duration-700 ${stage >= 3 ? "opacity-100" : "translate-y-6 opacity-0"}`}>
+                <Metric label="Money Spent · today" value="₹18,420" sub="6 supplier bills · 2 mandi receipts" tone="spent" />
+                <Metric label="Money Received · today" value="₹27,960" sub="UPI ₹21,300 · Cash ₹6,660" tone="received" />
+              </div>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 h-1 bg-ink/40">
+              <div ref={barRef} className="h-full origin-left bg-primary" style={{ transform: "scaleX(0)" }} />
+            </div>
           </div>
         </div>
       </section>
