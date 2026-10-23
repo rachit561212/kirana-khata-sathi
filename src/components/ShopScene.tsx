@@ -352,6 +352,13 @@ function ShopLights({ progress }: { progress: Progress }) {
 /* ---------- Dust motes drifting in the shop air (cinematic depth) ---------- */
 function DustMotes() {
   const ref = useRef<THREE.Points>(null);
+  const sprite = useCanvasTexture((g, w, h) => {
+    const grad = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+    grad.addColorStop(0, "rgba(255,220,170,1)");
+    grad.addColorStop(0.4, "rgba(255,220,170,0.6)");
+    grad.addColorStop(1, "rgba(255,220,170,0)");
+    g.fillStyle = grad; g.fillRect(0, 0, w, h);
+  }, 32, 32);
   const { positions, seeds } = useMemo(() => {
     const n = 90;
     const positions = new Float32Array(n * 3);
@@ -379,7 +386,7 @@ function DustMotes() {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.035} color="#ffd9a0" transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} sizeAttenuation />
+      <pointsMaterial size={0.06} map={sprite} color="#ffd9a0" transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} sizeAttenuation />
     </points>
   );
 }
@@ -504,12 +511,12 @@ function CameraRig({ progress }: { progress: Progress }) {
       x = THREE.MathUtils.lerp(2.6, 2.52, c);
       y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.1, 0.6, b), 0.55, c);
       z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(framing.distance + (1 - a) * 0.8, 3.4, b), 2.0, c);
-      lx = 2.52; ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, -0.2, b), -0.5, c); lz = THREE.MathUtils.lerp(0, 0.33, c);
+      lx = THREE.MathUtils.lerp(2.55, 2.62, c); ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, -0.2, b), -0.5, c); lz = THREE.MathUtils.lerp(0, 0.33, c);
     } else {
       x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 1.7, b), 2.3, c) + pointer.x * 0.4 * par;
       y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 0.7, b), 0.5, c) + pointer.y * 0.2 * par;
       z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 4.4, b), 2.0, c);
-      lx = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, 1.8, b), 2.5, c);
+      lx = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, 1.8, b), 2.62, c);
       ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.9, -0.1, b), -0.52, c);
       lz = THREE.MathUtils.lerp(0, 0.33, c);
     }
