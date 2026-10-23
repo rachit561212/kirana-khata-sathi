@@ -25,6 +25,20 @@ async function signIn(id: string) {
 }
 
 describe("Account bill storage", () => {
+  it("saves sales and refunds to the account and restores their stock and balance fields after reopening", async () => {
+    const { result } = renderHook(useKhataStatus);
+    await signIn("shop-a");
+    await act(async () => {
+      khata.addCustomerTransaction({ type: "sale", customer: "Ram", date: "2026-10-23", payment: "UPI", paymentDetails: "ref-123", amount: 0, goodsReturned: false, items: bill.items });
+      khata.addCustomerTransaction({ type: "refund", customer: "Ram", date: "2026-10-23", payment: "Cash", paymentDetails: "", amount: 30, goodsReturned: false, items: [] });
+      await flushKhata();
+    });
+    act(() => { setKhataAccount(null); sessionStorage.clear(); });
+    await signIn("shop-a");
+    expect(result.current.receipts).toHaveLength(2);
+    expect(result.current.receipts.find((r) => r.source === "Customer sale")).toMatchObject({ kind: "received", stockMovement: "sale", paymentDetails: "ref-123", status: "corrected" });
+    expect(result.current.receipts.find((r) => r.source === "Customer refund")).toMatchObject({ kind: "spent", stockMovement: "none", items: [{ qty: 1, rate: 30 }] });
+  });
   it("starts a new account with zero uploads and never uploads the sample bills", async () => {
     const { result } = renderHook(useKhataStatus);
     await signIn("new-account");
