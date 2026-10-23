@@ -17,3 +17,4 @@
 - [x] Landing page link to the app
 - [x] Connect documented Xano authentication and verify real sign-in error handling; successful account access remains unverified without a Xano session
 - [x] Identify unimplemented Xano shopkeeper endpoints: invoices, ledger, summary and assistant history return null; existing receipts remain synthetic
+- [ ] Add persistent floating "Scan a bill" button visible while scrolling past the hero animation
