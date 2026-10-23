@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Check an invalid file in “Scan a bill” and ensure it cannot create fabricated bill records.
 - [ ] Verify eight sample bills through signed-in saving and review — requesting user has no matching account session; needs preview sign-in. Eight synthetic bills already exported and all three PDF pages visually checked; no account test rows created.
 - [x] Add saved shop identity and business details to downloaded/emailed statements; visually checked three pages with eight synthetic bills, fixed Hindi rendering and split bill totals.
 - [x] Save bills privately to each account and transfer existing tab bills; 19 tests pass, real bill saved and read in a fresh phone browser after reload, cross-account reads/writes blocked, temporary test bills removed.
