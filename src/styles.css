@@ -108,3 +108,4 @@ html { scroll-behavior: smooth; scrollbar-color: var(--color-muted-foreground) v
 ::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--color-muted-foreground) 60%, transparent); border-radius: 8px; border: 2px solid var(--color-background); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-muted-foreground); }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+section[id] { scroll-margin-top: 72px; }
