@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-/** A spoken clip, sent as base64 so it can travel through a plain JSON server function. */
+/** A spoken clip, sent as base64 so it can travel through a plain JSON server function.
+ * The mime type may carry recorder parameters (`audio/webm;codecs=opus`), which is what browsers actually report. */
 export const audioInputSchema = z.object({
   audio: z.string().min(64).max(4_000_000),
-  mime: z.string().regex(/^audio\/[a-z0-9.+-]+$/i),
+  mime: z.string().regex(/^audio\/[a-z0-9.+-]+(;.*)?$/i),
   language: z.string().trim().max(35).optional(),
 });
 export type AudioEntryInput = z.infer<typeof audioInputSchema>;

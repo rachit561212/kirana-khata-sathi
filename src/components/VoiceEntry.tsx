@@ -47,7 +47,9 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const rec = new MediaRecorder(stream);
+      // Record in a format the reader accepts, whichever browser this is.
+      const mimeType = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"].find((t) => MediaRecorder.isTypeSupported(t)) ?? "";
+      const rec = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
       rec.ondataavailable = (e) => { if (e.data.size) chunksRef.current.push(e.data); };
       rec.onstop = async () => {

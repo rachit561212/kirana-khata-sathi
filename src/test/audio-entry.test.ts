@@ -5,6 +5,8 @@ const clip = btoa("x".repeat(120));
 
 it("accepts only a readable audio clip", () => {
   expect(audioInputSchema.safeParse({ audio: clip, mime: "audio/webm" }).success).toBe(true);
+  expect(audioInputSchema.safeParse({ audio: clip, mime: "audio/webm;codecs=opus" }).success).toBe(true);
+  expect(audioInputSchema.safeParse({ audio: clip, mime: "audio/mp4" }).success).toBe(true);
   expect(audioInputSchema.safeParse({ audio: clip, mime: "audio/webm", language: "auto" }).success).toBe(true);
   expect(audioInputSchema.safeParse({ audio: clip, mime: "text/html" }).success).toBe(false);
   expect(audioInputSchema.safeParse({ audio: "not base64 at all !!!", mime: "audio/webm" }).success).toBe(false);
