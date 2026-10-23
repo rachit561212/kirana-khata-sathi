@@ -226,7 +226,7 @@ function Sandbox() {
       <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
         <div>
           <h2 className="text-4xl font-bold md:text-5xl">What a bill looks like after we read it</h2>
-          <p className="mt-2 max-w-lg text-muted-foreground">A real-looking distributor invoice from last Tuesday, and the entries it turned into.</p>
+          <p className="mt-2 max-w-lg text-muted-foreground">A sample distributor invoice, and the entries it turns into.</p>
         </div>
         <div className="flex rounded-lg border bg-card p-1">
           {(["spent", "received"] as const).map((t) => (
