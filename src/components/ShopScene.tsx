@@ -317,11 +317,11 @@ function ShopLights({ progress }: { progress: Progress }) {
   const point = useRef<THREE.PointLight>(null);
   const sign = useRef<THREE.MeshStandardMaterial>(null);
   const signTex = useCanvasTexture((g, w, h) => {
-    g.fillStyle = "#f2b632"; g.fillRect(0, 0, w, h);
-    g.strokeStyle = "#8a1c1c"; g.lineWidth = 6; g.strokeRect(8, 8, w - 16, h - 16);
-    g.fillStyle = "#8a1c1c"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#f8f4e3"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "#e5446d"; g.lineWidth = 6; g.strokeRect(8, 8, w - 16, h - 16);
+    g.fillStyle = "#2a2b2a"; g.textAlign = "center"; g.textBaseline = "middle";
     g.font = "bold 46px Georgia, serif"; g.fillText("SHARMA KIRANA STORE", w / 2, h * 0.42);
-    g.font = "bold 22px sans-serif"; g.fillStyle = "#2f5d3a";
+    g.font = "bold 22px sans-serif"; g.fillStyle = "#706c61";
     g.fillText("शर्मा किराना स्टोर  ·  Ph. 98765 43210  ·  UPI accepted", w / 2, h * 0.8);
   }, 1024, 104);
   useFrame(({ clock }) => {
@@ -467,8 +467,8 @@ function LedgerFlow({ progress }: { progress: Progress }) {
         <mesh key={i} ref={(m) => { refs.current[i] = m; }} rotation-x={it.coin ? Math.PI / 2 : 0}>
           {it.coin ? <cylinderGeometry args={[0.14, 0.14, 0.04, 28]} /> : <planeGeometry args={[0.28, 0.44]} />}
           {it.coin
-            ? <meshStandardMaterial color="#f2b632" metalness={0.35} roughness={0.3} emissive="#b87a10" emissiveIntensity={0.55} />
-            : <meshStandardMaterial color="#fffaf0" emissive="#ffe9b0" emissiveIntensity={0.3} side={THREE.DoubleSide} />}
+            ? <meshStandardMaterial color="#ff8966" metalness={0.45} roughness={0.28} emissive="#8f3a24" emissiveIntensity={0.5} />
+            : <meshStandardMaterial color="#f8f4e3" emissive="#e5446d" emissiveIntensity={0.18} side={THREE.DoubleSide} />}
         </mesh>
       ))}
       {/* ledger on the counter, tilted toward the viewer */}
@@ -532,7 +532,7 @@ function Sky({ progress }: { progress: Progress }) {
   const { fogScale } = shopFraming(size.width, size.height);
   const fog = useRef<THREE.Fog>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
-  const dawn = new THREE.Color("#2a1a14"), day = new THREE.Color("#7a4a2a");
+  const dawn = new THREE.Color("#2a2b2a"), day = new THREE.Color("#706c61");
   const c = new THREE.Color();
   useFrame(({ scene }) => {
     const k = seg(progress.current, 0, 0.5);
@@ -547,9 +547,9 @@ function Sky({ progress }: { progress: Progress }) {
   });
   return (
     <>
-      <color attach="background" args={["#2a1a14"]} />
-      <fog ref={fog} attach="fog" args={["#2a1a14", 11, 26]} />
-      <hemisphereLight ref={hemi} args={["#ffd7a0", "#3a2418", 0.3]} />
+      <color attach="background" args={["#2a2b2a"]} />
+      <fog ref={fog} attach="fog" args={["#2a2b2a", 11, 26]} />
+      <hemisphereLight ref={hemi} args={["#f8f4e3", "#2a2b2a", 0.3]} />
     </>
   );
 }
