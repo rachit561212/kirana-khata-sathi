@@ -7,8 +7,9 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useServerFn } from "@tanstack/react-start";
-import { authenticateXano } from "@/lib/xano.functions";
+import { useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 
 const NAV: { href: string; label: string; cta?: boolean }[] = [
   { href: "#sandbox", label: "Demo" },
@@ -118,7 +119,8 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const authenticate = useServerFn(authenticateXano);
+  const [confirmSent, setConfirmSent] = useState(false);
+  const navigate = useNavigate();
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
@@ -126,12 +128,37 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
     const password = String(values.get("password") || "");
     setBusy(true); setError("");
     try {
-      const result = await authenticate({ data: mode === "signup" ? { mode, email, password, name: String(values.get("name") || "") } : { mode, email, password } });
-      if (!result.account) { setError(result.error || "Unable to sign in."); return; }
+      if (mode === "signup") {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { display_name: String(values.get("name") || "") },
+            emailRedirectTo: window.location.origin,
+          },
+        });
+        if (signUpError) { setError(signUpError.message); return; }
+        setConfirmSent(true);
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) { setError(signInError.message); return; }
+        onOpenChange(false);
+        toast.success("Signed in");
+        navigate({ to: "/app" });
+      }
+    } catch { setError("Unable to reach the server. Please try again."); }
+    finally { setBusy(false); }
+  };
+  const google = async () => {
+    setBusy(true); setError("");
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+      if (result.error) { setError("Google sign-in did not work. Please try again."); return; }
+      if (result.redirected) return;
       onOpenChange(false);
-      toast.success(mode === "signup" ? "Account created" : "Signed in");
-      window.location.assign("/app");
-    } catch { setError("Unable to reach Xano. Please try again."); }
+      toast.success("Signed in");
+      navigate({ to: "/app" });
+    } catch { setError("Google sign-in did not work. Please try again."); }
     finally { setBusy(false); }
   };
   return (
@@ -139,27 +166,34 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">{mode === "signup" ? "Open your khata" : "Sign in to your khata"}</DialogTitle>
-          <DialogDescription>{mode === "signup" ? "Create your Xano account." : "Use your Xano account email and password."}</DialogDescription>
+          <DialogDescription>{mode === "signup" ? "Create your Hisaab account." : "Use your Hisaab account email and password."}</DialogDescription>
         </DialogHeader>
-        <form
-          className="space-y-4"
-          onSubmit={submit}
-        >
-          {mode === "signup" && <div className="space-y-1.5"><Label htmlFor="shop">Shop name</Label><Input id="shop" name="name" required maxLength={200} autoComplete="organization" placeholder="Gupta General Store" /></div>}
-          <div className="space-y-1.5"><Label htmlFor="email">Email address</Label><Input id="email" name="email" required type="email" autoComplete="email" placeholder="you@example.com" /></div>
-          <div className="space-y-1.5">
-            <Label htmlFor="pw">Password</Label>
-            <div className="relative">
-              <Input id="pw" name="password" required maxLength={256} autoComplete={mode === "signup" ? "new-password" : "current-password"} type={show ? "text" : "password"} className="pr-10" />
-              <Button variant="ghost" size="icon" type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground">
-                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
+        {confirmSent ? (
+          <div className="space-y-4 py-2 text-center">
+            <p className="font-semibold">Check your email</p>
+            <p className="text-sm text-muted-foreground">We sent you a confirmation link. Open it, then come back and sign in.</p>
+            <Button className="w-full" onClick={() => { setConfirmSent(false); setMode("login"); }}>Back to sign in</Button>
           </div>
-          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={busy} className="w-full font-semibold">{busy ? "Connecting…" : mode === "signup" ? "Create account" : "Sign in"}</Button>
-          <Button type="button" variant="ghost" disabled={busy} className="w-full" onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }}>{mode === "signup" ? "Already have an account? Sign in" : "Create a new account"}</Button>
-        </form>
+        ) : (
+          <form className="space-y-4" onSubmit={submit}>
+            {mode === "signup" && <div className="space-y-1.5"><Label htmlFor="shop">Your name</Label><Input id="shop" name="name" required maxLength={200} autoComplete="name" placeholder="Ramesh Gupta" /></div>}
+            <div className="space-y-1.5"><Label htmlFor="email">Email address</Label><Input id="email" name="email" required type="email" autoComplete="email" placeholder="you@example.com" /></div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pw">Password</Label>
+              <div className="relative">
+                <Input id="pw" name="password" required maxLength={256} autoComplete={mode === "signup" ? "new-password" : "current-password"} type={show ? "text" : "password"} className="pr-10" />
+                <Button variant="ghost" size="icon" type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground">
+                  {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+            <Button type="submit" disabled={busy} className="w-full font-semibold">{busy ? "Connecting…" : mode === "signup" ? "Create account" : "Sign in"}</Button>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" /></div>
+            <Button type="button" variant="outline" disabled={busy} className="w-full font-semibold" onClick={google}>Continue with Google</Button>
+            <Button type="button" variant="ghost" disabled={busy} className="w-full" onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }}>{mode === "signup" ? "Already have an account? Sign in" : "Create a new account"}</Button>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
