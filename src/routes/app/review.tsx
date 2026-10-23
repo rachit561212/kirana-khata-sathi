@@ -96,6 +96,8 @@ function EditForm({ r }: { r: Receipt }) {
         <span className="text-xs text-muted-foreground">{r.source} · {r.conf}% sure</span>
       </div>
 
+      {r.paymentDetails && <p className="border-b px-4 py-3 text-sm text-muted-foreground sm:px-5">{r.paymentDetails}</p>}
+
       <div className="grid min-w-0 gap-4 border-b p-4 sm:grid-cols-3 sm:p-5 [&>div]:min-w-0">
         <div className="space-y-1.5">
           <Label htmlFor="v">Vendor</Label>

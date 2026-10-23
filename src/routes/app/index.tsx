@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dateLabel, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
 import { NoBillEntry } from "@/components/NoBillEntry";
+import { RepeatOrder } from "@/components/RepeatOrder";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -84,6 +85,7 @@ function UploadScreen() {
       </div>
 
       <NoBillEntry onAdded={(id) => setAdded((a) => [id, ...a])} />
+      <RepeatOrder receipts={receipts} onAdded={(id) => setAdded((a) => [id, ...a])} />
 
       <div className="rounded-xl border bg-card">
         <div className="border-b px-5 py-3 text-sm font-semibold">Just read</div>
