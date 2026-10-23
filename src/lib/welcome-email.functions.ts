@@ -14,7 +14,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
     const { data: profile } = await context.supabase
       .from("profiles")
       .select("display_name")
-      .eq("id", user.id)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
