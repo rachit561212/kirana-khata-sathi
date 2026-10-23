@@ -15,7 +15,10 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
   const [value, setValue] = useState("2026-10");
   const [end, setEnd] = useState("2026-10-31");
   const [busy, setBusy] = useState(false);
-  const account = useQuery<{ email: string; name: string } | null>({ queryKey: ["account"] }).data;
+  const account = useQuery({ queryKey: ["statement-account"], queryFn: async () => {
+    const { data } = await supabase.auth.getUser();
+    return data.user ? { email: data.user.email ?? "" } : null;
+  }, staleTime: 60_000 }).data;
   const choosePeriod = (next: StatementPeriod) => {
     setPeriod(next);
     const date = receipts.map((r) => r.date).sort().at(-1) ?? "2026-10-23";
