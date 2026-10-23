@@ -67,7 +67,7 @@ function Index() {
     const onScroll = () => {
       const el = heroRef.current;
       if (!el) return;
-      const total = el.offsetHeight - window.innerHeight;
+      const total = Math.max(1, el.offsetHeight - (el.firstElementChild?.clientHeight ?? window.innerHeight));
       const p = Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total));
       let s = 0;
       STAGES.forEach((st, i) => { if (p >= st.at) s = i; });
@@ -101,7 +101,7 @@ function Index() {
       <SiteHeader dark={dark} onToggleTheme={toggle} onSignup={() => setSignup(true)} />
       <main id="main" className="min-h-screen">
         {/* HERO: scroll-driven story */}
-        <section id="hero" ref={heroRef} className="relative h-[420vh] bg-dusk" aria-label="Shop story">
+        <section id="hero" ref={heroRef} className="relative h-[420svh] bg-dusk" aria-label="Shop story">
           <div className="sticky top-0 h-[100svh] overflow-hidden md:min-h-[640px]">
             <div className="absolute inset-0">
               {mounted && (
