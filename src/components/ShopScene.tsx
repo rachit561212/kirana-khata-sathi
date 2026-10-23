@@ -230,11 +230,11 @@ const MAN = { White: "#3f72af", LightBrown: "#3a3a40", Red_Dark: "#3f72af" };
 const HEIGHT = 1.72;
 
 function Person({
-  model, outfit = {}, bag, phase = 0, wave, path, progress,
+  model, outfit = {}, bag, phase = 0, wave, path, progress, standYaw,
 }: {
   model: string; outfit?: Record<string, string>; bag?: boolean; phase?: number; wave?: [number, number];
   path: { from: [number, number, number]; to: [number, number, number]; range: [number, number] };
-  progress: Progress;
+  progress: Progress; standYaw?: number;
 }) {
   const root = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(model);
