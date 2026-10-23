@@ -1,7 +1,9 @@
 import { renderHook } from "@testing-library/react";
 import { act } from "react";
-import { expect, it } from "vitest";
-import { khata, totalOf, useKhata } from "@/lib/khata";
+import { beforeEach, expect, it } from "vitest";
+import { khata, setKhataAccount, totalOf, useKhata } from "@/lib/khata";
+
+beforeEach(() => setKhataAccount(null));
 
 it("reorders the same products with different quantities without changing the original", () => {
   const { result } = renderHook(() => useKhata());

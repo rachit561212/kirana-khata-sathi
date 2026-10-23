@@ -1,7 +1,9 @@
 import { renderHook } from "@testing-library/react";
 import { act } from "react";
-import { expect, it } from "vitest";
-import { khata, totalOf, useKhata } from "@/lib/khata";
+import { beforeEach, expect, it } from "vitest";
+import { khata, setKhataAccount, totalOf, useKhata } from "@/lib/khata";
+
+beforeEach(() => setKhataAccount(null));
 
 it("saves a purchase order with what is still owed and leaves existing bills alone", () => {
   const { result } = renderHook(() => useKhata());
