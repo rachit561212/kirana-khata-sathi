@@ -2,6 +2,13 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 import { ArrowLeft, ReceiptText } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/components/SiteChrome";
+import { SignupDialog } from "@/components/SiteChrome";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { getXanoAccount, signOutXano } from "@/lib/xano.functions";
+import type { XanoAccount } from "@/lib/xano";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -28,6 +35,11 @@ const TABS = [
 
 function AppShell() {
   const { dark, toggle } = useTheme();
+  const [account, setAccount] = useState<XanoAccount | null>(null);
+  const [signup, setSignup] = useState(false);
+  const fetchAccount = useServerFn(getXanoAccount);
+  const signOut = useServerFn(signOutXano);
+  useEffect(() => { void fetchAccount().then(setAccount).catch(() => setAccount(null)); }, [fetchAccount]);
   const path = useLocation({ select: (l) => l.pathname });
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -52,6 +64,10 @@ function AppShell() {
             })}
           </nav>
           <div className="ml-auto order-2 flex items-center gap-2 md:order-3">
+            {account ? <>
+              <span className="max-w-28 truncate text-xs text-muted-foreground" title={account.email}>{account.name}</span>
+              <Button size="sm" variant="outline" onClick={async () => { try { await signOut(); setAccount(null); toast.success("Signed out"); } catch { toast.error("Could not sign out. Try again."); } }}>Sign out</Button>
+            </> : <Button size="sm" variant="outline" onClick={() => setSignup(true)}>Sign in</Button>}
             <button onClick={toggle} aria-label="Toggle dark mode" className="grid h-8 w-8 place-items-center rounded-md border text-xs transition hover:bg-muted">
               {dark ? "Lt" : "Dk"}
             </button>
@@ -65,6 +81,7 @@ function AppShell() {
         <Outlet />
       </main>
       <Toaster position="top-center" />
+      <SignupDialog open={signup} onOpenChange={setSignup} />
     </div>
   );
 }
