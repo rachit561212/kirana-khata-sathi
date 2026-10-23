@@ -169,7 +169,7 @@ export function UploadBox({ inputRef }: { inputRef: React.RefObject<HTMLInputEle
         className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition ${over ? "border-primary bg-primary/10" : "hover:border-foreground/40 hover:bg-muted"}`}
       >
         <Upload className="h-8 w-8 text-muted-foreground" />
-        <span className="mt-3 font-semibold">Drop a bill here, or tap to choose</span>
+        <span className="mt-3 font-semibold">Scan a bill</span>
         <span className="mt-1 text-sm text-muted-foreground">PDF, JPG or PNG. Photos of paper bills work too.</span>
         <input ref={inputRef} type="file" accept=".pdf,image/*" multiple className="sr-only" onChange={(e) => add(e.target.files)} />
       </label>

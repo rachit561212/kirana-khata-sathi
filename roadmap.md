@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] Replace receipt drop-area wording with “Scan a bill”
+- [x] Fit the full 3D storefront on phones and keep the animation pinned while scrolling
 - [x] Phone layouts: app navigation, upload, review, receipts, duplicates, summary, ask and landing page; checked at 320, 360, 390, 812 and 1280px, including sample upload → edit → CSV and duplicate review
 - [x] Scroll-driven, more realistic 3D shop story
 - [x] Remove "Watch 3D Shutter Demo" button
