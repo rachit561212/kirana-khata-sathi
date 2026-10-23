@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { checkBillUpload } from "@/lib/bill-upload";
 
 const NAV: { href: string; label: string; cta?: boolean }[] = [
   { href: "#sandbox", label: "Demo" },
@@ -205,14 +206,12 @@ export function UploadBox({ inputRef }: { inputRef: React.RefObject<HTMLInputEle
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(false);
   const [over, setOver] = useState(false);
-  const add = (files: FileList | null) => {
+  const add = async (files: FileList | null) => {
     if (!files?.length) return;
     setLoading(true);
-    setTimeout(() => {
-      setBills((b) => [...Array.from(files).map((f) => ({ name: f.name, size: f.size })), ...b]);
-      setLoading(false);
-      toast.success(`${files.length} bill${files.length > 1 ? "s" : ""} added`, { description: "This is a preview. Reading bills comes once accounts are live." });
-    }, 1400);
+    try { await checkBillUpload(Array.from(files)); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Could not read this file. No bill was added."); }
+    finally { setLoading(false); }
   };
   return (
     <div className="grid min-w-0 gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">

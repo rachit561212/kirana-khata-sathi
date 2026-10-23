@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Checked text disguised as a PNG in “Scan a bill”: reproduced fabricated sample results, blocked file-to-demo substitution on both upload surfaces, retested unchanged 28-record count and visible rejection; three validation tests pass. Real document extraction is not connected.
 - [ ] Verify eight sample bills through signed-in saving and review — requesting user has no matching account session; needs preview sign-in. Eight synthetic bills already exported and all three PDF pages visually checked; no account test rows created.
 - [x] Add saved shop identity and business details to downloaded/emailed statements; visually checked three pages with eight synthetic bills, fixed Hindi rendering and split bill totals.
 - [x] Save bills privately to each account and transfer existing tab bills; 19 tests pass, real bill saved and read in a fresh phone browser after reload, cross-account reads/writes blocked, temporary test bills removed.
