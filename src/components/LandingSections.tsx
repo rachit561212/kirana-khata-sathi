@@ -133,7 +133,7 @@ export function FinalCta({ onUpload }: { onUpload: () => void }) {
   return (
     <section className="px-4 pb-16 md:px-6">
       <div className="mx-auto max-w-7xl rounded-[28px] bg-ink px-6 py-24 text-center text-ink-foreground">
-        <h2 className="font-display text-5xl font-bold md:text-7xl">Close the shop.<span className="block font-normal italic opacity-60">Not the khata.</span></h2>
+        <h2 className="font-display text-5xl font-bold md:text-7xl">Close the shop.<span className="block font-normal italic opacity-60">Hisaab stays open.</span></h2>
         <p className="mx-auto mt-5 max-w-md opacity-75">Upload tonight's bills and see your day in one screen.</p>
         <div className="mt-9 flex flex-wrap justify-center gap-3">
           <Button size="lg" className="rounded-full bg-accent px-7 text-accent-foreground hover:bg-accent/90" onClick={onUpload}>Drop your first bill</Button>
@@ -159,7 +159,7 @@ export function SiteFooter({ extras }: { extras: React.ReactNode }) {
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[1.4fr_repeat(4,1fr)]">
         <div>
           <div className="font-display text-xl font-bold">हिसाब <span className="text-sm font-normal opacity-70">Hisaab</span></div>
-          <p className="mt-3 max-w-xs text-sm text-muted-foreground">Your shop ledger, filled in from the bills you already get.</p>
+          <p className="mt-3 max-w-xs text-sm text-muted-foreground">Your shop's hisaab, filled in from the bills you already get.</p>
         </div>
         {COLS.map(([h, links]) => (
           <div key={h}>
