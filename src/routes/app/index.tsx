@@ -8,6 +8,7 @@ import { dateLabel, flushKhata, fmt, khata, SAMPLE_FILES, totalOf, useKhata } fr
 import { VoiceEntry } from "@/components/VoiceEntry";
 import { PurchaseOrder } from "@/components/PurchaseOrder";
 import { RepeatOrder } from "@/components/RepeatOrder";
+import { checkBillUpload } from "@/lib/bill-upload";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -29,6 +30,19 @@ function UploadScreen() {
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState<string[]>([]);
   const [over, setOver] = useState(false);
+  const [scanError, setScanError] = useState("");
+
+  const scan = async (files: File[]) => {
+    if (!files.length || loading) return;
+    setLoading(true);
+    setScanError("");
+    try { await checkBillUpload(files); }
+    catch (error) {
+      const message = error instanceof Error ? error.message : "Could not read this file. No bill was added.";
+      setScanError(message);
+      toast.error(message);
+    } finally { setLoading(false); }
+  };
 
   const add = (names: string[]) => {
     if (!names.length || loading) return;
@@ -59,7 +73,7 @@ function UploadScreen() {
         <label
           onDragOver={(e) => { e.preventDefault(); setOver(true); }}
           onDragLeave={() => setOver(false)}
-          onDrop={(e) => { e.preventDefault(); setOver(false); add(Array.from(e.dataTransfer.files).map((f) => f.name)); }}
+          onDrop={(e) => { e.preventDefault(); setOver(false); void scan(Array.from(e.dataTransfer.files)); }}
           className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed px-4 py-3 transition ${over ? "border-primary bg-primary/10" : "hover:border-foreground/40 hover:bg-muted"}`}
         >
           <Upload className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -70,10 +84,10 @@ function UploadScreen() {
           <input
             ref={inputRef}
             type="file"
-            accept=".pdf,image/*"
+            accept=".pdf,.jpg,.jpeg,.png"
             multiple
             className="sr-only"
-            onChange={(e) => add(Array.from(e.target.files ?? []).map((f) => f.name))}
+            onChange={(e) => { void scan(Array.from(e.target.files ?? [])); e.target.value = ""; }}
           />
         </label>
         <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border bg-card px-4 py-3">
@@ -87,6 +101,7 @@ function UploadScreen() {
         </div>
       </div>
 
+      {scanError && <p role="alert" className="text-sm text-destructive">{scanError}</p>}
       <PurchaseOrder onAdded={(id) => setAdded((a) => [id, ...a])} />
       <RepeatOrder receipts={receipts} onAdded={(id) => setAdded((a) => [id, ...a])} />
 
