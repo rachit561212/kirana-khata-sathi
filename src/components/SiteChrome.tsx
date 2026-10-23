@@ -57,10 +57,10 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
   }, []);
   return (
     <header className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${solid ? "border-b bg-background/95 text-foreground" : "text-ink-foreground"}`}>
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
-        <a href="/" className="flex items-center gap-2 font-display text-xl font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">₹</span>
-          Kirana Khata
+      <nav className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-2.5 sm:flex sm:justify-between sm:px-5 sm:py-3.5">
+        <a href="/" className="flex min-w-0 items-center gap-2 font-display text-xl font-bold">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground">₹</span>
+          <span className="truncate">Kirana Khata</span>
         </a>
         <div className="hidden items-center gap-1 text-sm md:flex">
           {NAV.map((n) => (
@@ -68,13 +68,13 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onToggleTheme} aria-label="Toggle dark mode" className="grid h-9 w-9 place-items-center rounded-md transition hover:bg-foreground/10">
+          <Button variant="ghost" size="icon" onClick={onToggleTheme} aria-label="Toggle dark mode" className="h-11 w-11 shrink-0 hover:bg-foreground/10 hover:text-current">
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          </Button>
           <Button size="sm" onClick={onSignup} className="hidden font-semibold sm:inline-flex">Start free</Button>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <button aria-label="Open menu" className="grid h-9 w-9 place-items-center rounded-md transition hover:bg-foreground/10 md:hidden"><Menu className="h-5 w-5" /></button>
+              <Button variant="ghost" size="icon" aria-label="Open menu" className="h-11 w-11 shrink-0 hover:bg-foreground/10 hover:text-current md:hidden"><Menu className="h-5 w-5" /></Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <SheetTitle className="font-display">Menu</SheetTitle>
@@ -116,7 +116,7 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">{mode === "signup" ? "Open your khata" : "Sign in to your khata"}</DialogTitle>
           <DialogDescription>{mode === "signup" ? "Create your Xano account." : "Use your Xano account email and password."}</DialogDescription>
@@ -161,7 +161,7 @@ export function UploadBox({ inputRef }: { inputRef: React.RefObject<HTMLInputEle
     }, 1400);
   };
   return (
-    <div className="grid gap-6 md:grid-cols-[1.1fr_1fr]">
+    <div className="grid min-w-0 gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <label
         onDragOver={(e) => { e.preventDefault(); setOver(true); }}
         onDragLeave={() => setOver(false)}
@@ -192,7 +192,7 @@ export function UploadBox({ inputRef }: { inputRef: React.RefObject<HTMLInputEle
             {bills.map((b, i) => (
               <li key={i} className="flex items-center gap-3 py-2.5 text-sm">
                 <FileText className="h-5 w-5 text-accent" />
-                <span className="flex-1 truncate">{b.name}</span>
+                <span className="min-w-0 flex-1 truncate">{b.name}</span>
                 <span className="text-muted-foreground">{Math.max(1, Math.round(b.size / 1024))} KB</span>
               </li>
             ))}
@@ -207,13 +207,13 @@ export function UploadBox({ inputRef }: { inputRef: React.RefObject<HTMLInputEle
 export function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
   return (
-    <button
+    <Button variant="outline" size="sm"
       onClick={async () => { await navigator.clipboard.writeText(text); setDone(true); toast("Copied to clipboard"); setTimeout(() => setDone(false), 1500); }}
-      className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition hover:bg-muted"
+      className="min-h-11 gap-1.5 px-2.5 text-xs font-medium hover:bg-muted"
     >
       {done ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
       {done ? "Copied" : label}
-    </button>
+    </Button>
   );
 }
 
@@ -243,7 +243,7 @@ export function CookieBanner() {
   if (!show) return null;
   const close = (v: string) => { localStorage.setItem("kk-cookies", v); setShow(false); };
   return (
-    <div role="dialog" aria-label="Cookie preferences" className="fixed bottom-5 left-5 z-40 max-w-sm rounded-lg border bg-card p-4 text-sm text-card-foreground shadow-ledger">
+    <div role="dialog" aria-label="Cookie preferences" className="fixed inset-x-4 bottom-4 z-40 max-w-sm rounded-lg border bg-card p-4 text-sm text-card-foreground shadow-ledger sm:inset-x-auto sm:bottom-5 sm:left-5">
       <div className="flex items-start gap-3">
         <p className="flex-1">We use a few cookies to keep you signed in and see which pages help shopkeepers most.</p>
         <button aria-label="Close" onClick={() => close("dismissed")} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>

@@ -102,7 +102,7 @@ function Index() {
       <main id="main" className="min-h-screen">
         {/* HERO: scroll-driven story */}
         <section id="hero" ref={heroRef} className="relative h-[420vh] bg-dusk" aria-label="Shop story">
-          <div className="sticky top-0 h-[100svh] min-h-[640px] overflow-hidden">
+          <div className="sticky top-0 h-[100svh] overflow-hidden md:min-h-[640px]">
             <div className="absolute inset-0">
               {mounted && (
                 <Suspense fallback={null}>
@@ -111,51 +111,51 @@ function Index() {
               )}
             </div>
             {reduced && <div key={`fade-${stage}`} aria-hidden className="pointer-events-none absolute inset-0 z-[5] animate-out fade-out bg-ink fill-mode-forwards duration-500" />}
-            <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 pb-8 pt-28 text-ink-foreground">
+            <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-4 pb-5 pt-32 text-ink-foreground sm:px-6 sm:pb-8 md:pt-28">
               <div ref={introRef} className="max-w-xl">
-                <h1 className="text-5xl font-bold leading-[1.02] md:text-7xl">
+                <h1 className="text-3xl font-bold leading-[1.08] sm:text-5xl md:text-7xl">
                   Forward the bill.<br /><span className="text-primary">Khata</span> fills itself.
                 </h1>
-                <p className="mt-5 max-w-md text-base opacity-85 md:text-lg">
+                <p className="mt-3 max-w-md text-sm opacity-85 sm:mt-5 sm:text-base md:text-lg">
                   Send us your wholesale invoices, mandi parchis and UPI settlements. Every rupee in and out is written up before you close the shutter.
                 </p>
-                <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
+                <div className="pointer-events-auto mt-4 flex flex-wrap gap-3 sm:mt-8">
                   <Button size="lg" className="font-semibold" onClick={openUpload}><Upload /> Drop Your First PDF Bill</Button>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
                 <div
                   key={stage}
                   aria-live="polite"
-                  className={`max-w-sm rounded-lg border p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/15 bg-ink/80 duration-500"}`}
+                  className={`max-w-sm rounded-lg border p-3 sm:p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/15 bg-ink/80 duration-500"}`}
                 >
                   <div className="text-sm text-primary">{stage + 1} of {STAGES.length} · {st.tag}</div>
-                  <div className="mt-1 font-display text-2xl font-bold">{st.title}</div>
-                  <p className="mt-1 text-[15px] leading-relaxed">{st.body}</p>
+                  <div className="mt-1 font-display text-xl font-bold sm:text-2xl">{st.title}</div>
+                  <p className="mt-1 text-sm leading-relaxed sm:text-[15px]">{st.body}</p>
                 </div>
-                <div className={`grid grid-cols-2 gap-3 ${reduced ? "" : "transition-all duration-700"} ${stage >= 3 ? "opacity-100" : "translate-y-6 opacity-0"}`}>
+                <div className={`grid grid-cols-2 gap-2 ${reduced ? "" : "transition-all duration-700"} ${stage >= 3 ? "opacity-100" : "hidden sm:grid sm:translate-y-6 sm:opacity-0"}`}>
                   <Metric label="Spent today" value="₹18,420" sub="6 supplier bills, 2 mandi receipts" tone="spent" />
                   <Metric label="Received today" value="₹27,960" sub="UPI ₹21,300 + cash ₹6,660" tone="received" />
                 </div>
               </div>
-              <div className="pointer-events-auto absolute right-5 top-20 flex flex-col items-end gap-2">
+              <div className="pointer-events-auto absolute inset-x-4 top-16 flex justify-end gap-2 sm:inset-x-auto sm:right-5 sm:top-20 sm:flex-col sm:items-end">
                 {stage < STAGES.length - 1 && (
-                  <button
+                  <Button variant="ghost"
                     onClick={skipIntro}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 py-1.5 text-xs font-semibold transition hover:bg-ink"
+                    className="min-h-11 gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 text-xs font-semibold hover:bg-ink hover:text-ink-foreground"
                   >
                     Skip intro <ChevronsDown className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button variant="ghost"
                   onClick={toggleMotion}
                   aria-pressed={reduced}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 py-1.5 text-xs transition hover:bg-ink"
+                  className="min-h-11 gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 text-xs hover:bg-ink hover:text-ink-foreground"
                 >
                   {reduced ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
                   {reduced ? "Play full animation" : "Reduce motion"}
-                </button>
+                </Button>
               </div>
               <div className="absolute inset-x-0 bottom-0 h-1 bg-ink/40">
                 <div ref={barRef} className={`h-full origin-left bg-primary ${reduced ? "transition-transform duration-300" : ""}`} style={{ transform: "scaleX(0)" }} />
@@ -199,12 +199,12 @@ function Index() {
 
 function Metric({ label, value, sub, tone }: { label: string; value: string; sub: string; tone: "spent" | "received" }) {
   return (
-    <div className="rounded-lg border border-ink-foreground/15 bg-ink/85 p-4">
+    <div className="min-w-0 rounded-lg border border-ink-foreground/15 bg-ink/85 p-3 sm:p-4">
       <div className="flex items-center gap-2 text-xs opacity-80">
         <span className={`h-2 w-2 rounded-full ${tone === "spent" ? "bg-spent" : "bg-received"}`} />
         {label}
       </div>
-      <div className="mt-1 font-mono text-2xl font-semibold md:text-3xl">{value}</div>
+      <div className="mt-1 font-mono text-xl font-semibold sm:text-2xl md:text-3xl">{value}</div>
       <div className="text-xs opacity-70">{sub}</div>
     </div>
   );
@@ -256,12 +256,12 @@ function Sandbox() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* PDF mock */}
-        <div className="relative rotate-[-0.6deg] rounded-sm bg-paper p-8 font-mono text-xs shadow-ledger">
+        <div className="relative min-w-0 rounded-sm bg-paper p-4 pt-10 font-mono text-xs shadow-ledger sm:rotate-[-0.6deg] sm:p-8">
           <div className="absolute right-4 top-4 rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">PDF · via WhatsApp</div>
           <div className="border-b border-dashed pb-4">
             <div className="font-display text-lg font-bold">{data.doc.from}</div>
             <div className="text-muted-foreground">{data.doc.gstin}</div>
-            <div className="mt-2 flex justify-between"><span>No. {data.doc.no}</span><span>{data.doc.date}</span></div>
+            <div className="mt-2 flex flex-wrap justify-between gap-2"><span>No. {data.doc.no}</span><span>{data.doc.date}</span></div>
           </div>
           <table className="mt-4 w-full">
             <thead className="text-muted-foreground"><tr><th className="text-left font-normal">Particulars</th><th className="text-right font-normal">Qty</th><th className="text-right font-normal">Rate</th><th className="text-right font-normal">GST</th></tr></thead>
@@ -275,17 +275,17 @@ function Sandbox() {
         </div>
 
         {/* Extracted */}
-        <div className="ruled rounded-lg border bg-card p-6 shadow-ledger">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="ruled min-w-0 rounded-lg border bg-card p-4 shadow-ledger sm:p-6">
+          <div className="mb-4 grid gap-3 sm:flex sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 font-semibold"><ScanLine className="h-4 w-4 text-secondary" /> Entries for your khata</div>
             <CopyButton label="Copy entries" text={data.rows.map((r) => `${r.item}\t${r.qty}\t${r.rate}\t${r.gst}%`).join("\n")} />
           </div>
           <div className="space-y-2">
             {data.rows.map((r) => (
               <div key={r.item} className="rounded-md border bg-paper p-3 transition hover:border-foreground/30">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-medium">{r.item}</span>
-                  <span className={`font-mono font-semibold ${tab === "spent" ? "text-spent" : "text-received"}`}>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                  <span className="min-w-0 break-words text-sm font-medium sm:text-base">{r.item}</span>
+                  <span className={`shrink-0 font-mono text-sm font-semibold sm:text-base ${tab === "spent" ? "text-spent" : "text-received"}`}>
                     {tab === "spent" ? "−" : "+"}{fmt(r.qty * r.rate * (1 + r.gst / 100))}
                   </span>
                 </div>
