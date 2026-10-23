@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { MoneyCharts } from "@/components/MoneyCharts";
 import { Toaster } from "@/components/ui/sonner";
 import { BackToTop, CookieBanner, CopyButton, Shortcuts, SignupDialog, SiteHeader, SkipLink, UploadBox, useTheme } from "@/components/SiteChrome";
+import { Compare, FinalCta, FlowPanel, HowItWorks, SectionHead, SiteFooter } from "@/components/LandingSections";
 
 const ShopScene = lazy(() => import("@/components/ShopScene"));
 
@@ -163,29 +164,30 @@ function Index() {
           </div>
         </section>
 
-        <section id="upload" className="mx-auto max-w-7xl scroll-mt-20 px-6 pt-24">
-          <h2 className="text-3xl font-bold md:text-4xl">Try it with one of your bills</h2>
-          <p className="mb-8 mt-2 text-muted-foreground">Nothing is saved yet. This is just to show you how it feels.</p>
-          <UploadBox inputRef={uploadRef} />
+        <section id="upload" className="mx-auto max-w-5xl scroll-mt-20 px-6 pt-28">
+          <SectionHead eyebrow="Try it" title="Drop one of your bills." soft="See how it feels." body="Nothing is saved yet. This is just to show you how it works." />
+          <div className="mt-10"><UploadBox inputRef={uploadRef} /></div>
         </section>
 
+        <FlowPanel />
         <Sandbox />
+        <HowItWorks />
         <MoneyCharts />
         <Features />
+        <Compare />
         <Reviews />
         <Faq />
+        <FinalCta onUpload={openUpload} />
       </main>
 
-      <footer className="bg-ink py-10 text-ink-foreground">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 text-sm">
-          <span className="font-display text-lg">Kirana Khata</span>
-          <div className="flex flex-wrap items-center gap-5 opacity-90">
+      <SiteFooter
+        extras={
+          <>
             <Shortcuts onUpload={openUpload} onTheme={toggle} onSkip={skipIntro} />
-            <button onClick={toggleMotion} className="opacity-80 hover:opacity-100">{reduced ? "Full motion" : "Reduce motion"}</button>
-            <span className="opacity-70">© 2026 Kirana Khata, Pune</span>
-          </div>
-        </div>
-      </footer>
+            <button onClick={toggleMotion} className="hover:text-foreground">{reduced ? "Full motion" : "Reduce motion"}</button>
+          </>
+        }
+      />
 
       <SignupDialog open={signup} onOpenChange={setSignup} />
       <BackToTop />
