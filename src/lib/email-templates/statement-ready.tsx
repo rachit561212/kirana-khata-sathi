@@ -29,7 +29,7 @@ const StatementReadyEmail = ({ start, end, count, url }: Props) => (
 
 export const template = {
   component: StatementReadyEmail,
-  subject: (d: Record<string, any>) => d.start && d.end ? `Your Hisaab statement: ${d.start} to ${d.end}` : 'Your Hisaab statement',
+  subject: (d: Record<string, any>) => d['start'] && d['end'] ? `Your Hisaab statement: ${d['start']} to ${d['end']}` : 'Your Hisaab statement',
   displayName: 'Statement ready',
   previewData: { start: '2026-10-01', end: '2026-10-31', count: 18, url: 'https://hisaab-track.lovable.app' },
 } satisfies TemplateEntry
