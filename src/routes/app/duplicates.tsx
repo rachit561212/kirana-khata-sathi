@@ -53,28 +53,28 @@ function Pair({ a, b }: { a: Receipt; b: Receipt }) {
 
   return (
     <div className="rounded-xl border bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3 text-sm">
-        <span className="flex items-center gap-2 font-semibold"><GitCompareArrows className="h-4 w-4 text-primary" /> {a.vendor} · {dateLabel(a.date)}</span>
+      <div className="grid min-w-0 gap-2 border-b px-4 py-3 text-sm sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
+        <span className="flex min-w-0 items-center gap-2 font-semibold"><GitCompareArrows className="h-4 w-4 shrink-0 text-primary" /> <span>{a.vendor} · {dateLabel(a.date)}</span></span>
         <span className="text-xs text-muted-foreground">{same ? "Same items, same total" : "Same items, totals differ"} · {fmt(totalOf(a))} vs {fmt(totalOf(b))}</span>
       </div>
       <div className="grid gap-px bg-border md:grid-cols-2">
         {[a, b].map((r) => (
-          <div key={r.id} className="bg-card p-5">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div key={r.id} className="min-w-0 bg-card p-4 sm:p-5">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 text-xs text-muted-foreground">
               <span className="font-mono">{r.id}</span>
               <span>{r.source} · {r.payment} · {r.conf}% sure</span>
             </div>
             <ul className="mt-3 space-y-1 text-sm">
               {r.items.map((i) => (
-                <li key={i.name} className="flex justify-between gap-3">
-                  <span>{i.name}</span>
-                  <span className="font-mono text-muted-foreground">{i.qty} × ₹{i.rate}</span>
+                <li key={i.name} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
+                  <span className="min-w-0 break-words">{i.name}</span>
+                  <span className="shrink-0 font-mono text-muted-foreground">{i.qty} × ₹{i.rate}</span>
                 </li>
               ))}
             </ul>
             <div className="mt-3 flex items-center justify-between border-t pt-3">
               <span className="font-mono text-lg font-bold">{fmt(totalOf(r))}</span>
-              <Button size="sm" variant="outline" onClick={() => decide(r, r.id === a.id ? b : a)}>
+              <Button size="sm" variant="outline" className="min-h-11" aria-label={`Keep ${r.id}`} onClick={() => decide(r, r.id === a.id ? b : a)}>
                 <Copy className="h-3.5 w-3.5" /> Keep this one
               </Button>
             </div>
@@ -82,12 +82,12 @@ function Pair({ a, b }: { a: Receipt; b: Receipt }) {
         ))}
       </div>
       <div className="border-t px-5 py-3 text-right">
-        <button
+        <Button variant="ghost"
           onClick={() => { khata.unflag(a.id, b.id); toast("Both bills kept", { description: "Marked as separate purchases." }); }}
-          className="text-xs underline-offset-4 transition hover:underline"
+          className="min-h-11 w-full whitespace-normal text-xs underline-offset-4 transition hover:underline sm:w-auto"
         >
           These are two different purchases
-        </button>
+        </Button>
       </div>
     </div>
   );

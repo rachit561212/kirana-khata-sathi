@@ -47,7 +47,7 @@ function UploadScreen() {
         <p className="mt-1 text-muted-foreground">Photo of a paper receipt, WhatsApp PDF or handwritten parchi. {receipts.length} records already in your khata.</p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-[1.1fr_0.9fr]">
+      <div className="grid min-w-0 gap-5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <label
           onDragOver={(e) => { e.preventDefault(); setOver(true); }}
           onDragLeave={() => setOver(false)}
@@ -72,9 +72,9 @@ function UploadScreen() {
           <ul className="mt-4 space-y-2 text-sm">
             {SAMPLE_FILES.map((f) => (
               <li key={f} className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <span className="flex-1 truncate font-mono text-xs">{f}</span>
-                <button onClick={() => add([f])} className="rounded-md border px-2 py-1 text-xs font-medium transition hover:bg-muted">Read it</button>
+                <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1 truncate font-mono text-xs">{f}</span>
+                <Button size="sm" variant="outline" onClick={() => add([f])} className="min-h-11 shrink-0 px-2 text-xs">Read it</Button>
               </li>
             ))}
           </ul>
@@ -104,13 +104,13 @@ function UploadScreen() {
         {!loading && newOnes.length > 0 && (
           <ul className="divide-y">
             {newOnes.map((r) => (
-              <li key={r.id} className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-muted"><ScanLine className="h-4 w-4" /></span>
-                <span className="flex-1">
+              <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-sm sm:flex sm:px-5">
+                <span className="hidden h-8 w-8 shrink-0 place-items-center rounded-md bg-muted sm:grid"><ScanLine className="h-4 w-4" /></span>
+                <span className="min-w-0 flex-1 break-words">
                   <span className="block font-medium">{r.vendor}</span>
                   <span className="block text-xs text-muted-foreground">{dateLabel(r.date)} · {r.source} · {r.items.length} item{r.items.length > 1 ? "s" : ""} · {r.conf}% sure</span>
                 </span>
-                <span className="font-mono font-semibold text-spent">{fmt(totalOf(r))}</span>
+                <span className="shrink-0 font-mono font-semibold text-spent">{fmt(totalOf(r))}</span>
                 <span className="flex items-center gap-1 text-xs text-received"><Check className="h-3.5 w-3.5" /> ready</span>
               </li>
             ))}
@@ -118,7 +118,7 @@ function UploadScreen() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid gap-3 sm:flex sm:flex-wrap [&>a]:min-h-11">
         <Button asChild className="bg-accent font-semibold text-accent-foreground hover:bg-accent/90"><Link to="/app/review">Review &amp; edit</Link></Button>
         <Button asChild variant="outline"><Link to="/app/receipts">See all receipts</Link></Button>
       </div>

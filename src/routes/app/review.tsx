@@ -44,13 +44,14 @@ function ReviewScreen() {
         <p className="mt-1 text-muted-foreground">{need.length} bills are waiting for a look. Fix anything that came out wrong, then save it to your khata.</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-        <ul className="space-y-2">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <ul aria-label="Bills to review" className="flex min-w-0 snap-x gap-2 overflow-x-auto pb-2 lg:block lg:space-y-2 lg:pb-0">
           {need.map((r) => (
-            <li key={r.id}>
-              <button
+            <li key={r.id} className="w-60 shrink-0 snap-start lg:w-auto">
+              <Button variant="outline"
                 onClick={() => setSel(r.id)}
-                className={`w-full rounded-lg border p-3 text-left transition hover:border-foreground/40 ${r.id === active.id ? "border-foreground bg-muted" : "bg-card"}`}
+                aria-pressed={r.id === active.id}
+                className={`block h-auto w-full whitespace-normal rounded-lg border p-3 text-left transition hover:border-foreground/40 ${r.id === active.id ? "border-foreground bg-muted" : "bg-card"}`}
               >
                 <span className="block text-sm font-medium">{r.vendor}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">{dateLabel(r.date)} · {fmt(totalOf(r))}</span>
@@ -61,7 +62,7 @@ function ReviewScreen() {
                 {r.items.some((i) => i.hike) && (
                   <span className="mt-1.5 flex items-center gap-1 text-[11px] text-destructive"><TriangleAlert className="h-3 w-3" /> price went up since last bill</span>
                 )}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
@@ -89,13 +90,13 @@ function EditForm({ r }: { r: Receipt }) {
   };
 
   return (
-    <div className="rounded-xl border bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3">
+    <div className="min-w-0 rounded-xl border bg-card">
+      <div className="grid min-w-0 gap-2 border-b px-4 py-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
         <div className="flex items-center gap-2 text-sm font-semibold"><Pencil className="h-4 w-4 text-primary" /> What we read from this bill</div>
         <span className="text-xs text-muted-foreground">{r.source} · {r.conf}% sure</span>
       </div>
 
-      <div className="grid gap-4 border-b p-5 sm:grid-cols-3">
+      <div className="grid min-w-0 gap-4 border-b p-4 sm:grid-cols-3 sm:p-5 [&>div]:min-w-0">
         <div className="space-y-1.5">
           <Label htmlFor="v">Vendor</Label>
           <Input id="v" value={vendor} onChange={(e) => setVendor(e.target.value)} />
@@ -110,7 +111,26 @@ function EditForm({ r }: { r: Receipt }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="divide-y sm:hidden">
+        {items.map((it, i) => (
+          <div key={i} className={`space-y-3 p-4 ${it.hike ? "bg-destructive/5" : ""}`}>
+            <div className="space-y-1.5">
+              <Label htmlFor={`item-${i}`}>Item {i + 1}</Label>
+              <Input id={`item-${i}`} value={it.name} onChange={(e) => set(i, "name", e.target.value)} />
+              {it.hike && <p className="flex items-start gap-1 text-xs text-destructive"><TriangleAlert className="h-4 w-4 shrink-0" /> {it.hike}</p>}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="min-w-0 space-y-1.5"><Label htmlFor={`qty-${i}`}>Qty</Label><Input id={`qty-${i}`} type="number" inputMode="decimal" value={it.qty} onChange={(e) => set(i, "qty", Number(e.target.value) || 0)} /></div>
+              <div className="min-w-0 space-y-1.5"><Label htmlFor={`rate-${i}`}>Rate</Label><Input id={`rate-${i}`} type="number" inputMode="decimal" value={it.rate} onChange={(e) => set(i, "rate", Number(e.target.value) || 0)} /></div>
+              <div className="min-w-0 space-y-1.5"><Label htmlFor={`gst-${i}`}>GST %</Label><Input id={`gst-${i}`} type="number" inputMode="decimal" value={it.gst} onChange={(e) => set(i, "gst", Number(e.target.value) || 0)} /></div>
+            </div>
+            <div className="flex justify-between gap-2 text-sm"><span className="text-muted-foreground">Value</span><span className="font-mono font-semibold">{fmt(it.qty * it.rate * (1 + it.gst / 100))}</span></div>
+          </div>
+        ))}
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 text-sm font-semibold"><span>Total for this bill</span><span className="font-mono text-lg">{fmt(items.reduce((s, it) => s + it.qty * it.rate * (1 + it.gst / 100), 0))}</span></div>
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
           <thead className="bg-muted/60 text-left text-xs text-muted-foreground">
             <tr>
@@ -144,11 +164,11 @@ function EditForm({ r }: { r: Receipt }) {
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-5 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-4 sm:px-5">
         <span className="text-xs text-muted-foreground">{dirty ? "You changed something — save it to keep the fix." : "Nothing changed yet."}</span>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => { khata.accept(r.id); toast("Accepted as it is", { description: `${vendor} · ${dateLabel(date)}` }); }}>Accept as it is</Button>
-          <Button size="sm" className="font-semibold" disabled={!dirty} onClick={save}>Save changes</Button>
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+          <Button variant="outline" size="sm" className="min-h-11" onClick={() => { khata.accept(r.id); toast("Accepted as it is", { description: `${vendor} · ${dateLabel(date)}` }); }}>Accept as it is</Button>
+          <Button size="sm" className="min-h-11 font-semibold" disabled={!dirty} onClick={save}>Save changes</Button>
         </div>
       </div>
     </div>
