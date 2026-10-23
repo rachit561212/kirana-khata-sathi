@@ -78,41 +78,79 @@ function Shutter({ progress }: { progress: Progress }) {
 }
 
 /* ---------- Shop interior ---------- */
-const PRODUCT_COLORS = ["#e8a33d", "#c2452d", "#5b8c3a", "#f2d16b", "#8a4b2a", "#d96f32", "#2d6fb0", "#f4efe2"];
+const BRANDS = [
+  { bg: "#c2452d", fg: "#fff3d6", t: "ATTA" }, { bg: "#f2c230", fg: "#8a1c1c", t: "DAL" },
+  { bg: "#2d6fb0", fg: "#ffffff", t: "SURF" }, { bg: "#3f8f3a", fg: "#fff6c8", t: "CHAI" },
+  { bg: "#f4efe2", fg: "#c2452d", t: "SALT" }, { bg: "#e07a2a", fg: "#ffffff", t: "BISK" },
+  { bg: "#6b2f8a", fg: "#ffe9a8", t: "CHOC" }, { bg: "#1f4f3a", fg: "#f2c230", t: "OIL" },
+];
+
+/** One canvas atlas of packaged-goods labels, sliced via UV offsets per box. */
+function useLabelAtlas() {
+  return useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 512; c.height = 64;
+    const g = c.getContext("2d")!;
+    BRANDS.forEach((b, i) => {
+      const x = i * 64;
+      g.fillStyle = b.bg; g.fillRect(x, 0, 64, 64);
+      g.fillStyle = b.fg; g.fillRect(x, 40, 64, 6);
+      g.beginPath(); g.arc(x + 32, 22, 12, 0, Math.PI * 2); g.globalAlpha = 0.85; g.fill(); g.globalAlpha = 1;
+      g.fillStyle = b.bg; g.font = "bold 9px sans-serif"; g.textAlign = "center"; g.fillText(b.t, x + 32, 25);
+      g.fillStyle = b.fg; g.font = "bold 10px sans-serif"; g.fillText(b.t, x + 32, 58);
+    });
+    return BRANDS.map((_, i) => {
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.repeat.set(1 / BRANDS.length, 1);
+      t.offset.set(i / BRANDS.length, 0);
+      return t;
+    });
+  }, []);
+}
 
 function Shelf({ x }: { x: number }) {
+  const labels = useLabelAtlas();
   const items = useMemo(() => {
-    const out: { p: [number, number, number]; s: [number, number, number]; c: string; jar: boolean }[] = [];
-    [0.55, 1.25, 1.95, 2.6].forEach((y, r) => {
-      let cx = -0.68;
-      while (cx < 0.62) {
-        const w = 0.14 + Math.random() * 0.12;
-        const hgt = 0.22 + Math.random() * 0.22;
-        out.push({ p: [cx + w / 2, y + hgt / 2, 0.22], s: [w * 0.9, hgt, 0.16], c: PRODUCT_COLORS[(out.length * 3 + r) % PRODUCT_COLORS.length]!, jar: Math.random() < 0.25 });
+    const out: { p: [number, number, number]; s: [number, number, number]; b: number; jar: boolean }[] = [];
+    let seed = x * 97 + 13;
+    const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    [0.55, 1.25, 1.95, 2.6].forEach((y) => {
+      let cx = -0.7;
+      const brand = Math.floor(rnd() * BRANDS.length);
+      while (cx < 0.6) {
+        const w = 0.13 + rnd() * 0.05;
+        const hgt = 0.26 + rnd() * 0.14;
+        // products are stocked in runs of the same brand, like a real shelf
+        out.push({ p: [cx + w / 2, y + hgt / 2, 0.22], s: [w * 0.92, hgt, 0.16], b: (brand + Math.floor((cx + 0.7) / 0.45)) % BRANDS.length, jar: rnd() < 0.15 });
         cx += w;
       }
     });
     return out;
-  }, []);
+  }, [x]);
   return (
     <group position={[x, 0, -0.6]}>
       <mesh position={[0, 1.4, -0.05]} castShadow receiveShadow>
         <boxGeometry args={[1.6, 2.9, 0.4]} />
-        <meshStandardMaterial color="#5e3a1e" roughness={0.85} />
+        <meshStandardMaterial color="#4a2e18" roughness={0.85} />
       </mesh>
       {[0.53, 1.23, 1.93, 2.58].map((y) => (
-        <mesh key={y} position={[0, y, 0.2]} castShadow><boxGeometry args={[1.6, 0.04, 0.45]} /><meshStandardMaterial color="#8a5a33" roughness={0.7} /></mesh>
+        <group key={y}>
+          <mesh position={[0, y, 0.2]} castShadow receiveShadow><boxGeometry args={[1.6, 0.04, 0.45]} /><meshStandardMaterial color="#8a5a33" roughness={0.7} /></mesh>
+          {/* price strip */}
+          <mesh position={[0, y - 0.035, 0.43]}><boxGeometry args={[1.6, 0.05, 0.01]} /><meshStandardMaterial color="#f4efe2" roughness={0.6} /></mesh>
+        </group>
       ))}
       {items.map((it, i) =>
         it.jar ? (
           <mesh key={i} position={it.p} castShadow>
-            <cylinderGeometry args={[it.s[0] / 2, it.s[0] / 2, it.s[1], 14]} />
-            <meshPhysicalMaterial color={it.c} roughness={0.15} transmission={0.4} thickness={0.2} />
+            <cylinderGeometry args={[it.s[0] / 2, it.s[0] / 2, it.s[1], 16]} />
+            <meshPhysicalMaterial color="#e8c070" roughness={0.1} transmission={0.5} thickness={0.2} />
           </mesh>
         ) : (
           <mesh key={i} position={it.p} castShadow>
             <boxGeometry args={it.s} />
-            <meshStandardMaterial color={it.c} roughness={0.55} />
+            <meshStandardMaterial map={labels[it.b]} roughness={0.5} />
           </mesh>
         ),
       )}
@@ -120,8 +158,53 @@ function Shelf({ x }: { x: number }) {
   );
 }
 
+/** Jute sacks of rice / dal / sugar with open tops, as in front of most kiranas. */
+function Sack({ p, grain }: { p: [number, number, number]; grain: string }) {
+  const jute = useCanvasTexture((g, w, h) => {
+    g.fillStyle = "#b8955e"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "rgba(90,60,30,0.35)";
+    for (let i = 0; i < w; i += 3) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); }
+    for (let i = 0; i < h; i += 3) { g.beginPath(); g.moveTo(0, i); g.lineTo(w, i); g.stroke(); }
+  }, 64, 64, [4, 2]);
+  return (
+    <group position={p}>
+      <mesh position={[0, 0.3, 0]} castShadow>
+        <cylinderGeometry args={[0.24, 0.28, 0.6, 18, 1, true]} />
+        <meshStandardMaterial map={jute} roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, 0.62, 0]} rotation-x={-Math.PI / 2}>
+        <torusGeometry args={[0.25, 0.05, 8, 20]} />
+        <meshStandardMaterial map={jute} roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.56, 0]} scale={[1, 0.35, 1]}>
+        <sphereGeometry args={[0.235, 18, 10]} />
+        <meshStandardMaterial color={grain} roughness={0.95} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Strips of snack sachets hanging from the shop front. */
+function SnackStrip({ x, color }: { x: number; color: string }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (ref.current && !SNAP) ref.current.rotation.z = Math.sin(clock.elapsedTime * 1.2 + x * 3) * 0.04;
+  });
+  return (
+    <group ref={ref} position={[x, 3.0, 1.2]}>
+      <mesh position={[0, -0.45, 0]}><boxGeometry args={[0.01, 0.9, 0.01]} /><meshStandardMaterial color="#333" /></mesh>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <mesh key={i} position={[0, -0.08 - i * 0.15, 0.01]} castShadow>
+          <boxGeometry args={[0.16, 0.13, 0.025]} />
+          <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function Crate({ p, fruit }: { p: [number, number, number]; fruit: string }) {
-  const fruits = useMemo(() => Array.from({ length: 12 }, (_, i) => ({ x: -0.28 + (i % 4) * 0.19 + (Math.random() - 0.5) * 0.04, z: -0.15 + Math.floor(i / 4) * 0.15, y: 0.25 + Math.random() * 0.05, s: 0.085 + Math.random() * 0.025 })), []);
+  const fruits = useMemo(() => Array.from({ length: 16 }, (_, i) => ({ x: -0.3 + (i % 4) * 0.2 + ((i * 37) % 7 - 3) * 0.01, z: -0.17 + Math.floor(i / 4) * 0.115, y: 0.24 + ((i * 13) % 5) * 0.012, s: 0.08 + ((i * 7) % 4) * 0.008 })), []);
   return (
     <group position={p}>
       {[-0.15, 0, 0.15].map((y) => (
@@ -129,88 +212,99 @@ function Crate({ p, fruit }: { p: [number, number, number]; fruit: string }) {
       ))}
       {fruits.map((f, i) => (
         <mesh key={i} position={[f.x, f.y, f.z]} castShadow>
-          <sphereGeometry args={[f.s, 14, 10]} />
-          <meshStandardMaterial color={fruit} roughness={0.45} />
+          <sphereGeometry args={[f.s, 16, 12]} />
+          <meshPhysicalMaterial color={fruit} roughness={0.35} clearcoat={0.4} clearcoatRoughness={0.4} />
         </mesh>
       ))}
     </group>
   );
 }
 
-/* ---------- People ---------- */
+/* ---------- People (CC0 rigged Quaternius characters) ---------- */
+const SKIN = "#9a6a48";
+const HEIGHT = 1.72;
+
 function Person({
-  shirt, apron, bag, phase = 0, wave, path, progress,
+  model, outfit = {}, bag, phase = 0, wave, path, progress,
 }: {
-  shirt: string; apron?: boolean; bag?: boolean; phase?: number; wave?: [number, number];
+  model: string; outfit?: Record<string, string>; bag?: boolean; phase?: number; wave?: [number, number];
   path: { from: [number, number, number]; to: [number, number, number]; range: [number, number] };
   progress: Progress;
 }) {
   const root = useRef<THREE.Group>(null);
-  const body = useRef<THREE.Group>(null);
-  const head = useRef<THREE.Group>(null);
-  const armR = useRef<THREE.Group>(null);
-  const legs = useRef<(THREE.Mesh | null)[]>([]);
-  const last = useRef(0);
-  useFrame(({ clock }, dt) => {
-    const t = SNAP ? phase : clock.elapsedTime + phase;
+  const { scene, animations } = useGLTF(model);
+  const clone = useMemo(() => {
+    const c = SkeletonUtils.clone(scene);
+    c.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (!m.isMesh) return;
+      m.castShadow = true;
+      const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((mat) => {
+        const n = (mat as THREE.MeshStandardMaterial).clone();
+        if (n.name.startsWith("Skin")) n.color.set(SKIN);
+        else if (n.name.startsWith("Hair") || n.name === "Eyebrows") n.color.set("#1a120d");
+        else if (outfit[n.name]) n.color.set(outfit[n.name]!);
+        n.roughness = Math.max(n.roughness, 0.7);
+        return n;
+      });
+      m.material = Array.isArray(m.material) ? mats : mats[0]!;
+    });
+    const box = new THREE.Box3().setFromObject(c);
+    const s = HEIGHT / Math.max(0.01, box.max.y - box.min.y);
+    c.scale.setScalar(s);
+    c.position.y = -box.min.y * s;
+    return c;
+  }, [scene, outfit]);
+  const { actions } = useAnimations(animations, root);
+  const current = useRef<string>("");
+  const moving = useRef(0);
+
+  const play = (name: string) => {
+    if (current.current === name) return;
+    const next = actions[name];
+    if (!next) return;
+    const prev = current.current ? actions[current.current] : null;
+    next.reset().setEffectiveTimeScale(1).play();
+    next.time = phase % Math.max(0.1, next.getClip().duration);
+    if (prev) prev.crossFadeTo(next, SNAP ? 0 : 0.35, false);
+    current.current = name;
+  };
+
+  useFrame((_, dt) => {
     const p = progress.current;
     const k = seg(p, path.range[0], path.range[1]);
-    if (root.current) {
-      const g = root.current;
-      const tx = THREE.MathUtils.lerp(path.from[0], path.to[0], k);
-      const tz = THREE.MathUtils.lerp(path.from[2], path.to[2], k);
-      const prevX = g.position.x, prevZ = g.position.z;
-      g.position.x = damp(g.position.x, tx, 5, dt);
-      g.position.z = damp(g.position.z, tz, 5, dt);
-      const speed = Math.hypot(g.position.x - prevX, g.position.z - prevZ) / Math.max(dt, 1e-3);
-      last.current = damp(last.current, Math.min(speed, 1.5), 8, dt);
-      if (speed > 0.05) g.rotation.y = damp(g.rotation.y, Math.atan2(tx - prevX, tz - prevZ), 6, dt);
-      else g.rotation.y = damp(g.rotation.y, Math.atan2(-g.position.x * 0.3, -1), 2, dt);
-    }
-    const walk = last.current;
-    legs.current.forEach((l, i) => { if (l) l.rotation.x = Math.sin(t * 9 + i * Math.PI) * 0.5 * walk; });
-    if (body.current) {
-      body.current.scale.y = 1 + Math.sin(t * 2) * 0.015;
-      body.current.position.y = Math.abs(Math.sin(t * 9)) * 0.05 * walk;
-    }
-    if (head.current) head.current.rotation.y = Math.sin(t * 0.7) * 0.3;
-    if (armR.current) {
-      const w = wave ? seg(p, wave[0], wave[0] + 0.04) * (1 - seg(p, wave[1] - 0.04, wave[1])) : 0;
-      armR.current.rotation.z = -w * 2.6 + Math.sin(t * 8) * 0.35 * w;
-      armR.current.rotation.x = Math.sin(t * 9) * 0.4 * walk;
-    }
+    const g = root.current;
+    if (!g) return;
+    const tx = THREE.MathUtils.lerp(path.from[0], path.to[0], k);
+    const tz = THREE.MathUtils.lerp(path.from[2], path.to[2], k);
+    const prevX = g.position.x, prevZ = g.position.z;
+    g.position.x = damp(g.position.x, tx, 3, dt);
+    g.position.z = damp(g.position.z, tz, 3, dt);
+    const speed = Math.hypot(g.position.x - prevX, g.position.z - prevZ) / Math.max(dt, 1e-3);
+    moving.current = damp(moving.current, speed, 6, dt);
+    if (speed > 0.05) g.rotation.y = damp(g.rotation.y, Math.atan2(tx - prevX, tz - prevZ), 6, dt);
+    else g.rotation.y = damp(g.rotation.y, Math.atan2(-g.position.x * 0.25, -1), 3, dt);
+    const waving = wave && p > wave[0] && p < wave[1];
+    if (SNAP) { play(waving ? "Wave" : "Idle"); Object.values(actions).forEach((a) => a && (a.paused = true)); return; }
+    Object.values(actions).forEach((a) => a && (a.paused = false));
+    play(moving.current > 0.15 ? "Walk" : waving ? "Wave" : "Idle");
   });
+
   return (
     <group ref={root} position={path.from}>
-      <group ref={body}>
-        <mesh position={[0, 0.95, 0]} castShadow><capsuleGeometry args={[0.26, 0.6, 6, 16]} /><meshStandardMaterial color={shirt} roughness={0.8} /></mesh>
-        {apron && <mesh position={[0, 0.82, 0.24]}><boxGeometry args={[0.4, 0.62, 0.03]} /><meshStandardMaterial color="#2f5d3a" roughness={0.9} /></mesh>}
-        {[-0.11, 0.11].map((x, i) => (
-          <group key={x} position={[x, 0.55, 0]}>
-            <mesh ref={(m) => { legs.current[i] = m; }} position={[0, 0, 0]}>
-              <capsuleGeometry args={[0.085, 0.42, 4, 8]} />
-              <meshStandardMaterial color="#3a2f2a" roughness={0.9} />
-            </mesh>
-          </group>
-        ))}
-        <mesh position={[-0.33, 0.95, 0]} rotation-z={0.15} castShadow><capsuleGeometry args={[0.07, 0.45, 4, 8]} /><meshStandardMaterial color={shirt} roughness={0.8} /></mesh>
-        <group ref={armR} position={[0.32, 1.22, 0]}>
-          <mesh position={[0, -0.27, 0]} castShadow><capsuleGeometry args={[0.07, 0.45, 4, 8]} /><meshStandardMaterial color={shirt} roughness={0.8} /></mesh>
-          <mesh position={[0, -0.58, 0]}><sphereGeometry args={[0.07, 10, 8]} /><meshStandardMaterial color="#b97a4f" /></mesh>
-          {bag && <mesh position={[0.02, -0.78, 0]} castShadow><boxGeometry args={[0.26, 0.32, 0.14]} /><meshStandardMaterial color="#efe0b4" roughness={0.95} /></mesh>}
-        </group>
-      </group>
-      <group ref={head} position={[0, 1.68, 0]}>
-        <mesh castShadow><sphereGeometry args={[0.22, 24, 18]} /><meshStandardMaterial color="#b97a4f" roughness={0.6} /></mesh>
-        <mesh position={[0, 0.1, -0.03]}><sphereGeometry args={[0.225, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2.2]} /><meshStandardMaterial color="#1e1612" roughness={0.7} /></mesh>
-        {[-0.075, 0.075].map((x) => (
-          <mesh key={x} position={[x, 0.02, 0.2]}><sphereGeometry args={[0.022, 8, 8]} /><meshStandardMaterial color="#111" /></mesh>
-        ))}
-        <mesh position={[0, -0.07, 0.195]} rotation-z={Math.PI}><torusGeometry args={[0.055, 0.011, 6, 12, Math.PI]} /><meshStandardMaterial color="#5a1f1a" /></mesh>
-      </group>
+      <primitive object={clone} />
+      {bag && (
+        <mesh position={[0.32, 0.7, 0.05]} castShadow>
+          <boxGeometry args={[0.26, 0.32, 0.14]} />
+          <meshStandardMaterial color="#efe0b4" roughness={0.95} />
+        </mesh>
+      )}
     </group>
   );
 }
+useGLTF.preload("/models/grocer.glb");
+useGLTF.preload("/models/woman.glb");
+useGLTF.preload("/models/man.glb");
 
 /* ---------- Lights that flicker on ---------- */
 function ShopLights({ progress }: { progress: Progress }) {
