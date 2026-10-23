@@ -8,6 +8,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import ShopProfileDialog from "@/components/ShopProfileDialog";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -38,11 +40,20 @@ async function loadAccount() {
   if (!user) return null;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name")
+    .select("display_name, shop_name, phone, shop_address, gstin")
     .eq("user_id", user.id)
     .maybeSingle();
   return {
-    name: profile?.display_name || String(user.user_metadata?.["display_name"] || "") || user.email || "Your shop",
+    id: user.id,
+    profile: {
+      display_name: profile?.display_name ?? "",
+      shop_name: profile?.shop_name ?? "",
+      phone: profile?.phone ?? "",
+      shop_address: profile?.shop_address ?? "",
+      gstin: profile?.gstin ?? "",
+    },
+    hasProfile: !!profile,
+    name: profile?.shop_name || profile?.display_name || String(user.user_metadata?.["display_name"] || "") || user.email || "Your shop",
     email: user.email || "",
   };
 }
@@ -54,6 +65,13 @@ function AppShell() {
   const queryClient = useQueryClient();
   const accountQuery = useQuery({ queryKey: ["account"], queryFn: loadAccount, staleTime: 60_000 });
   const account = accountQuery.data ?? null;
+  const [editShop, setEditShop] = useState(false);
+  useEffect(() => {
+    if (account?.hasProfile && !account.profile.shop_name && sessionStorage.getItem("shop-prompted") !== account.id) {
+      sessionStorage.setItem("shop-prompted", account.id);
+      setEditShop(true);
+    }
+  }, [account]);
   const path = useLocation({ select: (l) => l.pathname });
   const handleSignOut = async () => {
     try {
@@ -91,7 +109,7 @@ function AppShell() {
           </nav>
           <div className="order-2 flex shrink-0 items-center gap-1 sm:ml-auto sm:gap-2 lg:order-3">
             {account ? <>
-              <span className="hidden max-w-28 truncate text-xs text-muted-foreground sm:block" title={account.email}>{account.name}</span>
+              <Button size="sm" variant="ghost" className="min-h-11 max-w-32 px-2 sm:px-3" title="Edit shop details" onClick={() => setEditShop(true)}><span className="truncate">{account.name}</span></Button>
               <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={handleSignOut}>Sign out</Button>
             </> : <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={() => setSignup(true)}>Sign in</Button>}
             <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle dark mode" className="h-11 w-11">
@@ -108,6 +126,7 @@ function AppShell() {
       </main>
       <Toaster position="top-center" />
       <SignupDialog open={signup} onOpenChange={setSignup} />
+      {account && <ShopProfileDialog open={editShop} onOpenChange={setEditShop} userId={account.id} initial={account.profile} />}
     </div>
   );
 }
