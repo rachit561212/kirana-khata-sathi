@@ -367,7 +367,7 @@ function DustMotes() {
   useFrame(({ clock }) => {
     if (!ref.current || SNAP) return;
     const t = clock.elapsedTime;
-    const attr = ref.current.geometry.attributes.position as THREE.BufferAttribute;
+    const attr = ref.current.geometry.attributes["position"] as THREE.BufferAttribute;
     for (let i = 0; i < seeds.length; i++) {
       attr.setY(i, 0.3 + ((seeds[i]! * 0.7 + t * 0.06) % 3));
       attr.setX(i, attr.getX(i) + Math.sin(t * 0.5 + seeds[i]!) * 0.0012);
