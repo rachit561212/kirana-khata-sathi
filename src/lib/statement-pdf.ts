@@ -80,7 +80,12 @@ export async function createStatementPdf(statement: Statement, hindiBytes?: Arra
   line("Based on shopkeeper-confirmed Hisaab records. Not a tax invoice or bank statement.", 9);
   y -= 16;
   for (const r of statement.records) {
-    if (y < 150) nextPage();
+    const wrappedLines = (text: string, size: number) => Math.max(1, Math.ceil(width(text, size) / 490));
+    const estimatedHeight = 16 + wrappedLines(r.vendor, 12) * 18 + 16
+      + (r.paymentDetails ? wrappedLines(`Payment reference: ${r.paymentDetails}`, 9) * 15 : 0)
+      + r.items.reduce((height, item) => height + wrappedLines(`${item.name} | ${item.cat}`, 10) * 16 + 15, 0)
+      + 34;
+    if (y - estimatedHeight < 65) nextPage();
     line(`${r.date} | ${r.id} | ${r.kind === "spent" ? "Purchase / expense" : "Receipt / collection"}`, 10);
     line(r.vendor, 12);
     line(`Payment: ${r.payment}${r.paidState ? ` | ${r.paidState}` : ""}`);
