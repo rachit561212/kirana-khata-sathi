@@ -8,6 +8,10 @@ export const Route = createFileRoute("/app/duplicates")({
   head: () => ({
     meta: [
       { title: "Duplicates — ShopLedger" },
+      { property: "og:title", content: "Duplicates — ShopLedger" },
+      { property: "og:description", content: "Compare possible duplicate receipts side by side." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "description", content: "Bills that look like the same purchase twice, shown side by side so you can pick the one to keep." },
     ],
   }),

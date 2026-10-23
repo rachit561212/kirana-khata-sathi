@@ -7,9 +7,12 @@ describe("Xano integration", () => {
     const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ authToken: "test-only-token" })));
     vi.stubGlobal("fetch", fetcher);
     await xanoRequest("/auth/login", { body: { email: "shop@example.com", password: "test-password" } });
-    expect(fetcher.mock.calls[0][0]).toBe(`${XANO_AUTH_URL}/auth/login`);
-    expect(fetcher.mock.calls[0][1].method).toBe("POST");
-    expect(JSON.parse(fetcher.mock.calls[0][1].body)).toEqual({ email: "shop@example.com", password: "test-password" });
+    const call = fetcher.mock.calls[0];
+    expect(call).toBeDefined();
+    if (!call) throw new Error("Expected an authentication request");
+    expect(call[0]).toBe(`${XANO_AUTH_URL}/auth/login`);
+    expect(call[1].method).toBe("POST");
+    expect(JSON.parse(call[1].body)).toEqual({ email: "shop@example.com", password: "test-password" });
   });
   it("reports failed authentication without leaking the upstream response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("sensitive upstream data", { status: 401 })));

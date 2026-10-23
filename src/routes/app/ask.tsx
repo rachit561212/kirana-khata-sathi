@@ -7,6 +7,10 @@ export const Route = createFileRoute("/app/ask")({
   head: () => ({
     meta: [
       { title: "Ask about your spending — ShopLedger" },
+      { property: "og:title", content: "Ask about your spending — ShopLedger" },
+      { property: "og:description", content: "Explore confirmed spending records with receipt-linked answers." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "description", content: "Ask a plain question about your bills and get an answer that points at the receipts behind it." },
     ],
   }),

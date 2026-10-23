@@ -16,7 +16,7 @@ export async function xanoRequest(path: "/auth/login" | "/auth/signup" | "/auth/
   try {
     response = await fetch(`${XANO_AUTH_URL}${path}`, {
       method: options.body ? "POST" : "GET", headers,
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      body: options.body ? JSON.stringify(options.body) : null,
       signal: AbortSignal.timeout(20000),
     });
   } catch {
