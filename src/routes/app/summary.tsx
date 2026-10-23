@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChevronDown, FileText, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { categoryTotals, daySeries, MONTH_LABEL, sums, useKhata, vendorTotals, type Receipt } from "@/lib/khata";
+import { categoryTotals, daySeries, MONTH_LABEL, monthSeries, sums, useKhata, vendorTotals, type Receipt } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/summary")({
   head: () => ({
@@ -24,7 +24,10 @@ function SummaryScreen() {
   const s = sums(receipts);
   const cats = categoryTotals(receipts);
   const vendors = vendorTotals(receipts);
+  const [range, setRange] = useState<"day" | "month">("day");
   const days = daySeries(receipts);
+  const months = monthSeries(receipts);
+  const series = range === "day" ? days : months;
   const [open, setOpen] = useState<string | null>(null);
   const [made, setMade] = useState(false);
   const top = cats[0];
