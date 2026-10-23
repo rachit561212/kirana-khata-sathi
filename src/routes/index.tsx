@@ -128,11 +128,11 @@ function Index() {
                 <div
                   key={stage}
                   aria-live="polite"
-                  className={`max-w-sm rounded-lg border p-3 sm:p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/15 bg-ink/80 duration-500"}`}
+                  className={`max-w-sm rounded-2xl border p-3 backdrop-blur-md sm:p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/10 bg-ink/55 duration-500"}`}
                 >
-                  <div className="text-sm text-primary">{stage + 1} of {STAGES.length} · {st.tag}</div>
-                  <div className="mt-1 font-display text-xl font-bold sm:text-2xl">{st.title}</div>
-                  <p className="mt-1 text-sm leading-relaxed sm:text-[15px]">{st.body}</p>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">{stage + 1} of {STAGES.length} · {st.tag}</div>
+                  <div className="mt-1.5 font-display text-xl font-bold tracking-tight sm:text-2xl">{st.title}</div>
+                  <p className="mt-1 text-sm leading-relaxed opacity-85 sm:text-[15px]">{st.body}</p>
                 </div>
                 <div className={`grid grid-cols-2 gap-2 ${reduced ? "" : "transition-all duration-700"} ${stage >= 3 ? "opacity-100" : "hidden sm:grid sm:translate-y-6 sm:opacity-0"}`}>
                   <Metric label="Spent today" value="₹18,420" sub="6 supplier bills, 2 mandi receipts" tone="spent" />

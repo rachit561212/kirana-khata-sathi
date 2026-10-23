@@ -616,6 +616,7 @@ export default function ShopScene({ progress }: { progress: Progress }) {
         {/* pavement step in front of the shop */}
         <mesh position={[0, 0.06, 1.35]} receiveShadow castShadow><boxGeometry args={[6.6, 0.12, 0.6]} /><meshStandardMaterial color="#8d8478" roughness={0.95} /></mesh>
         <LedgerFlow progress={progress} />
+        <DustMotes />
         <ContactShadows position={[0, 0.01, 2]} opacity={0.5} scale={14} blur={2.5} far={4} />
       </group>
     </Canvas>
