@@ -13,3 +13,5 @@
 - Keep synthetic receipt records separate from Xano authentication until documented, implemented receipt endpoints exist; placeholder null responses are not saved records.
 - On phones, receipt lists use compact records and editable items use stacked fields; retain desktop tables so no page requires sideways scrolling to read or edit receipts.
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
+- Transaction extraction runs through AI Gateway in a server function, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
+- AI entries and repeat orders use the existing session-only khata store, independent of Xano authentication; repeat orders copy item lines so edits cannot alter their source bill.
