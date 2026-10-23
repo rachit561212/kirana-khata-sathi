@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppAskRouteImport } from './routes/app/ask'
 import { Route as AppDuplicatesRouteImport } from './routes/app/duplicates'
+import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppReceiptsRouteImport } from './routes/app/receipts'
 import { Route as AppReviewRouteImport } from './routes/app/review'
 import { Route as AppSummaryRouteImport } from './routes/app/summary'
@@ -44,6 +45,11 @@ const AppDuplicatesRoute = AppDuplicatesRouteImport.update({
   path: '/duplicates',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProductsRoute = AppProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReceiptsRoute = AppReceiptsRouteImport.update({
   id: '/receipts',
   path: '/receipts',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/app/ask': typeof AppAskRoute
   '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
   '/app/review': typeof AppReviewRoute
   '/app/summary': typeof AppSummaryRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app/ask': typeof AppAskRoute
   '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
   '/app/review': typeof AppReviewRoute
   '/app/summary': typeof AppSummaryRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/app/ask': typeof AppAskRoute
   '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
   '/app/review': typeof AppReviewRoute
   '/app/summary': typeof AppSummaryRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/ask'
     | '/app/duplicates'
+    | '/app/products'
     | '/app/receipts'
     | '/app/review'
     | '/app/summary'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app/ask'
     | '/app/duplicates'
+    | '/app/products'
     | '/app/receipts'
     | '/app/review'
     | '/app/summary'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/ask'
     | '/app/duplicates'
+    | '/app/products'
     | '/app/receipts'
     | '/app/review'
     | '/app/summary'
@@ -177,6 +189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDuplicatesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/products': {
+      id: '/app/products'
+      path: '/products'
+      fullPath: '/app/products'
+      preLoaderRoute: typeof AppProductsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/receipts': {
       id: '/app/receipts'
       path: '/receipts'
@@ -211,6 +230,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAskRoute: typeof AppAskRoute
   AppDuplicatesRoute: typeof AppDuplicatesRoute
+  AppProductsRoute: typeof AppProductsRoute
   AppReceiptsRoute: typeof AppReceiptsRoute
   AppReviewRoute: typeof AppReviewRoute
   AppSummaryRoute: typeof AppSummaryRoute
@@ -220,6 +240,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAskRoute: AppAskRoute,
   AppDuplicatesRoute: AppDuplicatesRoute,
+  AppProductsRoute: AppProductsRoute,
   AppReceiptsRoute: AppReceiptsRoute,
   AppReviewRoute: AppReviewRoute,
   AppSummaryRoute: AppSummaryRoute,
