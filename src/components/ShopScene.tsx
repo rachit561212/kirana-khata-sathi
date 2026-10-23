@@ -151,7 +151,7 @@ function Shelf({ x }: { x: number }) {
         ) : (
           <mesh key={i} position={it.p} castShadow>
             <boxGeometry args={it.s} />
-            <meshStandardMaterial map={labels[it.b]} roughness={0.5} />
+            <meshStandardMaterial map={labels[it.b] ?? null} roughness={0.5} />
           </mesh>
         ),
       )}
