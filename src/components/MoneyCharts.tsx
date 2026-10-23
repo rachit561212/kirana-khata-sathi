@@ -21,7 +21,7 @@ const MONTHLY = [
 ];
 const MODE = [
   { name: "Online (UPI, card)", value: 412000, color: "var(--received)" },
-  { name: "Offline (cash)", value: 191000, color: "var(--primary)" },
+  { name: "Offline (cash)", value: 191000, color: "var(--secondary)" },
 ];
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");

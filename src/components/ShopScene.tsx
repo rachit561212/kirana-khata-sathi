@@ -44,15 +44,15 @@ function Shutter({ progress }: { progress: Progress }) {
   const tex = useCanvasTexture((g, w, h) => {
     for (let y = 0; y < h; y += 16) {
       const grd = g.createLinearGradient(0, y, 0, y + 16);
-      grd.addColorStop(0, "#b8bdbf"); grd.addColorStop(0.6, "#8d9396"); grd.addColorStop(1, "#5a5f62");
+      grd.addColorStop(0, "#a8a49a"); grd.addColorStop(0.6, "#7d7a71"); grd.addColorStop(1, "#55534c");
       g.fillStyle = grd; g.fillRect(0, y, w, 16);
     }
     // rust & graffiti speckle
     for (let i = 0; i < 260; i++) {
-      g.fillStyle = `rgba(${120 + Math.random() * 60},${60 + Math.random() * 30},30,${Math.random() * 0.25})`;
+      g.fillStyle = `rgba(${100 + Math.random() * 50},${95 + Math.random() * 40},${80 + Math.random() * 30},${Math.random() * 0.25})`;
       g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 4, 1 + Math.random() * 3);
     }
-    g.fillStyle = "rgba(194,69,45,0.85)"; g.font = "bold 22px sans-serif";
+    g.fillStyle = "rgba(229,68,109,0.9)"; g.font = "bold 22px sans-serif";
     g.fillText("KIRANA", 40, 120); g.fillText("STORE", 46, 150);
   }, 256, 256, [2, 1]);
   const H = 3.2;
@@ -73,7 +73,7 @@ function Shutter({ progress }: { progress: Progress }) {
       </mesh>
       <mesh position={[0, 3.25, 0.05]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.18, 0.18, 5.7, 20]} />
-        <meshStandardMaterial color="#6b7073" metalness={0.7} roughness={0.4} />
+        <meshStandardMaterial color="#5c5950" metalness={0.7} roughness={0.4} />
       </mesh>
     </group>
   );
@@ -317,11 +317,11 @@ function ShopLights({ progress }: { progress: Progress }) {
   const point = useRef<THREE.PointLight>(null);
   const sign = useRef<THREE.MeshStandardMaterial>(null);
   const signTex = useCanvasTexture((g, w, h) => {
-    g.fillStyle = "#f2b632"; g.fillRect(0, 0, w, h);
-    g.strokeStyle = "#8a1c1c"; g.lineWidth = 6; g.strokeRect(8, 8, w - 16, h - 16);
-    g.fillStyle = "#8a1c1c"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#f8f4e3"; g.fillRect(0, 0, w, h);
+    g.strokeStyle = "#e5446d"; g.lineWidth = 6; g.strokeRect(8, 8, w - 16, h - 16);
+    g.fillStyle = "#2a2b2a"; g.textAlign = "center"; g.textBaseline = "middle";
     g.font = "bold 46px Georgia, serif"; g.fillText("SHARMA KIRANA STORE", w / 2, h * 0.42);
-    g.font = "bold 22px sans-serif"; g.fillStyle = "#2f5d3a";
+    g.font = "bold 22px sans-serif"; g.fillStyle = "#706c61";
     g.fillText("शर्मा किराना स्टोर  ·  Ph. 98765 43210  ·  UPI accepted", w / 2, h * 0.8);
   }, 1024, 104);
   useFrame(({ clock }) => {
@@ -408,15 +408,15 @@ function LedgerFlow({ progress }: { progress: Progress }) {
   const target = new THREE.Vector3(0, 1.2, 0.3);
   const tmp = new THREE.Vector3();
   const pageTex = useCanvasTexture((g, w, h) => {
-    g.fillStyle = "#fdf6e3"; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(150,110,60,${Math.random() * 0.05})`; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
-    g.strokeStyle = "rgba(160,40,30,0.55)"; g.lineWidth = 3;
+    g.fillStyle = "#f8f4e3"; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(112,108,97,${Math.random() * 0.06})`; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
+    g.strokeStyle = "rgba(229,68,109,0.55)"; g.lineWidth = 3;
     g.beginPath(); g.moveTo(w * 0.16, 0); g.lineTo(w * 0.16, h); g.stroke();
-    g.strokeStyle = "rgba(70,100,170,0.3)"; g.lineWidth = 1.5;
+    g.strokeStyle = "rgba(112,108,97,0.35)"; g.lineWidth = 1.5;
     for (let y = h * 0.14; y < h; y += h * 0.095) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
-    g.fillStyle = "#8a1c1c"; g.font = "bold 30px Georgia, serif"; g.textBaseline = "middle";
+    g.fillStyle = "#b8284f"; g.font = "bold 30px Georgia, serif"; g.textBaseline = "middle";
     g.fillText("KHAATA — October", w * 0.2, h * 0.07);
-    g.fillStyle = "#3a2a1a"; g.font = "italic 24px Georgia, serif";
+    g.fillStyle = "#2a2b2a"; g.font = "italic 24px Georgia, serif";
     const rows = [
       ["21 Oct", "Aashirvaad Atta 10kg x12", "5,780"], ["", "Fortune Oil 1L x24", "3,830"],
       ["", "Tata Salt 1kg x40", "960"], ["", "Parle-G 800g x30", "2,760"],
@@ -431,11 +431,11 @@ function LedgerFlow({ progress }: { progress: Progress }) {
     });
   }, 512, 640);
   const clothTex = useCanvasTexture((g, w, h) => {
-    g.fillStyle = "#8a1c1c"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#d83c60"; g.fillRect(0, 0, w, h);
     g.strokeStyle = "rgba(0,0,0,0.18)";
     for (let i = 0; i < w; i += 3) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); }
     for (let i = 0; i < h; i += 3) { g.beginPath(); g.moveTo(0, i); g.lineTo(w, i); g.stroke(); }
-    g.strokeStyle = "rgba(242,182,50,0.8)"; g.lineWidth = 4;
+    g.strokeStyle = "rgba(255,137,102,0.85)"; g.lineWidth = 4;
     g.strokeRect(10, 10, w - 20, h - 20);
   }, 128, 128, [2, 2]);
   useFrame(({ clock, pointer }) => {
@@ -467,15 +467,15 @@ function LedgerFlow({ progress }: { progress: Progress }) {
         <mesh key={i} ref={(m) => { refs.current[i] = m; }} rotation-x={it.coin ? Math.PI / 2 : 0}>
           {it.coin ? <cylinderGeometry args={[0.14, 0.14, 0.04, 28]} /> : <planeGeometry args={[0.28, 0.44]} />}
           {it.coin
-            ? <meshStandardMaterial color="#f2b632" metalness={0.35} roughness={0.3} emissive="#b87a10" emissiveIntensity={0.55} />
-            : <meshStandardMaterial color="#fffaf0" emissive="#ffe9b0" emissiveIntensity={0.3} side={THREE.DoubleSide} />}
+            ? <meshStandardMaterial color="#ff8966" metalness={0.45} roughness={0.28} emissive="#8f3a24" emissiveIntensity={0.5} />
+            : <meshStandardMaterial color="#f8f4e3" emissive="#e5446d" emissiveIntensity={0.18} side={THREE.DoubleSide} />}
         </mesh>
       ))}
       {/* ledger on the counter, tilted toward the viewer */}
       <group ref={book} position={[0, 1.13, 0.32]} rotation-x={0.22}>
         {/* base: red cloth cover + page block + written page */}
         <mesh position={[0.36, 0, 0]} castShadow receiveShadow><boxGeometry args={[0.72, 0.04, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
-        <mesh position={[0.35, 0.045, 0]}><boxGeometry args={[0.66, 0.05, 0.86]} /><meshStandardMaterial color="#f3e8cd" roughness={0.9} /></mesh>
+        <mesh position={[0.35, 0.045, 0]}><boxGeometry args={[0.66, 0.05, 0.86]} /><meshStandardMaterial color="#f8f4e3" roughness={0.9} /></mesh>
         <mesh position={[0.35, 0.071, 0]} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[0.64, 0.84]} />
           <meshStandardMaterial map={pageTex} roughness={0.85} />
@@ -483,12 +483,12 @@ function LedgerFlow({ progress }: { progress: Progress }) {
         {/* cover starts closed on top of the pages, flips open to the left */}
         <group ref={cover} position={[0, 0.055, 0]}>
           <mesh position={[0.36, 0, 0]} castShadow><boxGeometry args={[0.72, 0.035, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
-          <mesh position={[0.35, -0.02, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f7efdb" roughness={0.9} /></mesh>
+          <mesh position={[0.35, -0.02, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f8f4e3" roughness={0.9} /></mesh>
         </group>
         {/* spine with red thread binding */}
-        <mesh position={[0, 0.01, 0]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.92, 12]} /><meshStandardMaterial color="#6d1414" roughness={0.9} /></mesh>
+        <mesh position={[0, 0.01, 0]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.92, 12]} /><meshStandardMaterial color="#8e2140" roughness={0.9} /></mesh>
         {[-0.3, 0, 0.3].map((z) => (
-          <mesh key={z} position={[0, 0.045, z]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /><meshStandardMaterial color="#c2452d" roughness={0.7} /></mesh>
+          <mesh key={z} position={[0, 0.045, z]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /><meshStandardMaterial color="#e5446d" roughness={0.7} /></mesh>
         ))}
       </group>
     </>
@@ -532,7 +532,7 @@ function Sky({ progress }: { progress: Progress }) {
   const { fogScale } = shopFraming(size.width, size.height);
   const fog = useRef<THREE.Fog>(null);
   const hemi = useRef<THREE.HemisphereLight>(null);
-  const dawn = new THREE.Color("#2a1a14"), day = new THREE.Color("#7a4a2a");
+  const dawn = new THREE.Color("#2a2b2a"), day = new THREE.Color("#706c61");
   const c = new THREE.Color();
   useFrame(({ scene }) => {
     const k = seg(progress.current, 0, 0.5);
@@ -547,9 +547,9 @@ function Sky({ progress }: { progress: Progress }) {
   });
   return (
     <>
-      <color attach="background" args={["#2a1a14"]} />
-      <fog ref={fog} attach="fog" args={["#2a1a14", 11, 26]} />
-      <hemisphereLight ref={hemi} args={["#ffd7a0", "#3a2418", 0.3]} />
+      <color attach="background" args={["#2a2b2a"]} />
+      <fog ref={fog} attach="fog" args={["#2a2b2a", 11, 26]} />
+      <hemisphereLight ref={hemi} args={["#f8f4e3", "#2a2b2a", 0.3]} />
     </>
   );
 }
@@ -588,13 +588,13 @@ export default function ShopScene({ progress }: { progress: Progress }) {
         </mesh>
         <mesh position={[0, 1.7, -1]} receiveShadow><boxGeometry args={[6.4, 3.4, 0.2]} /><meshStandardMaterial map={wall} roughness={0.95} /></mesh>
         <mesh position={[0, 0.02, 0]} receiveShadow rotation-x={-Math.PI / 2}><planeGeometry args={[5.8, 2.2]} /><meshStandardMaterial color="#8c6a4a" roughness={0.8} /></mesh>
-        <mesh position={[-3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#b23f28" roughness={0.8} /></mesh>
-        <mesh position={[3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#b23f28" roughness={0.8} /></mesh>
-        <mesh position={[0, 3.6, 0.2]} castShadow><boxGeometry args={[6.6, 0.7, 2.4]} /><meshStandardMaterial color="#2f5d3a" roughness={0.8} /></mesh>
+        <mesh position={[-3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#706c61" roughness={0.8} /></mesh>
+        <mesh position={[3.05, 1.7, 0]} castShadow><boxGeometry args={[0.3, 3.4, 2.2]} /><meshStandardMaterial color="#706c61" roughness={0.8} /></mesh>
+        <mesh position={[0, 3.6, 0.2]} castShadow><boxGeometry args={[6.6, 0.7, 2.4]} /><meshStandardMaterial color="#2a2b2a" roughness={0.8} /></mesh>
         {Array.from({ length: 11 }).map((_, i) => (
           <mesh key={i} position={[-3 + i * 0.6, 3.15, 1.55]} rotation-x={0.5} castShadow>
             <boxGeometry args={[0.6, 0.04, 0.7]} />
-            <meshStandardMaterial color={i % 2 ? "#fff3d6" : "#c2452d"} roughness={0.9} />
+            <meshStandardMaterial color={i % 2 ? "#f8f4e3" : "#e5446d"} roughness={0.9} />
           </mesh>
         ))}
         <ShopLights progress={progress} />

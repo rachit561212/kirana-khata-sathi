@@ -40,31 +40,31 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #caf7e2;
-  --foreground: #3d3522;
-  --card: color-mix(in oklab, #caf7e2 24%, white);
-  --card-foreground: #3d3522;
+  --background: #f8f4e3;
+  --foreground: #2a2b2a;
+  --card: color-mix(in oklab, #f8f4e3 45%, white);
+  --card-foreground: #2a2b2a;
   --popover: var(--card);
-  --popover-foreground: #3d3522;
-  --primary: #386150;
-  --primary-foreground: #caf7e2;
-  --secondary: #4a442d;
-  --secondary-foreground: #caf7e2;
-  --muted: color-mix(in oklab, #caf7e2 80%, #58b09c);
-  --muted-foreground: #4a442d;
-  --accent: #58b09c;
-  --accent-foreground: #3d3522;
-  --destructive: #dc2626;
-  --destructive-foreground: #fafaf9;
-  --border: color-mix(in oklab, #58b09c 55%, #caf7e2);
+  --popover-foreground: #2a2b2a;
+  --primary: #e5446d;
+  --primary-foreground: #f8f4e3;
+  --secondary: #706c61;
+  --secondary-foreground: #f8f4e3;
+  --muted: color-mix(in oklab, #f8f4e3 72%, #706c61);
+  --muted-foreground: #706c61;
+  --accent: #ff8966;
+  --accent-foreground: #2a2b2a;
+  --destructive: #b3261e;
+  --destructive-foreground: #f8f4e3;
+  --border: color-mix(in oklab, #706c61 32%, #f8f4e3);
   --input: var(--border);
-  --ring: #386150;
-  --spent: #4a442d;
-  --received: #386150;
+  --ring: #e5446d;
+  --spent: #ff8966;
+  --received: #e5446d;
   --paper: var(--card);
-  --ink: #3d3522;
-  --ink-foreground: #caf7e2;
-  --gradient-dusk: linear-gradient(180deg, #3d3522 0%, #4a442d 60%, #386150 100%);
+  --ink: #2a2b2a;
+  --ink-foreground: #f8f4e3;
+  --gradient-dusk: linear-gradient(180deg, #2a2b2a 0%, #4b463e 58%, #706c61 100%);
   --shadow-ledger: 0 1px 0 var(--border), 0 18px 40px -18px color-mix(in oklab, var(--ink) 35%, transparent);
 }
 
@@ -81,30 +81,33 @@
 @utility bg-dusk { background: var(--gradient-dusk); }
 @utility shadow-ledger { box-shadow: var(--shadow-ledger); }
 @utility ruled {
-  background-image: repeating-linear-gradient(0deg, transparent 0 27px, color-mix(in oklab, var(--secondary) 14%, transparent) 27px 28px);
+  background-image: repeating-linear-gradient(0deg, transparent 0 27px, color-mix(in oklab, var(--secondary) 16%, transparent) 27px 28px);
 }
 
 .dark {
-  --background: #3d3522;
-  --foreground: #caf7e2;
-  --card: #4a442d;
-  --card-foreground: #caf7e2;
-  --popover: #4a442d;
-  --popover-foreground: #caf7e2;
-  --primary: #58b09c;
-  --primary-foreground: #3d3522;
-  --accent: #58b09c;
-  --accent-foreground: #3d3522;
-  --secondary: #386150;
-  --secondary-foreground: #caf7e2;
-  --muted: #4a442d;
-  --muted-foreground: color-mix(in oklab, #caf7e2 72%, #4a442d);
-  --border: #386150;
-  --input: #386150;
-  --ring: #58b09c;
-  --paper: #4a442d;
-  --spent: #caf7e2;
-  --received: #58b09c;
+  --background: #2a2b2a;
+  --foreground: #f8f4e3;
+  --card: color-mix(in oklab, #706c61 26%, #2a2b2a);
+  --card-foreground: #f8f4e3;
+  --popover: var(--card);
+  --popover-foreground: #f8f4e3;
+  --primary: #e5446d;
+  --primary-foreground: #f8f4e3;
+  --accent: #ff8966;
+  --accent-foreground: #2a2b2a;
+  --secondary: #706c61;
+  --secondary-foreground: #f8f4e3;
+  --muted: color-mix(in oklab, #706c61 34%, #2a2b2a);
+  --muted-foreground: color-mix(in oklab, #f8f4e3 66%, #706c61);
+  --border: color-mix(in oklab, #706c61 60%, #2a2b2a);
+  --input: var(--border);
+  --ring: #ff8966;
+  --paper: var(--card);
+  --spent: #ff8966;
+  --received: #e5446d;
+  --ink: #f8f4e3;
+  --ink-foreground: #2a2b2a;
+  --gradient-dusk: linear-gradient(180deg, #1f201f 0%, #2a2b2a 55%, #706c61 100%);
 }
 
 html { scroll-behavior: smooth; scrollbar-color: var(--color-muted-foreground) var(--color-background); }

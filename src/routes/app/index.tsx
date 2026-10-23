@@ -5,18 +5,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dateLabel, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
-import { NoBillEntry } from "@/components/NoBillEntry";
+import { VoiceEntry } from "@/components/VoiceEntry";
+import { PurchaseOrder } from "@/components/PurchaseOrder";
 import { RepeatOrder } from "@/components/RepeatOrder";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
     meta: [
-      { title: "Upload bills — ShopLedger" },
-      { property: "og:title", content: "Upload bills — ShopLedger" },
-      { property: "og:description", content: "Review receipt photographs and PDFs in your shop ledger." },
+      { title: "Add a bill — ShopLedger" },
+      { property: "og:title", content: "Add a bill — ShopLedger" },
+      { property: "og:description", content: "Say a sale out loud, attach a bill photo or raise a purchase order — the khata fills itself." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "description", content: "Drop a receipt photo or PDF and see the vendor, date and items pulled out of it." },
+      { name: "description", content: "Speak in any language, or attach a receipt photo or PDF, and see the vendor, date and items pulled out for checking." },
     ],
   }),
   component: UploadScreen,
@@ -43,22 +44,26 @@ function UploadScreen() {
   const newOnes = receipts.filter((r) => added.includes(r.id));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold">Add a bill</h1>
-        <p className="mt-1 text-muted-foreground">Photo of a paper receipt, WhatsApp PDF or handwritten parchi. {receipts.length} records already in your khata.</p>
+        <p className="mt-1 text-muted-foreground">{receipts.length} records already in your khata.</p>
       </div>
 
-      <div className="grid min-w-0 gap-5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <VoiceEntry onAdded={(id) => setAdded((a) => [id, ...a])} />
+
+      <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <label
           onDragOver={(e) => { e.preventDefault(); setOver(true); }}
           onDragLeave={() => setOver(false)}
           onDrop={(e) => { e.preventDefault(); setOver(false); add(Array.from(e.dataTransfer.files).map((f) => f.name)); }}
-          className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition ${over ? "border-primary bg-primary/10" : "hover:border-foreground/40 hover:bg-muted"}`}
+          className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed px-4 py-3 transition ${over ? "border-primary bg-primary/10" : "hover:border-foreground/40 hover:bg-muted"}`}
         >
-          <Upload className="h-8 w-8 text-muted-foreground" />
-          <span className="mt-3 font-semibold">Scan a bill</span>
-          <span className="mt-1 text-sm text-muted-foreground">PDF, JPG or PNG</span>
+          <Upload className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold">Scan a bill</span>
+            <span className="block text-xs text-muted-foreground">PDF, JPG or PNG</span>
+          </span>
           <input
             ref={inputRef}
             type="file"
@@ -68,23 +73,18 @@ function UploadScreen() {
             onChange={(e) => add(Array.from(e.target.files ?? []).map((f) => f.name))}
           />
         </label>
-        <div className="rounded-xl border bg-card p-5">
-          <div className="text-sm font-semibold">No file handy?</div>
-          <p className="mt-1 text-sm text-muted-foreground">Use one of the sample bills and we will read it for you.</p>
-          <ul className="mt-4 space-y-2 text-sm">
-            {SAMPLE_FILES.map((f) => (
-              <li key={f} className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
-                <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate font-mono text-xs">{f}</span>
-                <Button size="sm" variant="outline" onClick={() => add([f])} className="min-h-11 shrink-0 px-2 text-xs">Read it</Button>
-              </li>
-            ))}
-          </ul>
-          <Button size="sm" className="mt-4 w-full bg-accent font-semibold text-accent-foreground hover:bg-accent/90" onClick={() => add(SAMPLE_FILES)}>Read all three</Button>
+        <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border bg-card px-4 py-3">
+          <span className="text-xs text-muted-foreground">Try a sample bill</span>
+          {SAMPLE_FILES.map((f) => (
+            <Button key={f} size="sm" variant="outline" onClick={() => add([f])} className="min-h-11 max-w-full gap-1.5 px-2 text-xs">
+              <FileText className="h-3.5 w-3.5 shrink-0" />
+              <span className="min-w-0 truncate font-mono">{f}</span>
+            </Button>
+          ))}
         </div>
       </div>
 
-      <NoBillEntry onAdded={(id) => setAdded((a) => [id, ...a])} />
+      <PurchaseOrder onAdded={(id) => setAdded((a) => [id, ...a])} />
       <RepeatOrder receipts={receipts} onAdded={(id) => setAdded((a) => [id, ...a])} />
 
       <div className="rounded-xl border bg-card">
@@ -103,7 +103,7 @@ function UploadScreen() {
           <div className="p-10 text-center">
             <FileText className="mx-auto h-8 w-8 text-muted-foreground/60" />
             <p className="mt-2 text-sm font-medium">Nothing read yet</p>
-            <p className="text-sm text-muted-foreground">Uploaded bills will appear here with what we could pull out.</p>
+            <p className="text-sm text-muted-foreground">Bills you speak or attach will appear here with what we could pull out.</p>
           </div>
         )}
         {!loading && newOnes.length > 0 && (

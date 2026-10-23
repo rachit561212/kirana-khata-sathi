@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 export type Cat = "Staples" | "Oils" | "Fresh" | "Snacks" | "Household" | "Dairy" | "Beverages" | "Other";
 export type Kind = "spent" | "received";
 export type Status = "new" | "accepted" | "corrected" | "dismissed";
+export type PaidState = "paid" | "unpaid" | "partial";
 export type Item = { name: string; qty: number; rate: number; gst: number; cat: Cat; hike?: string };
 export type Receipt = {
   id: string;
@@ -16,6 +17,7 @@ export type Receipt = {
   items: Item[];
   status: Status;
   dupOf?: string | undefined;
+  paidState?: PaidState;
 };
 
 export const CATS: Cat[] = ["Staples", "Oils", "Fresh", "Snacks", "Household", "Dairy", "Beverages", "Other"];
@@ -248,6 +250,19 @@ export const khata = {
     if (!items.length || items.some((i) => !Number.isFinite(i.qty) || i.qty <= 0 || !Number.isFinite(i.rate) || i.rate < 0)) throw new Error("Check quantities and rates");
     const id = `R-${900 + state.receipts.length}`;
     setReceipts((rs) => [{ id, vendor: original.vendor, date, source: "Repeat order", payment, kind: original.kind, conf: 100, status: "new", items: items.map(({ hike: _hike, ...item }) => ({ ...item })) }, ...rs]);
+    return id;
+  },
+  /** A purchase order: goods ordered from a supplier, with what has actually been paid for. */
+  addPurchaseOrder(e: { vendor: string; date: string; items: Item[]; paidState: PaidState; payment: string }): string {
+    if (!e.vendor.trim()) throw new Error("Say which supplier");
+    if (!e.items.length || e.items.some((i) => !i.name.trim() || !Number.isFinite(i.qty) || i.qty <= 0 || !Number.isFinite(i.rate) || i.rate < 0)) throw new Error("Check items, quantities and rates");
+    const id = `R-${900 + state.receipts.length}`;
+    const payment = e.paidState === "unpaid" ? "Not paid yet" : e.payment;
+    setReceipts((rs) => [{
+      id, vendor: e.vendor.trim(), date: e.date, source: "Purchase order", payment,
+      kind: "spent", conf: 100, status: "new", paidState: e.paidState,
+      items: e.items.map((i) => ({ ...i, name: i.name.trim() })),
+    }, ...rs]);
     return id;
   },
 };

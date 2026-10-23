@@ -22,3 +22,8 @@
 - [x] No-bill entry on the upload page with voice input in Hindi or English
 - [x] AI Gateway transaction reading: spoken/typed Hindi or English, editable vendor/items/amount/payment, uncertain-field review; tested real English and Hindi model responses, corrected and read back in review. Physical microphone capture remains device-dependent.
 - [x] Repeat orders from existing bills on upload, with editable quantities and a new independent record; tested original bill unchanged and phone layout without sideways scrolling
+- [x] Apply the olive/forest-green/teal/mint palette across site and app
+- [x] Apply the user's Coolors palette (charcoal #2A2B2A, warm gray #706C61, cream #F8F4E3, raspberry #E5446D, coral #FF8966) across site, app, charts and the 3D shop; verified light and dark in the browser
+- [x] Purchased-order option on the upload page: record goods ordered from a supplier with items, quantities and rates, as its own record; shows payment status in the receipts list
+- [x] Simplify the upload page: voice entry first and largest, bill scanning reduced to a small secondary option
+- [x] Voice entry that works in any language the shopkeeper speaks, not just Hindi and English; Hindi speech read back in Devanagari with no language hint

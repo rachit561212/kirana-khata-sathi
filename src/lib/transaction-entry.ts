@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const entryInputSchema = z.object({ description: z.string().trim().min(3).max(3000), language: z.enum(["hi-IN", "en-IN"]) });
+// language is only a hint ("auto" or "" when unknown) — the description itself may be in any language.
+export const entryInputSchema = z.object({ description: z.string().trim().min(3).max(3000), language: z.string().trim().max(35) });
 const field = z.enum(["vendor", "items", "amount", "payment", "kind"]);
 export const transactionSchema = z.object({
   vendor: z.string().max(200).nullable(),
