@@ -117,10 +117,10 @@ function Index() {
                   Forward the bill.<br /><span className="text-primary">Khata</span> fills itself.
                 </h1>
                 <p className="mt-3 max-w-md text-sm opacity-85 sm:mt-5 sm:text-base md:text-lg">
-                  Send us your wholesale invoices, mandi parchis and UPI settlements. Every rupee in and out is written up before you close the shutter.
+                  Bills in. Entries out.
                 </p>
                 <div className="pointer-events-auto mt-4 flex flex-wrap gap-3 sm:mt-8">
-                  <Button size="lg" className="font-semibold" onClick={openUpload}><Upload /> Drop Your First PDF Bill</Button>
+                  <Button size="lg" className="font-semibold" onClick={openUpload}><Upload /> Scan a bill</Button>
                 </div>
               </div>
 
