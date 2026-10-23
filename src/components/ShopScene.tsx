@@ -408,15 +408,15 @@ function LedgerFlow({ progress }: { progress: Progress }) {
   const target = new THREE.Vector3(0, 1.2, 0.3);
   const tmp = new THREE.Vector3();
   const pageTex = useCanvasTexture((g, w, h) => {
-    g.fillStyle = "#fdf6e3"; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(150,110,60,${Math.random() * 0.05})`; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
-    g.strokeStyle = "rgba(160,40,30,0.55)"; g.lineWidth = 3;
+    g.fillStyle = "#f8f4e3"; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(112,108,97,${Math.random() * 0.06})`; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
+    g.strokeStyle = "rgba(229,68,109,0.55)"; g.lineWidth = 3;
     g.beginPath(); g.moveTo(w * 0.16, 0); g.lineTo(w * 0.16, h); g.stroke();
-    g.strokeStyle = "rgba(70,100,170,0.3)"; g.lineWidth = 1.5;
+    g.strokeStyle = "rgba(112,108,97,0.35)"; g.lineWidth = 1.5;
     for (let y = h * 0.14; y < h; y += h * 0.095) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
-    g.fillStyle = "#8a1c1c"; g.font = "bold 30px Georgia, serif"; g.textBaseline = "middle";
+    g.fillStyle = "#b8284f"; g.font = "bold 30px Georgia, serif"; g.textBaseline = "middle";
     g.fillText("KHAATA — October", w * 0.2, h * 0.07);
-    g.fillStyle = "#3a2a1a"; g.font = "italic 24px Georgia, serif";
+    g.fillStyle = "#2a2b2a"; g.font = "italic 24px Georgia, serif";
     const rows = [
       ["21 Oct", "Aashirvaad Atta 10kg x12", "5,780"], ["", "Fortune Oil 1L x24", "3,830"],
       ["", "Tata Salt 1kg x40", "960"], ["", "Parle-G 800g x30", "2,760"],
@@ -431,11 +431,11 @@ function LedgerFlow({ progress }: { progress: Progress }) {
     });
   }, 512, 640);
   const clothTex = useCanvasTexture((g, w, h) => {
-    g.fillStyle = "#8a1c1c"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#d83c60"; g.fillRect(0, 0, w, h);
     g.strokeStyle = "rgba(0,0,0,0.18)";
     for (let i = 0; i < w; i += 3) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); }
     for (let i = 0; i < h; i += 3) { g.beginPath(); g.moveTo(0, i); g.lineTo(w, i); g.stroke(); }
-    g.strokeStyle = "rgba(242,182,50,0.8)"; g.lineWidth = 4;
+    g.strokeStyle = "rgba(255,137,102,0.85)"; g.lineWidth = 4;
     g.strokeRect(10, 10, w - 20, h - 20);
   }, 128, 128, [2, 2]);
   useFrame(({ clock, pointer }) => {
