@@ -338,6 +338,15 @@ export function daySeries(rs: Receipt[]) {
   }));
 }
 
+export function monthSeries(rs: Receipt[]) {
+  const months = [...new Set(rs.filter((r) => r.status !== "dismissed").map((r) => r.date.slice(0, 7)))].sort();
+  return months.map((m) => ({
+    label: MONTHS[Number(m.slice(5, 7)) - 1] ?? "?",
+    spent: rs.filter((r) => r.status !== "dismissed" && r.date.startsWith(m) && r.kind === "spent").reduce((s, r) => s + totalOf(r), 0),
+    received: rs.filter((r) => r.status !== "dismissed" && r.date.startsWith(m) && r.kind === "received").reduce((s, r) => s + totalOf(r), 0),
+  }));
+}
+
 export function sums(rs: Receipt[]) {
   const l = live(rs);
   const spent = l.filter((r) => r.kind === "spent").reduce((s, r) => s + totalOf(r), 0);
