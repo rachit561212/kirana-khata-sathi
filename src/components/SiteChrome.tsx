@@ -12,6 +12,7 @@ const NAV = [
   { href: "#sandbox", label: "Demo" },
   { href: "#features", label: "Features" },
   { href: "#faq", label: "FAQ" },
+  { href: "/app", label: "Open the app" },
 ];
 
 export function SkipLink() {

@@ -109,7 +109,7 @@ function SummaryScreen() {
         </div>
         {made && top && topVendor ? (
           <p className="mt-4 text-[15px] leading-relaxed">
-            In {MONTH_LABEL} you spent {fmt(s.spent)} across {s.bills} bills and took in {fmt(s.received)}, so you closed the month {fmt(s.received - s.spent)} ahead.
+            In {MONTH_LABEL} you spent {fmt(s.spent)} across {s.bills} bills and took in {fmt(s.received)}, so {" "}{s.received >= s.spent ? `you closed the month ${fmt(s.received - s.spent)} ahead.` : `you spent ${fmt(s.spent - s.received)} more than you took in.`}
             {" "}{top.cat} was your biggest spending group at {fmt(top.total)}, and {topVendor.vendor} supplied you the most — {fmt(topVendor.total)} over {topVendor.count} bills.
             {" "}UPI covered {Math.round((s.online / s.received) * 100)}% of what came in.
           </p>
@@ -128,7 +128,7 @@ function Stat({ label, value, sub, tone }: { label: string; value: number; sub: 
     <div className="rounded-xl border bg-card p-5">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className={`mt-1 font-mono text-2xl font-bold ${tone === "spent" ? "text-spent" : "text-received"}`}>
-        {"₹"}{Math.round(Math.abs(value)).toLocaleString("en-IN")}
+        {value < 0 ? "−" : ""}{"₹"}{Math.round(Math.abs(value)).toLocaleString("en-IN")}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
     </div>
