@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Add Sales page with reviewed itemized QR entry, customer sales, refunds, account persistence, automatic stock and money-in minus money-out balance; test accounting and check signed-in saving if a session is available.
+- [x] Add Sales page with reviewed customer QR entry, money-in sales, money-out refunds, optional returned stock and confirmed-payment net balance. All 32 targeted tests pass; real signed-in QR → ₹100 sale → ₹30 refund → reload verified, stock reduction checked, phone has no sideways overflow, temporary test entries removed. Build OK. Physical camera was not retested.
 - [x] Add Products with automatic remaining quantities and in-stock/out-of-stock filters derived from reviewed account bills; purchases add stock, sales subtract it, duplicates and payment-only entries are excluded. Stock tests and signed-out desktop/phone layouts checked.
 - [ ] Verify automatic stock through real signed-in purchase → sale → reopen — requesting user has no matching account session; needs preview sign-in.
 - [ ] Verify QR order saving in the signed-in account and read it back after reopening — blocked because the requesting user has no matching account session; preview sign-in needed. Simulated camera decoding, permission denial, track cleanup and 15 QR/purchase/account tests passed; physical device camera remains unverified.
