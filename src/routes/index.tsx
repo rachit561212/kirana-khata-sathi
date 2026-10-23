@@ -127,7 +127,7 @@ function Index() {
               )}
             </div>
             {reduced && <div key={`fade-${stage}`} aria-hidden className="pointer-events-none absolute inset-0 z-[5] animate-out fade-out bg-ink fill-mode-forwards duration-500" />}
-            <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-4 pb-5 pt-32 text-ink-foreground sm:px-6 sm:pb-8 md:pt-28">
+            <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-4 pb-5 pt-32 text-hero-foreground sm:px-6 sm:pb-8 md:pt-28">
               <div ref={introRef} className="max-w-xl">
                 <h1 className="text-3xl font-bold leading-[1.08] sm:text-5xl md:text-7xl">
                   Bill bhejo.<br /><span className="text-primary">हिसाब</span> हो जाएगा।
@@ -144,7 +144,7 @@ function Index() {
                 <div
                   key={stage}
                   aria-live="polite"
-                  className={`max-w-sm rounded-2xl border p-3 backdrop-blur-md sm:p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/10 bg-ink/55 duration-500"}`}
+                  className={`max-w-sm rounded-2xl border p-3 text-ink-foreground backdrop-blur-md sm:p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/10 bg-ink/55 duration-500"}`}
                 >
                   <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">{stage + 1} of {STAGES.length} · {st.tag}</div>
                   <div className="mt-1.5 font-display text-xl font-bold tracking-tight sm:text-2xl">{st.title}</div>
