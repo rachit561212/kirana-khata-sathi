@@ -9,6 +9,10 @@ export const Route = createFileRoute("/app/summary")({
   head: () => ({
     meta: [
       { title: "Spending summary — ShopLedger" },
+      { property: "og:title", content: "Spending summary — ShopLedger" },
+      { property: "og:description", content: "Spending totals and category breakdowns linked to underlying receipts." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "description", content: "Where your money went this month, with every number traceable back to the bills behind it." },
     ],
   }),

@@ -7,6 +7,8 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useServerFn } from "@tanstack/react-start";
+import { authenticateXano } from "@/lib/xano.functions";
 
 const NAV = [
   { href: "#sandbox", label: "Demo" },
@@ -93,29 +95,50 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
 /* ---------- signup with password visibility ---------- */
 export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const [show, setShow] = useState(false);
+  const [mode, setMode] = useState<"signup" | "login">("signup");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const authenticate = useServerFn(authenticateXano);
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const values = new FormData(event.currentTarget);
+    const email = String(values.get("email") || "");
+    const password = String(values.get("password") || "");
+    setBusy(true); setError("");
+    try {
+      const result = await authenticate({ data: mode === "signup" ? { mode, email, password, name: String(values.get("name") || "") } : { mode, email, password } });
+      if (!result.account) { setError(result.error || "Unable to sign in."); return; }
+      onOpenChange(false);
+      toast.success(mode === "signup" ? "Account created" : "Signed in");
+      window.location.assign("/app");
+    } catch { setError("Unable to reach Xano. Please try again."); }
+    finally { setBusy(false); }
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Open your khata</DialogTitle>
-          <DialogDescription>Free for your first 50 bills every month.</DialogDescription>
+          <DialogTitle className="font-display text-2xl">{mode === "signup" ? "Open your khata" : "Sign in to your khata"}</DialogTitle>
+          <DialogDescription>{mode === "signup" ? "Create your Xano account." : "Use your Xano account email and password."}</DialogDescription>
         </DialogHeader>
         <form
           className="space-y-4"
-          onSubmit={(e) => { e.preventDefault(); onOpenChange(false); toast.success("Account created", { description: "Forward your first bill on WhatsApp to get started." }); }}
+          onSubmit={submit}
         >
-          <div className="space-y-1.5"><Label htmlFor="shop">Shop name</Label><Input id="shop" required placeholder="Gupta General Store" /></div>
-          <div className="space-y-1.5"><Label htmlFor="phone">Mobile number</Label><Input id="phone" required type="tel" inputMode="numeric" placeholder="98765 43210" /></div>
+          {mode === "signup" && <div className="space-y-1.5"><Label htmlFor="shop">Shop name</Label><Input id="shop" name="name" required maxLength={200} autoComplete="organization" placeholder="Gupta General Store" /></div>}
+          <div className="space-y-1.5"><Label htmlFor="email">Email address</Label><Input id="email" name="email" required type="email" autoComplete="email" placeholder="you@example.com" /></div>
           <div className="space-y-1.5">
             <Label htmlFor="pw">Password</Label>
             <div className="relative">
-              <Input id="pw" required minLength={6} type={show ? "text" : "password"} className="pr-10" />
-              <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground">
+              <Input id="pw" name="password" required maxLength={256} autoComplete={mode === "signup" ? "new-password" : "current-password"} type={show ? "text" : "password"} className="pr-10" />
+              <Button variant="ghost" size="icon" type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground">
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+              </Button>
             </div>
           </div>
-          <Button type="submit" className="w-full font-semibold">Create account</Button>
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" disabled={busy} className="w-full font-semibold">{busy ? "Connecting…" : mode === "signup" ? "Create account" : "Sign in"}</Button>
+          <Button type="button" variant="ghost" disabled={busy} className="w-full" onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }}>{mode === "signup" ? "Already have an account? Sign in" : "Create a new account"}</Button>
         </form>
       </DialogContent>
     </Dialog>

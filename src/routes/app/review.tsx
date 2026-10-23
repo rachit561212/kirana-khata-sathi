@@ -11,6 +11,10 @@ export const Route = createFileRoute("/app/review")({
   head: () => ({
     meta: [
       { title: "Review & edit — ShopLedger" },
+      { property: "og:title", content: "Review & edit — ShopLedger" },
+      { property: "og:description", content: "Check vendors, dates and items before confirming your receipt records." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "description", content: "Check what was read from each bill and fix anything that came out wrong before it is saved." },
     ],
   }),

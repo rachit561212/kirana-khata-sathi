@@ -10,6 +10,10 @@ export const Route = createFileRoute("/app/")({
   head: () => ({
     meta: [
       { title: "Upload bills — ShopLedger" },
+      { property: "og:title", content: "Upload bills — ShopLedger" },
+      { property: "og:description", content: "Review receipt photographs and PDFs in your shop ledger." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "description", content: "Drop a receipt photo or PDF and see the vendor, date and items pulled out of it." },
     ],
   }),

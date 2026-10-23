@@ -14,6 +14,10 @@ export const Route = createFileRoute("/app/receipts")({
   head: () => ({
     meta: [
       { title: "All receipts — ShopLedger" },
+      { property: "og:title", content: "All receipts — ShopLedger" },
+      { property: "og:description", content: "Search your receipt records and export confirmed purchases as CSV." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "description", content: "Every bill you sent, turned into a record you can search, filter and export as CSV." },
     ],
   }),
