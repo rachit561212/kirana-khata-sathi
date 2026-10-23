@@ -114,7 +114,7 @@ function Shelf({ x }: { x: number }) {
   const labels = useLabelAtlas();
   const items = useMemo(() => {
     const out: { p: [number, number, number]; s: [number, number, number]; b: number; jar: boolean }[] = [];
-    let seed = x * 97 + 13;
+    let seed = Math.abs(Math.round(x * 97)) + 13;
     const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
     [0.55, 1.25, 1.95, 2.6].forEach((y) => {
       let cx = -0.7;
@@ -223,7 +223,7 @@ function Crate({ p, fruit }: { p: [number, number, number]; fruit: string }) {
 
 /* ---------- People (CC0 rigged Quaternius characters) ---------- */
 const SKIN = "#9a6a48";
-const GROCER = { White: "#f1ead8", LightBrown: "#5a3d26", Red_Dark: "#2f5d3a", LightBlue: "#e9e2cf" };
+const GROCER = { White: "#f1ead8", LightBrown: "#efe6d0", Red_Dark: "#2f5d3a", LightBlue: "#e9e2cf" };
 const WOMAN = { White: "#c94f7c", Grey: "#d9a441", Brown: "#5a2f2a", Orange: "#c94f7c" };
 const MAN = { White: "#3f72af", LightBrown: "#3a3a40", Red_Dark: "#3f72af" };
 const HEIGHT = 1.72;
