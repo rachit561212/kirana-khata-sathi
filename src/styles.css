@@ -107,8 +107,8 @@
   --paper: var(--card);
   --spent: #ff8966;
   --received: #e5446d;
-  --ink: #f8f4e3;
-  --ink-foreground: #2a2b2a;
+  --ink: color-mix(in oklab, #706c61 38%, #1f201f);
+  --ink-foreground: #f8f4e3;
   --hero-foreground: #f8f4e3;
   --gradient-dusk: linear-gradient(180deg, #1f201f 0%, #2a2b2a 55%, #706c61 100%);
 }
