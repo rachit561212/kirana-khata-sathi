@@ -1,15 +1,18 @@
-import { describe, expect, it, vi } from "vitest";
-const insert = vi.hoisted(() => vi.fn().mockResolvedValue({ error: null }));
-const result = vi.hoisted(() => ({ data: [{ id: "rice" }], error: null as null | { message: string } }));
-const update = vi.hoisted(() => vi.fn());
-vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ insert, update: (value: unknown) => { update(value); return { eq: () => ({ eq: () => ({ select: async () => result }) }) }; } }) } }));
-import { addProduct, filterProducts, productName, setProductStock } from "@/lib/products";
-const products = [{ id: "rice", name: "Rice", in_stock: true }, { id: "oil", name: "Oil", in_stock: false }];
-describe("Product stock", () => {
-  it("shows only available products in the in-stock filter", () => { expect(filterProducts(products, "", "in")).toEqual([products[0]]); });
-  it("shows only unavailable products in the out-of-stock filter", () => { expect(filterProducts(products, "", "out")).toEqual([products[1]]); });
-  it("saves the selected out-of-stock status to the account", async () => { await addProduct("shop-a", " Oil ", false); expect(insert).toHaveBeenCalledWith({ user_id: "shop-a", name: "Oil", in_stock: false }); });
-  it("saves switching a product back in stock", async () => { await setProductStock("shop-a", "rice", true); expect(update).toHaveBeenCalledWith({ in_stock: true }); });
-  it("rejects blank product names", () => { expect(() => productName("   ")).toThrow(); });
-  it("reports a failed stock write", async () => { result.error = { message: "offline" }; await expect(setProductStock("shop-a", "rice", false)).rejects.toThrow("not saved"); result.error = null; });
+import { describe, expect, it } from 'vitest';
+import { filterProducts, receiptProducts } from '@/lib/products';
+import type { Receipt } from '@/lib/khata';
+const purchase: Receipt = { id: 'buy', vendor: 'Supplier', date: '2026-10-23', source: 'Bill', kind: 'spent', payment: 'Credit', status: 'accepted', conf: 100, stockMovement: 'purchase', items: [{ name: 'Rice 1kg', qty: 10, rate: 90, gst: 0, cat: 'Staples' }] };
+const sale: Receipt = { ...purchase, id: 'sale', stockMovement: 'sale', kind: 'received', items: [{ ...purchase.items[0], qty: 4 }] };
+describe('Automatic product stock', () => {
+ it('adds purchased quantities', () => { expect(receiptProducts([purchase])[0]).toMatchObject({ quantity: 10, in_stock: true }); });
+ it('subtracts sold quantities', () => { expect(receiptProducts([purchase, sale])[0]?.quantity).toBe(6); });
+ it('marks a fully sold product out of stock without removing it', () => { const rows = receiptProducts([purchase, {...sale, items: purchase.items}]); expect(rows[0]).toMatchObject({quantity: 0, in_stock: false}); expect(filterProducts(rows, '', 'out')).toHaveLength(1); });
+ it('ignores drafts until reviewed', () => { expect(receiptProducts([{...purchase,status:'new'}])).toEqual([]); });
+ it('excludes duplicates and dismissed bills', () => { expect(receiptProducts([{...purchase,dupOf:'other'}, {...purchase,status:'dismissed'}])).toEqual([]); });
+ it('recalculates edits without counting the old quantity twice', () => { expect(receiptProducts([{...purchase,items: [{...purchase.items[0],qty: 7}]}])[0]?.quantity).toBe(7); });
+ it('does not infer purchases from money spent or pending orders', () => { expect(receiptProducts([{...purchase,stockMovement:undefined}, {...purchase,stockMovement:'none'}])).toEqual([]); });
+ it('subtracts credit sales irrespective of payment direction', () => { expect(receiptProducts([purchase,{...sale,kind:'spent',payment:'Credit'}])[0]?.quantity).toBe(6); });
+ it('preserves negative balance for missing-purchase warning', () => { expect(receiptProducts([sale])[0]).toMatchObject({quantity:-4,in_stock:false}); });
+ it('keeps different pack sizes separate', () => { expect(receiptProducts([purchase,{...purchase,id:'pack',items:[{...purchase.items[0],name:'Rice 25kg'}]}])).toHaveLength(2); });
+ it('matches same product ignoring case and extra spaces', () => { expect(receiptProducts([purchase,{...sale,items:[{...sale.items[0],name:' rice  1kg '}]}])[0]?.quantity).toBe(6); });
 });
