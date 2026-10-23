@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Upload, Play, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, Star, BadgeCheck } from "lucide-react";
+import { Upload, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, Star, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -60,12 +60,6 @@ function Index() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); };
   }, [progress]);
 
-  const replay = () => {
-    const el = heroRef.current;
-    if (!el) return;
-    window.scrollTo({ top: el.offsetTop, behavior: "instant" as ScrollBehavior });
-    setTimeout(() => window.scrollTo({ top: el.offsetTop + el.offsetHeight - window.innerHeight, behavior: "smooth" }), 50);
-  };
   const st = STAGES[stage]!;
 
   return (
@@ -109,9 +103,6 @@ function Index() {
               </p>
               <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
                 <Button size="lg" className="font-semibold"><Upload /> Drop Your First PDF Bill</Button>
-                <Button size="lg" variant="outline" onClick={replay} className="border-ink-foreground/40 bg-ink/30 text-ink-foreground backdrop-blur hover:bg-ink/50 hover:text-ink-foreground">
-                  <Play /> Watch 3D Shutter Demo
-                </Button>
               </div>
             </div>
 
