@@ -44,15 +44,15 @@ function Shutter({ progress }: { progress: Progress }) {
   const tex = useCanvasTexture((g, w, h) => {
     for (let y = 0; y < h; y += 16) {
       const grd = g.createLinearGradient(0, y, 0, y + 16);
-      grd.addColorStop(0, "#b8bdbf"); grd.addColorStop(0.6, "#8d9396"); grd.addColorStop(1, "#5a5f62");
+      grd.addColorStop(0, "#a8a49a"); grd.addColorStop(0.6, "#7d7a71"); grd.addColorStop(1, "#55534c");
       g.fillStyle = grd; g.fillRect(0, y, w, 16);
     }
     // rust & graffiti speckle
     for (let i = 0; i < 260; i++) {
-      g.fillStyle = `rgba(${120 + Math.random() * 60},${60 + Math.random() * 30},30,${Math.random() * 0.25})`;
+      g.fillStyle = `rgba(${100 + Math.random() * 50},${95 + Math.random() * 40},${80 + Math.random() * 30},${Math.random() * 0.25})`;
       g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 4, 1 + Math.random() * 3);
     }
-    g.fillStyle = "rgba(194,69,45,0.85)"; g.font = "bold 22px sans-serif";
+    g.fillStyle = "rgba(229,68,109,0.9)"; g.font = "bold 22px sans-serif";
     g.fillText("KIRANA", 40, 120); g.fillText("STORE", 46, 150);
   }, 256, 256, [2, 1]);
   const H = 3.2;
@@ -73,7 +73,7 @@ function Shutter({ progress }: { progress: Progress }) {
       </mesh>
       <mesh position={[0, 3.25, 0.05]} rotation-z={Math.PI / 2}>
         <cylinderGeometry args={[0.18, 0.18, 5.7, 20]} />
-        <meshStandardMaterial color="#6b7073" metalness={0.7} roughness={0.4} />
+        <meshStandardMaterial color="#5c5950" metalness={0.7} roughness={0.4} />
       </mesh>
     </group>
   );
