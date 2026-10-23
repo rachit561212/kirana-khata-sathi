@@ -127,6 +127,12 @@ function ReceiptsScreen() {
                 <span className={`shrink-0 font-mono text-sm font-semibold ${r.kind === "spent" ? "text-spent" : "text-received"}`}>{r.kind === "spent" ? "−" : "+"}{fmt(totalOf(r))}</span>
               </div>
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"><span>{dateLabel(r.date)}</span><span>{r.items.length} items</span><span>{r.payment}</span></div>
+              {r.source === "Purchase order" && (
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="rounded border px-1.5 py-0.5 text-[11px] font-medium">Purchase order</span>
+                  {r.paidState && r.paidState !== "paid" && <span className="rounded bg-accent/15 px-1.5 py-0.5 text-[11px] font-medium text-accent">{r.paidState === "unpaid" ? "Not paid yet" : "Part paid"}</span>}
+                </div>
+              )}
               <div className="flex items-center justify-between gap-3 text-xs"><span className="font-mono text-muted-foreground">{r.id}</span><span className={r.status === "new" ? "text-primary" : "text-received"}>{r.status === "new" ? "To check" : "Confirmed"}</span></div>
             </li>
           ))}
@@ -149,7 +155,14 @@ function ReceiptsScreen() {
                 <tr key={r.id} className="transition hover:bg-muted/60">
                   <td className="px-5 py-2.5 font-mono text-xs text-muted-foreground">{r.id}</td>
                   <td className="whitespace-nowrap px-3 py-2.5">{dateLabel(r.date)}</td>
-                  <td className="px-3 py-2.5 font-medium">{r.vendor}</td>
+                  <td className="px-3 py-2.5 font-medium">
+                    {r.vendor}
+                    {r.source === "Purchase order" && (
+                      <span className="ml-1.5 inline-block rounded border px-1.5 py-0.5 text-[10px] font-medium">
+                        order{r.paidState && r.paidState !== "paid" ? ` · ${r.paidState === "unpaid" ? "not paid" : "part paid"}` : ""}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-3 py-2.5 text-muted-foreground">{r.items.length}</td>
                   <td className="px-3 py-2.5">{r.payment}</td>
                   <td className="px-3 py-2.5 text-xs">
