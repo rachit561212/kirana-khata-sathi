@@ -475,7 +475,7 @@ function LedgerFlow({ progress }: { progress: Progress }) {
       <group ref={book} position={[0, 1.13, 0.32]} rotation-x={0.22}>
         {/* base: red cloth cover + page block + written page */}
         <mesh position={[0.36, 0, 0]} castShadow receiveShadow><boxGeometry args={[0.72, 0.04, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
-        <mesh position={[0.35, 0.045, 0]}><boxGeometry args={[0.66, 0.05, 0.86]} /><meshStandardMaterial color="#f3e8cd" roughness={0.9} /></mesh>
+        <mesh position={[0.35, 0.045, 0]}><boxGeometry args={[0.66, 0.05, 0.86]} /><meshStandardMaterial color="#f8f4e3" roughness={0.9} /></mesh>
         <mesh position={[0.35, 0.071, 0]} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[0.64, 0.84]} />
           <meshStandardMaterial map={pageTex} roughness={0.85} />
@@ -483,12 +483,12 @@ function LedgerFlow({ progress }: { progress: Progress }) {
         {/* cover starts closed on top of the pages, flips open to the left */}
         <group ref={cover} position={[0, 0.055, 0]}>
           <mesh position={[0.36, 0, 0]} castShadow><boxGeometry args={[0.72, 0.035, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
-          <mesh position={[0.35, -0.02, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f7efdb" roughness={0.9} /></mesh>
+          <mesh position={[0.35, -0.02, 0]} rotation-x={Math.PI / 2}><planeGeometry args={[0.66, 0.86]} /><meshStandardMaterial color="#f8f4e3" roughness={0.9} /></mesh>
         </group>
         {/* spine with red thread binding */}
-        <mesh position={[0, 0.01, 0]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.92, 12]} /><meshStandardMaterial color="#6d1414" roughness={0.9} /></mesh>
+        <mesh position={[0, 0.01, 0]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.035, 0.035, 0.92, 12]} /><meshStandardMaterial color="#8e2140" roughness={0.9} /></mesh>
         {[-0.3, 0, 0.3].map((z) => (
-          <mesh key={z} position={[0, 0.045, z]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /><meshStandardMaterial color="#c2452d" roughness={0.7} /></mesh>
+          <mesh key={z} position={[0, 0.045, z]} rotation-x={Math.PI / 2}><cylinderGeometry args={[0.012, 0.012, 0.12, 8]} /><meshStandardMaterial color="#e5446d" roughness={0.7} /></mesh>
         ))}
       </group>
     </>
