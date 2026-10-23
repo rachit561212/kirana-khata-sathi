@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Repair Gemini voice transcription; verified real browser microphone recording becomes accurate editable text and 13 regression tests pass
+- [ ] Verify spoken text reaches transaction review — blocked by Google's gemini-3.8-flash service returning HTTP 503; transcript remains editable and manual entry stays available
 - [x] Replace receipt drop-area wording with “Scan a bill”
 - [x] Fit the full 3D storefront on phones and keep the animation pinned while scrolling
 - [x] Phone layouts: app navigation, upload, review, receipts, duplicates, summary, ask and landing page; checked at 320, 360, 390, 812 and 1280px, including sample upload → edit → CSV and duplicate review
