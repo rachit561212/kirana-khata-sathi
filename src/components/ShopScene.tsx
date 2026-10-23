@@ -4,7 +4,9 @@ import { useRef, useMemo } from "react";
 import * as THREE from "three";
 
 /** Scroll progress 0..1 shared by the page. */
-export type Progress = { current: number };
+export type Progress = { current: number; reduced?: boolean };
+/** When true (reduced motion), everything jumps straight to its target. */
+let SNAP = false;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 /** Map progress p from [a,b] into 0..1 with smoothstep easing. */
@@ -13,7 +15,11 @@ const seg = (p: number, a: number, b: number) => {
   return t * t * (3 - 2 * t);
 };
 const damp = (cur: number, target: number, k: number, dt: number) =>
-  cur + (target - cur) * (1 - Math.exp(-k * Math.min(dt, 0.05)));
+  SNAP ? target : cur + (target - cur) * (1 - Math.exp(-k * Math.min(dt, 0.05)));
+function SnapSync({ progress }: { progress: Progress }) {
+  useFrame(() => { SNAP = !!progress.reduced; });
+  return null;
+}
 
 function useCanvasTexture(draw: (g: CanvasRenderingContext2D, w: number, h: number) => void, w: number, h: number, repeat: [number, number] = [1, 1]) {
   return useMemo(() => {
@@ -146,7 +152,7 @@ function Person({
   const legs = useRef<(THREE.Mesh | null)[]>([]);
   const last = useRef(0);
   useFrame(({ clock }, dt) => {
-    const t = clock.elapsedTime + phase;
+    const t = SNAP ? phase : clock.elapsedTime + phase;
     const p = progress.current;
     const k = seg(p, path.range[0], path.range[1]);
     if (root.current) {
@@ -215,7 +221,7 @@ function ShopLights({ progress }: { progress: Progress }) {
     const p = progress.current;
     const on = seg(p, 0.2, 0.32);
     // tube-light flicker while switching on
-    const flick = on > 0 && on < 1 ? (Math.sin(clock.elapsedTime * 60) > 0.2 ? 1 : 0.15) : 1;
+    const flick = !SNAP && on > 0 && on < 1 ? (Math.sin(clock.elapsedTime * 60) > 0.2 ? 1 : 0.15) : 1;
     const v = on * flick;
     if (tube.current) tube.current.emissiveIntensity = 0.1 + v * 3;
     if (point.current) point.current.intensity = v * 9;
@@ -253,7 +259,7 @@ function LedgerFlow({ progress }: { progress: Progress }) {
   const tmp = new THREE.Vector3();
   useFrame(({ clock, pointer }) => {
     const p = progress.current;
-    const t = clock.elapsedTime;
+    const t = SNAP ? 0 : clock.elapsedTime;
     items.forEach((it, i) => {
       const m = refs.current[i];
       if (!m) return;
@@ -355,6 +361,7 @@ export default function ShopScene({ progress }: { progress: Progress }) {
 
   return (
     <Canvas shadows dpr={[1, 1.75]} camera={{ position: [-1.5, 2.8, 13], fov: 40 }}>
+      <SnapSync progress={progress} />
       <Sky progress={progress} />
       <CameraRig progress={progress} />
       <directionalLight position={[6, 9, 7]} intensity={1.2} castShadow shadow-mapSize={[1024, 1024]} color="#ffcf98" />

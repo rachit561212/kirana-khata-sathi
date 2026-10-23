@@ -1,41 +1,64 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Upload, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, Star, BadgeCheck } from "lucide-react";
+import { Upload, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, BadgeCheck, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Toaster } from "@/components/ui/sonner";
+import { BackToTop, CookieBanner, CopyButton, Shortcuts, SignupDialog, SiteHeader, SkipLink, UploadBox, useTheme } from "@/components/SiteChrome";
 
 const ShopScene = lazy(() => import("@/components/ShopScene"));
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kirana Khata — Upload receipts, get your shop ledger" },
-      { name: "description", content: "Drop supplier bills, mandi receipts and UPI settlements. Kirana Khata extracts every line into a clean money in/out ledger." },
-      { property: "og:title", content: "Kirana Khata — Your shop ledger, written for you" },
-      { property: "og:description", content: "Automated extraction of money spent and money received for kirana stores, in 7 Indian languages." },
+      { title: "Kirana Khata: upload shop bills, get your ledger" },
+      { name: "description", content: "Forward supplier bills, mandi receipts and UPI settlements. Kirana Khata turns them into a daily money in and money out ledger." },
+      { property: "og:title", content: "Kirana Khata: your shop ledger, filled in from your bills" },
+      { property: "og:description", content: "Daily khata for kirana stores. Reads WhatsApp PDFs, thermal receipts and handwritten parchis in 7 Indian languages." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Kirana Khata" },
+      { property: "og:locale", content: "en_IN" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Kirana Khata: your shop ledger, filled in from your bills" },
+      { name: "twitter:description", content: "Daily khata for kirana stores, built from the bills you already get." },
     ],
   }),
   component: Index,
 });
 
 const STAGES = [
-  { at: 0, tag: "6:00 AM", title: "The gully wakes up", body: "Scroll to roll up the shutter." },
-  { at: 0.12, tag: "Shutter up", title: "Dukaan khul gayi", body: "Yesterday's bills are already in your khata." },
-  { at: 0.26, tag: "Lights on", title: "Shelves lit, stock counted", body: "Every distributor invoice matched to what's on the shelf." },
-  { at: 0.4, tag: "First customers", title: "Namaste, bhaiya!", body: "UPI and cash sales get logged as money comes in." },
-  { at: 0.6, tag: "Bills to ledger", title: "Every receipt lands in the khata", body: "Coins and parchis go straight into your daybook, line by line." },
-  { at: 0.85, tag: "Day closed", title: "Hisaab ready before shutter-down", body: "Money in, money out, udhaar due — on one screen." },
+  { at: 0, rest: 0, tag: "6:00 AM", title: "Shutter's still down", body: "Scroll down to open the shop." },
+  { at: 0.12, rest: 0.24, tag: "Shutter up", title: "Dukaan khul gayi", body: "Yesterday's bills are already in your khata." },
+  { at: 0.26, rest: 0.36, tag: "Lights on", title: "Stock on the shelf, bills on file", body: "Each distributor invoice is matched to what you bought." },
+  { at: 0.4, rest: 0.6, tag: "First customers", title: "Namaste, bhaiya!", body: "UPI and cash sales are noted as they come in." },
+  { at: 0.6, rest: 0.86, tag: "Into the khata", title: "Every parchi gets an entry", body: "Each bill becomes a line in your daybook." },
+  { at: 0.85, rest: 1, tag: "9:30 PM", title: "Hisaab done before closing", body: "Money in, money out and udhaar due, on one screen." },
 ];
 
 function Index() {
   const [mounted, setMounted] = useState(false);
-  const progress = useRef({ current: 0 }).current;
+  const progress = useRef<{ current: number; reduced?: boolean }>({ current: 0 }).current;
   const heroRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  const uploadRef = useRef<HTMLInputElement>(null);
   const [stage, setStage] = useState(0);
+  const [reduced, setReduced] = useState(false);
+  const [signup, setSignup] = useState(false);
+  const { dark, toggle } = useTheme();
+  const reducedRef = useRef(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("kk-motion");
+    const r = saved ? saved === "reduced" : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setReduced(r);
+  }, []);
+  useEffect(() => {
+    reducedRef.current = reduced;
+    progress.reduced = reduced;
+    window.dispatchEvent(new Event("scroll"));
+  }, [reduced, progress]);
+  const toggleMotion = () => setReduced((r) => { localStorage.setItem("kk-motion", r ? "full" : "reduced"); return !r; });
 
   useEffect(() => {
     setMounted(true);
@@ -44,14 +67,15 @@ function Index() {
       if (!el) return;
       const total = el.offsetHeight - window.innerHeight;
       const p = Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total));
-      progress.current = p;
-      if (introRef.current) {
-        introRef.current.style.opacity = String(Math.max(0, 1 - p * 5));
-        introRef.current.style.transform = `translateY(${-p * 120}px)`;
-      }
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
       let s = 0;
       STAGES.forEach((st, i) => { if (p >= st.at) s = i; });
+      const r = reducedRef.current;
+      progress.current = r ? STAGES[s]!.rest : p;
+      if (introRef.current) {
+        introRef.current.style.opacity = r ? (s === 0 ? "1" : "0") : String(Math.max(0, 1 - p * 5));
+        introRef.current.style.transform = r ? "none" : `translateY(${-p * 120}px)`;
+      }
+      if (barRef.current) barRef.current.style.transform = `scaleX(${r ? (s + 1) / STAGES.length : p})`;
       setStage(s);
     };
     onScroll();
@@ -60,83 +84,100 @@ function Index() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); };
   }, [progress]);
 
+  const openUpload = () => {
+    document.getElementById("upload")?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    setTimeout(() => uploadRef.current?.click(), reduced ? 0 : 500);
+  };
   const st = STAGES[stage]!;
 
   return (
-    <main className="min-h-screen">
-      <header className="absolute inset-x-0 top-0 z-20">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 text-ink-foreground">
-          <a href="/" className="flex items-center gap-2 font-display text-xl font-bold">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">₹</span>
-            Kirana Khata
-          </a>
-          <div className="hidden gap-8 text-sm md:flex">
-            <a href="#sandbox" className="opacity-80 hover:opacity-100">Demo</a>
-            <a href="#features" className="opacity-80 hover:opacity-100">Features</a>
-            <a href="#pricing" className="opacity-80 hover:opacity-100">Pricing</a>
-            <a href="#faq" className="opacity-80 hover:opacity-100">FAQ</a>
-          </div>
-          <Button size="sm" className="font-semibold">Start free</Button>
-        </nav>
-      </header>
+    <>
+      <SkipLink />
+      <SiteHeader dark={dark} onToggleTheme={toggle} onSignup={() => setSignup(true)} />
+      <main id="main" className="min-h-screen">
+        {/* HERO: scroll-driven story */}
+        <section id="hero" ref={heroRef} className="relative h-[420vh] bg-dusk" aria-label="Shop story">
+          <div className="sticky top-0 h-[100svh] min-h-[640px] overflow-hidden">
+            <div className="absolute inset-0">
+              {mounted && (
+                <Suspense fallback={null}>
+                  <ShopScene progress={progress} />
+                </Suspense>
+              )}
+            </div>
+            {reduced && <div key={`fade-${stage}`} aria-hidden className="pointer-events-none absolute inset-0 z-[5] animate-out fade-out bg-ink fill-mode-forwards duration-500" />}
+            <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 pb-8 pt-28 text-ink-foreground">
+              <div ref={introRef} className="max-w-xl">
+                <h1 className="text-5xl font-bold leading-[1.02] md:text-7xl">
+                  Forward the bill.<br /><span className="text-primary">Khata</span> fills itself.
+                </h1>
+                <p className="mt-5 max-w-md text-base opacity-85 md:text-lg">
+                  Send us your wholesale invoices, mandi parchis and UPI settlements. Every rupee in and out is written up before you close the shutter.
+                </p>
+                <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
+                  <Button size="lg" className="font-semibold" onClick={openUpload}><Upload /> Drop Your First PDF Bill</Button>
+                </div>
+              </div>
 
-      {/* HERO — scroll-driven story */}
-      <section id="hero" ref={heroRef} className="relative h-[420vh] bg-dusk">
-        <div className="sticky top-0 h-[100svh] min-h-[640px] overflow-hidden">
-          <div className="absolute inset-0">
-            {mounted && (
-              <Suspense fallback={null}>
-                <ShopScene progress={progress} />
-              </Suspense>
-            )}
-          </div>
-          <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 pb-8 pt-28 text-ink-foreground">
-            <div ref={introRef} className="max-w-xl">
-              <p className="mb-4 inline-block rounded-full border border-primary/40 bg-ink/40 px-3 py-1 font-mono text-xs uppercase tracking-widest text-primary backdrop-blur">
-                Dukaan ka hisaab, automatic
-              </p>
-              <h1 className="text-5xl font-bold leading-[1.02] md:text-7xl">
-                Snap the bill.<br /><span className="text-primary">The khata</span> writes itself.
-              </h1>
-              <p className="mt-5 max-w-md text-base opacity-85 md:text-lg">
-                Upload wholesale invoices, mandi parchis and UPI settlements. We extract every rupee in and out — before you pull down the shutter.
-              </p>
-              <div className="pointer-events-auto mt-8 flex flex-wrap gap-3">
-                <Button size="lg" className="font-semibold"><Upload /> Drop Your First PDF Bill</Button>
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div
+                  key={stage}
+                  aria-live="polite"
+                  className={`max-w-sm rounded-lg border p-5 ${reduced ? "border-ink-foreground/30 bg-ink" : "animate-in fade-in slide-in-from-bottom-4 border-ink-foreground/15 bg-ink/80 duration-500"}`}
+                >
+                  <div className="text-sm text-primary">{stage + 1} of {STAGES.length} · {st.tag}</div>
+                  <div className="mt-1 font-display text-2xl font-bold">{st.title}</div>
+                  <p className="mt-1 text-[15px] leading-relaxed">{st.body}</p>
+                </div>
+                <div className={`grid grid-cols-2 gap-3 ${reduced ? "" : "transition-all duration-700"} ${stage >= 3 ? "opacity-100" : "translate-y-6 opacity-0"}`}>
+                  <Metric label="Spent today" value="₹18,420" sub="6 supplier bills, 2 mandi receipts" tone="spent" />
+                  <Metric label="Received today" value="₹27,960" sub="UPI ₹21,300 + cash ₹6,660" tone="received" />
+                </div>
+              </div>
+              <button
+                onClick={toggleMotion}
+                aria-pressed={reduced}
+                className="pointer-events-auto absolute right-5 top-20 inline-flex items-center gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 py-1.5 text-xs transition hover:bg-ink"
+              >
+                {reduced ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+                {reduced ? "Play full animation" : "Reduce motion"}
+              </button>
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-ink/40">
+                <div ref={barRef} className={`h-full origin-left bg-primary ${reduced ? "transition-transform duration-300" : ""}`} style={{ transform: "scaleX(0)" }} />
               </div>
             </div>
-
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div key={stage} className="max-w-sm animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-ink-foreground/15 bg-ink/60 p-5 backdrop-blur-md duration-500">
-                <div className="font-mono text-[11px] uppercase tracking-widest text-primary">{String(stage + 1).padStart(2, "0")} · {st.tag}</div>
-                <div className="mt-1 font-display text-2xl font-bold">{st.title}</div>
-                <p className="mt-1 text-sm opacity-80">{st.body}</p>
-              </div>
-              <div className={`grid grid-cols-2 gap-3 transition-all duration-700 ${stage >= 3 ? "opacity-100" : "translate-y-6 opacity-0"}`}>
-                <Metric label="Money Spent · today" value="₹18,420" sub="6 supplier bills · 2 mandi receipts" tone="spent" />
-                <Metric label="Money Received · today" value="₹27,960" sub="UPI ₹21,300 · Cash ₹6,660" tone="received" />
-              </div>
-            </div>
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-ink/40">
-              <div ref={barRef} className="h-full origin-left bg-primary" style={{ transform: "scaleX(0)" }} />
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <Sandbox />
-      <Features />
-      <Reviews />
-      <Pricing />
-      <Faq />
+        <section id="upload" className="mx-auto max-w-7xl scroll-mt-20 px-6 pt-24">
+          <h2 className="text-3xl font-bold md:text-4xl">Try it with one of your bills</h2>
+          <p className="mb-8 mt-2 text-muted-foreground">Nothing is saved yet. This is just to show you how it feels.</p>
+          <UploadBox inputRef={uploadRef} />
+        </section>
+
+        <Sandbox />
+        <Features />
+        <Reviews />
+        <Pricing onSignup={() => setSignup(true)} />
+        <Faq />
+      </main>
 
       <footer className="bg-ink py-10 text-ink-foreground">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 text-sm opacity-80">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 text-sm">
           <span className="font-display text-lg">Kirana Khata</span>
-          <span>Made for the 1.3 crore dukaans of Bharat.</span>
+          <div className="flex flex-wrap items-center gap-5 opacity-90">
+            <Shortcuts onUpload={openUpload} onTheme={toggle} />
+            <button onClick={toggleMotion} className="opacity-80 hover:opacity-100">{reduced ? "Full motion" : "Reduce motion"}</button>
+            <span className="opacity-70">© 2026 Kirana Khata, Pune</span>
+          </div>
         </div>
       </footer>
-    </main>
+
+      <SignupDialog open={signup} onOpenChange={setSignup} />
+      <BackToTop />
+      <CookieBanner />
+      <Toaster position="top-center" />
+    </>
   );
 }
 
