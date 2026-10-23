@@ -3,7 +3,7 @@ import { shopFraming } from "@/lib/shop-framing";
 
 describe("phone storefront framing", () => {
   it("fits the full nine-unit forecourt at phone widths", () => {
-    for (const [width, height] of [[320, 667], [390, 844], [767, 859]]) {
+    for (const [width, height] of [[320, 667], [390, 844], [767, 859]] as const) {
       const frame = shopFraming(width, height);
       expect(frame.mobile).toBe(true);
       const visibleWidth = 2 * frame.distance * Math.tan(Math.PI / 9) * width / height;
