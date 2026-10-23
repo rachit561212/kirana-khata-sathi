@@ -9,10 +9,10 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 - 3D people in the hero use CC0 Quaternius GLBs in public/models (rigged, Idle/Walk/Wave clips); keep any new models CC0 so no attribution is needed.
-- Xano authentication uses same-origin server functions and an HTTP-only session cookie; never expose Xano tokens to browser storage or return them to components.
-- Keep synthetic receipt records separate from Xano authentication until documented, implemented receipt endpoints exist; placeholder null responses are not saved records.
+- Authentication is Lovable Cloud Auth (email/password + Google via @/integrations/lovable); display names live in public.profiles with an auth.users trigger. Xano auth was removed.
+- Receipt records remain in the session-only khata store and are not yet tied to signed-in users; placeholder null responses are not saved records.
 - On phones, receipt lists use compact records and editable items use stacked fields; retain desktop tables so no page requires sideways scrolling to read or edit receipts.
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
 - Transaction extraction runs through AI Gateway in a server function, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
-- AI entries and repeat orders use the existing session-only khata store, independent of Xano authentication; repeat orders copy item lines so edits cannot alter their source bill.
+- AI entries and repeat orders use the existing session-only khata store, independent of signed-in accounts; repeat orders copy item lines so edits cannot alter their source bill.
 - Spoken bill entry records audio in the browser and forwards it as base64 through a server function to a gateway transcription model before extraction; keep the clip transient (never stored) and the language hint optional so any spoken language can be read.
