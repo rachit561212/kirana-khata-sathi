@@ -136,7 +136,7 @@ export function FinalCta({ onUpload }: { onUpload: () => void }) {
         <h2 className="font-display text-5xl font-bold md:text-7xl">Close the shop.<span className="block font-normal italic opacity-60">Not the khata.</span></h2>
         <p className="mx-auto mt-5 max-w-md opacity-75">Upload tonight's bills and see your day in one screen.</p>
         <div className="mt-9 flex flex-wrap justify-center gap-3">
-          <Button size="lg" className="rounded-full px-7" onClick={onUpload}>Drop your first bill</Button>
+          <Button size="lg" className="rounded-full bg-accent px-7 text-accent-foreground hover:bg-accent/90" onClick={onUpload}>Drop your first bill</Button>
           <Button asChild size="lg" variant="outline" className="rounded-full border-ink-foreground/30 bg-transparent px-7 text-ink-foreground hover:bg-ink-foreground/10 hover:text-ink-foreground">
             <Link to="/app">Open the app <ArrowRight className="h-4 w-4" /></Link>
           </Button>

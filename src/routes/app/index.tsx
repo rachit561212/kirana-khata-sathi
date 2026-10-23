@@ -74,7 +74,7 @@ function UploadScreen() {
               </li>
             ))}
           </ul>
-          <Button size="sm" className="mt-4 w-full font-semibold" onClick={() => add(SAMPLE_FILES)}>Read all three</Button>
+          <Button size="sm" className="mt-4 w-full bg-accent font-semibold text-accent-foreground hover:bg-accent/90" onClick={() => add(SAMPLE_FILES)}>Read all three</Button>
         </div>
       </div>
 
@@ -115,7 +115,7 @@ function UploadScreen() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button asChild className="font-semibold"><Link to="/app/review">Review &amp; edit</Link></Button>
+        <Button asChild className="bg-accent font-semibold text-accent-foreground hover:bg-accent/90"><Link to="/app/review">Review &amp; edit</Link></Button>
         <Button asChild variant="outline"><Link to="/app/receipts">See all receipts</Link></Button>
       </div>
     </div>
