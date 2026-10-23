@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      products: {
+        Row: {
+          created_at: string
+          id: string
+          in_stock: boolean
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          in_stock?: boolean
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          in_stock?: boolean
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

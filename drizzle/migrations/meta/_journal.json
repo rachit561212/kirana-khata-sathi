@@ -29,6 +29,13 @@
       "when": 1792783353008,
       "tag": "0003_account_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792788428617,
+      "tag": "0004_account_product_stock",
+      "breakpoints": true
     }
   ]
 }
