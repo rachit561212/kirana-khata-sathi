@@ -12,3 +12,5 @@
 - [x] CSV export of confirmed receipts: vendor, date, items, category, total
 - [x] Checked every app page in the browser (upload → correct → duplicate → export → summary → ask)
 - [x] Landing page link to the app
+- [ ] Connect documented Xano authentication and verify sign-in error handling
+- [ ] Explain unimplemented Xano shopkeeper endpoints and verification limits
