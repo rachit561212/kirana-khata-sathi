@@ -135,7 +135,7 @@ function Floaters() {
 
 export default function ShopScene({ open }: { open: boolean }) {
   return (
-    <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 2.6, 8.5], fov: 42 }}>
+    <Canvas onCreated={({ camera }) => camera.lookAt(-0.6, 0.6, 0)} shadows dpr={[1, 2]} camera={{ position: [-2.6, 2.4, 9], fov: 42 }}>
       <fog attach="fog" args={["#3b2618", 10, 22]} />
       <ambientLight intensity={0.45} />
       <directionalLight position={[4, 8, 6]} intensity={1.4} castShadow shadow-mapSize={[1024, 1024]} color="#ffd9a8" />
@@ -144,7 +144,7 @@ export default function ShopScene({ open }: { open: boolean }) {
         <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} />
         <Lightformer intensity={1} color="#ffcf8a" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
       </Environment>
-      <group position={[0, -1.2, 0]}>
+      <group position={[0, -1.5, 0]}>
         {/* street */}
         <mesh rotation-x={-Math.PI / 2} receiveShadow position={[0, 0, 2]}>
           <planeGeometry args={[30, 12]} />
