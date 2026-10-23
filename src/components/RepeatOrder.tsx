@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { fmt, dateLabel, khata, type Item, type Receipt } from "@/lib/khata";
+import { fmt, dateLabel, flushKhata, khata, type Item, type Receipt } from "@/lib/khata";
 
 export function RepeatOrder({ receipts, onAdded }: { receipts: Receipt[]; onAdded: (id: string) => void }) {
   const eligible = receipts.filter((r) => r.kind === "spent" && r.status !== "dismissed");
@@ -12,6 +12,7 @@ export function RepeatOrder({ receipts, onAdded }: { receipts: Receipt[]; onAdde
   const [items, setItems] = useState<Item[]>([]);
   const [payment, setPayment] = useState("Cash");
   const [date, setDate] = useState("");
+  const [saving, setSaving] = useState(false);
   const choose = (id: string) => {
     const receipt = eligible.find((r) => r.id === id);
     setOriginal(receipt ?? null);
@@ -20,10 +21,12 @@ export function RepeatOrder({ receipts, onAdded }: { receipts: Receipt[]; onAdde
     setDate(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }));
   };
   const edit = (idx: number, field: "qty" | "rate", value: string) => setItems((old) => old.map((i, k) => k === idx ? { ...i, [field]: Number(value) } : i));
-  const save = () => {
+  const save = async () => {
     if (!original || !date || !payment.trim()) return;
-    try { const id = khata.addRepeat(original, items, date, payment); onAdded(id); setOriginal(null); setItems([]); toast.success("Repeat order added to this session’s khata"); }
-    catch { toast.error("Check the quantity and rate for each item"); }
+    setSaving(true);
+    try { const id = khata.addRepeat(original, items, date, payment); await flushKhata(); onAdded(id); setOriginal(null); setItems([]); toast.success("Repeat order added to your khata"); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Could not save the repeat order"); }
+    finally { setSaving(false); }
   };
   return <section aria-label="Repeat order" className="min-w-0 border-t pt-6">
     <h2 className="flex items-center gap-2 font-display text-xl font-bold"><RotateCcw className="h-5 w-5" />Order again · फिर से खरीदें</h2>
@@ -39,8 +42,7 @@ export function RepeatOrder({ receipts, onAdded }: { receipts: Receipt[]; onAdde
         <Button variant="ghost" size="icon" aria-label={`Remove repeat item ${i + 1}`} title="Remove item" onClick={() => setItems((old) => old.filter((_, k) => k !== i))}><Trash2 className="h-4 w-4" /></Button>
       </div>)}</div>
       <div className="flex justify-between border-t pt-3 font-semibold"><span>Total</span><span className="font-mono">{fmt(items.reduce((s, i) => s + i.qty * i.rate * (1 + i.gst / 100), 0))}</span></div>
-      <p className="text-xs text-muted-foreground">Session only — entries disappear when this page is reloaded.</p>
-      <Button className="min-h-11 bg-accent text-accent-foreground hover:bg-accent/90" disabled={!items.length || !date || !payment} onClick={save}>Add repeat order</Button>
+      <Button className="min-h-11 bg-accent text-accent-foreground hover:bg-accent/90" disabled={saving || !items.length || !date || !payment} onClick={save}>Add repeat order</Button>
     </div>}
   </section>;
 }

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { dateLabel, fmt, khata, totalOf, useKhata, type Receipt } from "@/lib/khata";
+import { dateLabel, flushKhata, fmt, khata, totalOf, useKhata, type Receipt } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/review")({
   head: () => ({
@@ -78,15 +78,26 @@ function EditForm({ r }: { r: Receipt }) {
   const [date, setDate] = useState(r.date);
   const [payment, setPayment] = useState(r.payment);
   const [items, setItems] = useState(r.items.map((i) => ({ ...i })));
+  const [saving, setSaving] = useState(false);
   const dirty = vendor !== r.vendor || date !== r.date || payment !== r.payment || JSON.stringify(items) !== JSON.stringify(r.items);
 
   const set = (idx: number, key: "name" | "qty" | "rate" | "gst", v: string | number) =>
     setItems((its) => its.map((it, i) => (i === idx ? { ...it, [key]: v } : it)));
 
-  const save = () => {
-    khata.patch(r.id, { vendor, date, payment });
-    items.forEach((it, i) => khata.patchItem(r.id, i, { name: it.name, qty: it.qty, rate: it.rate, gst: it.gst }));
-    toast.success("Saved to your khata", { description: `${vendor} · ${dateLabel(date)}` });
+  const save = async () => {
+    setSaving(true);
+    try {
+      khata.saveReview(r.id, { vendor, date, payment, items });
+      await flushKhata();
+      toast.success("Saved to your khata", { description: `${vendor} · ${dateLabel(date)}` });
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save changes"); }
+    finally { setSaving(false); }
+  };
+  const accept = async () => {
+    setSaving(true);
+    try { khata.accept(r.id); await flushKhata(); toast("Accepted as it is", { description: `${vendor} · ${dateLabel(date)}` }); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Could not accept this bill"); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -169,8 +180,8 @@ function EditForm({ r }: { r: Receipt }) {
       <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-4 sm:px-5">
         <span className="text-xs text-muted-foreground">{dirty ? "You changed something — save it to keep the fix." : "Nothing changed yet."}</span>
         <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
-          <Button variant="outline" size="sm" className="min-h-11" onClick={() => { khata.accept(r.id); toast("Accepted as it is", { description: `${vendor} · ${dateLabel(date)}` }); }}>Accept as it is</Button>
-          <Button size="sm" className="min-h-11 font-semibold" disabled={!dirty} onClick={save}>Save changes</Button>
+          <Button variant="outline" size="sm" className="min-h-11" disabled={saving} onClick={accept}>Accept as it is</Button>
+          <Button size="sm" className="min-h-11 font-semibold" disabled={saving || !dirty} onClick={save}>Save changes</Button>
         </div>
       </div>
     </div>

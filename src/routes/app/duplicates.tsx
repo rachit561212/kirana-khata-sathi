@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { Check, Copy, GitCompareArrows } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { dateLabel, dupPairs, fmt, khata, totalOf, useKhata, type Receipt } from "@/lib/khata";
+import { dateLabel, dupPairs, flushKhata, fmt, khata, totalOf, useKhata, type Receipt } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/duplicates")({
   head: () => ({
@@ -45,10 +46,19 @@ function DuplicatesScreen() {
 }
 
 function Pair({ a, b }: { a: Receipt; b: Receipt }) {
+  const [saving, setSaving] = useState(false);
   const same = totalOf(a) === totalOf(b);
-  const decide = (keep: Receipt, drop: Receipt) => {
-    khata.keep(keep.id, drop.id);
-    toast.success("Duplicate sorted", { description: `Kept ${keep.id}, dropped ${drop.id}.` });
+  const decide = async (keep: Receipt, drop: Receipt) => {
+    setSaving(true);
+    try { khata.keep(keep.id, drop.id); await flushKhata(); toast.success("Duplicate sorted", { description: `Kept ${keep.id}, dropped ${drop.id}.` }); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Could not save your choice"); }
+    finally { setSaving(false); }
+  };
+  const unflag = async () => {
+    setSaving(true);
+    try { khata.unflag(a.id, b.id); await flushKhata(); toast("Both bills kept", { description: "Marked as separate purchases." }); }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Could not save your choice"); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -74,7 +84,7 @@ function Pair({ a, b }: { a: Receipt; b: Receipt }) {
             </ul>
             <div className="mt-3 flex items-center justify-between border-t pt-3">
               <span className="font-mono text-lg font-bold">{fmt(totalOf(r))}</span>
-              <Button size="sm" variant="outline" className="min-h-11" aria-label={`Keep ${r.id}`} onClick={() => decide(r, r.id === a.id ? b : a)}>
+              <Button size="sm" variant="outline" className="min-h-11" disabled={saving} aria-label={`Keep ${r.id}`} onClick={() => decide(r, r.id === a.id ? b : a)}>
                 <Copy className="h-3.5 w-3.5" /> Keep this one
               </Button>
             </div>
@@ -83,7 +93,7 @@ function Pair({ a, b }: { a: Receipt; b: Receipt }) {
       </div>
       <div className="border-t px-5 py-3 text-right">
         <Button variant="ghost"
-          onClick={() => { khata.unflag(a.id, b.id); toast("Both bills kept", { description: "Marked as separate purchases." }); }}
+          disabled={saving} onClick={unflag}
           className="min-h-11 w-full whitespace-normal text-xs underline-offset-4 transition hover:underline sm:w-auto"
         >
           These are two different purchases
