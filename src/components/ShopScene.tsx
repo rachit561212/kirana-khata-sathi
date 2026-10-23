@@ -47,7 +47,7 @@ function Shelf({ x }: { x: number }) {
         Array.from({ length: 5 }).map((_, i) => (
           <mesh key={`${r}-${i}`} position={[-0.6 + i * 0.3, y, 0.28]} castShadow>
             <boxGeometry args={[0.22, 0.35, 0.18]} />
-            <meshStandardMaterial color={colors[(i + r * 2) % colors.length]} roughness={0.6} />
+            <meshStandardMaterial color={colors[(i + r * 2) % colors.length]!} roughness={0.6} />
           </mesh>
         )),
       )}

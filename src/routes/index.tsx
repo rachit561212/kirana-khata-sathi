@@ -115,7 +115,8 @@ function Metric({ label, value, sub, tone }: { label: string; value: string; sub
   );
 }
 
-const SPENT = {
+type Row = { item: string; qty: number; rate: number; gst: number; conf: number; alert?: string };
+const SPENT: { doc: Record<string, string>; rows: Row[] } = {
   doc: { from: "Shree Ganesh Distributors", no: "SGD/24-25/1187", date: "21 Oct 2026", gstin: "27AAKFS4471M1ZP" },
   rows: [
     { item: "Aashirvaad Atta 10kg", qty: 12, rate: 438, gst: 5, conf: 99 },
@@ -125,7 +126,7 @@ const SPENT = {
     { item: "Surf Excel 1kg", qty: 10, rate: 132, gst: 18, conf: 88, alert: "+12% vs last bill" },
   ],
 };
-const RECEIVED = {
+const RECEIVED: { doc: Record<string, string>; rows: Row[] } = {
   doc: { from: "PhonePe Business Settlement", no: "SETL-88214039", date: "21 Oct 2026", gstin: "UPI · HDFC ****4410" },
   rows: [
     { item: "UPI collections (142 txns)", qty: 1, rate: 21300, gst: 0, conf: 99 },
@@ -204,7 +205,7 @@ function Sandbox() {
                     <span className="h-1.5 w-12 overflow-hidden rounded bg-muted"><span className={`block h-full ${r.conf > 92 ? "bg-received" : "bg-primary"}`} style={{ width: `${r.conf}%` }} /></span>
                     {r.conf}%
                   </span>
-                  {"alert" in r && r.alert && (
+                  {r.alert && (
                     <span className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-destructive"><AlertTriangle className="h-3 w-3" /> Margin hike {r.alert}</span>
                   )}
                 </div>
