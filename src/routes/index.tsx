@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { MoneyCharts } from "@/components/MoneyCharts";
 import { Toaster } from "@/components/ui/sonner";
 import { BackToTop, CookieBanner, CopyButton, Shortcuts, SignupDialog, SiteHeader, SkipLink, UploadBox, useTheme } from "@/components/SiteChrome";
+import { SceneBoundary } from "@/components/SceneBoundary";
 import { Compare, FinalCta, FlowPanel, HowItWorks, SectionHead, SiteFooter } from "@/components/LandingSections";
 
 const ShopScene = lazy(() => import("@/components/ShopScene"));
@@ -105,9 +106,11 @@ function Index() {
           <div className="sticky top-0 h-[100svh] overflow-hidden md:min-h-[640px]">
             <div className="absolute inset-0">
               {mounted && (
-                <Suspense fallback={null}>
-                  <ShopScene progress={progress} />
-                </Suspense>
+                <SceneBoundary>
+                  <Suspense fallback={null}>
+                    <ShopScene progress={progress} />
+                  </Suspense>
+                </SceneBoundary>
               )}
             </div>
             {reduced && <div key={`fade-${stage}`} aria-hidden className="pointer-events-none absolute inset-0 z-[5] animate-out fade-out bg-ink fill-mode-forwards duration-500" />}
