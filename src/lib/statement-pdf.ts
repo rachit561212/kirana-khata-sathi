@@ -3,11 +3,16 @@ import fontkit from "@pdf-lib/fontkit";
 import hindiFontUrl from "@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-400-normal.woff?url";
 import { totalOf } from "./khata";
 import type { Statement } from "./statements";
+import type { StatementShop } from "./statement-shop";
 
-export async function createStatementPdf(statement: Statement, hindiBytes?: ArrayBuffer) {
+export async function createStatementPdf(statement: Statement, hindiBytes?: ArrayBuffer, shop?: StatementShop) {
   const doc = await PDFDocument.create();
   doc.setTitle("Hisaab transaction statement");
-  doc.setAuthor("Hisaab");
+  doc.setAuthor(shop?.shopName || "Hisaab");
+  const generated = new Date();
+  const reference = `HS-${statement.range.start.replaceAll("-", "")}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  doc.setSubject(`Transaction statement ${reference}`);
+  doc.setCreationDate(generated);
   doc.registerFontkit(fontkit);
   const latin = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -22,10 +27,20 @@ export async function createStatementPdf(statement: Statement, hindiBytes?: Arra
   const amount = (v: number) => `INR ${v.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const nextPage = () => {
     page = doc.addPage([595.28, 841.89]);
-    page.drawText("Hisaab", { x: 42, y: 795, size: 24, font: bold });
-    page.drawText("Transaction statement", { x: 42, y: 772, size: 13, font: latin });
-    page.drawText(`${statement.range.start} to ${statement.range.end}`, { x: 42, y: 751, size: 10, font: latin });
-    y = 716;
+    y = 795;
+    line(shop?.shopName || "Hisaab", 22);
+    if (shop?.ownerName) line(`Owner: ${shop.ownerName}`, 10);
+    if (shop?.address) line(shop.address, 10);
+    if (shop?.phone) line(`Phone: ${shop.phone}`, 10);
+    if (shop?.email) line(`Email: ${shop.email}`, 10);
+    line(`GSTIN: ${shop?.gstin || "Not provided"}`, 10);
+    y -= 8;
+    line("TRANSACTION STATEMENT", 12);
+    line(`Period: ${statement.range.start} to ${statement.range.end}`, 10);
+    line(`Statement reference: ${reference}`, 9);
+    line(`Generated: ${generated.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour12: false })} IST`, 9);
+    page.drawLine({ start: { x: 42, y: y - 3 }, end: { x: 553, y: y - 3 }, thickness: 0.6 });
+    y -= 24;
   };
   const fontFor = (text: string): PDFFont => /[\u0900-\u097f]/.test(text) ? hindi : latin;
   const line = (text: string, size = 10) => {
@@ -53,12 +68,14 @@ export async function createStatementPdf(statement: Statement, hindiBytes?: Arra
   line(`Purchases / expenses: ${amount(statement.purchases)}`);
   line(`Receipts / collections: ${amount(statement.received)}`);
   line("Purchase values may include unpaid orders; these are not bank balances.", 9);
+  line("Based on shopkeeper-confirmed Hisaab records. Not a tax invoice or bank statement.", 9);
   y -= 16;
   for (const r of statement.records) {
     if (y < 150) nextPage();
     line(`${r.date} | ${r.id} | ${r.kind === "spent" ? "Purchase / expense" : "Receipt / collection"}`, 10);
     line(r.vendor, 12);
     line(`Payment: ${r.payment}${r.paidState ? ` | ${r.paidState}` : ""}`);
+    if (r.paymentDetails) line(`Payment reference: ${r.paymentDetails}`, 9);
     for (const item of r.items) {
       line(`${item.name} | ${item.cat}`);
       line(`  ${item.qty} x ${amount(item.rate)} | GST ${item.gst}%`, 9);
@@ -67,6 +84,6 @@ export async function createStatementPdf(statement: Statement, hindiBytes?: Arra
     y -= 18;
   }
   const pages = doc.getPages();
-  pages.forEach((p, i) => p.drawText(`Hisaab | ${i + 1} / ${pages.length}`, { x: 42, y: 32, size: 9, font: latin }));
+  pages.forEach((p, i) => p.drawText(`Generated with Hisaab | ${reference} | Page ${i + 1} of ${pages.length}`, { x: 42, y: 32, size: 8, font: latin }));
   return doc.save();
 }
