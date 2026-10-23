@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Connect hisaab12.page.gd (user's free page.gd domain) to this project, then set it up as the sender domain for welcome emails and PDF statements — DNS records must be added by the user at page.gd
 - [x] Add on-request Hisaab PDF statements for a day, month, year or custom period — six date/filter tests pass; real download verified and all five PDF pages visually checked without clipping
 - [ ] Email statements to the account email with a PDF download link — blocked by missing user-owned sender domain; no phone or WhatsApp delivery
 - [x] Repair Gemini voice transcription; verified real browser microphone recording becomes accurate editable text and 13 regression tests pass
