@@ -182,6 +182,40 @@ const SEED: Receipt[] = [
     id: "R-207", vendor: "Udhaar repaid — Gupta ji", date: "2026-10-19", source: "WhatsApp alert", payment: "Cash", kind: "received", conf: 95, status: "accepted",
     items: [{ name: "Udhaar settled", qty: 1, rate: 900, gst: 0, cat: "Other" }],
   },
+  {
+    id: "R-121", vendor: "Shree Ganesh Distributors", date: "2026-09-21", source: "WhatsApp PDF", payment: "UPI", kind: "spent", conf: 96, status: "accepted",
+    items: [
+      { name: "Aashirvaad Atta 10kg", qty: 14, rate: 432, gst: 5, cat: "Staples" },
+      { name: "Fortune Sunflower Oil 1L", qty: 22, rate: 148, gst: 5, cat: "Oils" },
+      { name: "Parle-G 800g", qty: 24, rate: 76, gst: 18, cat: "Snacks" },
+    ],
+  },
+  {
+    id: "R-122", vendor: "Ravi Mandi", date: "2026-09-14", source: "Photo of paper bill", payment: "Cash", kind: "spent", conf: 87, status: "accepted",
+    items: [
+      { name: "Onion", qty: 45, rate: 29, gst: 0, cat: "Fresh" },
+      { name: "Potato", qty: 32, rate: 26, gst: 0, cat: "Fresh" },
+    ],
+  },
+  {
+    id: "R-123", vendor: "Anand Wholesale Oils", date: "2026-08-18", source: "WhatsApp PDF", payment: "UPI", kind: "spent", conf: 93, status: "accepted",
+    items: [
+      { name: "Fortune Sunflower Oil 1L", qty: 30, rate: 145, gst: 5, cat: "Oils" },
+      { name: "Saffola Gold 1L", qty: 10, rate: 162, gst: 5, cat: "Oils" },
+    ],
+  },
+  {
+    id: "R-221", vendor: "PhonePe Business Settlement", date: "2026-09-30", source: "UPI settlement", payment: "UPI", kind: "received", conf: 99, status: "accepted",
+    items: [{ name: "UPI collections (138 txns)", qty: 1, rate: 20140, gst: 0, cat: "Other" }],
+  },
+  {
+    id: "R-222", vendor: "Cash drawer count", date: "2026-09-16", source: "Nightly daybook", payment: "Cash", kind: "received", conf: 91, status: "accepted",
+    items: [{ name: "Cash in drawer at closing", qty: 1, rate: 6890, gst: 0, cat: "Other" }],
+  },
+  {
+    id: "R-223", vendor: "Google Pay settlement", date: "2026-08-31", source: "UPI settlement", payment: "UPI", kind: "received", conf: 98, status: "accepted",
+    items: [{ name: "UPI collections (57 txns)", qty: 1, rate: 8240, gst: 0, cat: "Other" }],
+  },
 ];
 
 /* ---------- tiny client store (sample data only, nothing saved) ---------- */
