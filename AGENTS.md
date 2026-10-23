@@ -11,6 +11,7 @@
 - 3D people in the hero use CC0 Quaternius GLBs in public/models (rigged, Idle/Walk/Wave clips); keep any new models CC0 so no attribution is needed.
 - Authentication is Lovable Cloud Auth (email/password + Google via @/integrations/lovable); display names live in public.profiles with an auth.users trigger. Xano auth was removed.
 - Receipt records for signed-in accounts persist in public.receipts with owner-only RLS; the khata store queues changed rows, exposes loading/save errors and ignores stale account responses. Browser storage is only for legacy transfer and failed-write recovery, never the source of truth.
+- Products use an independent owner-only public.products catalogue with explicit stock status; bill entry never changes inventory automatically because stock movement is not implied by a receipt.
 - Statements filter confirmed, non-duplicate account records into an explicit date-range snapshot and generate PDFs with embedded Hindi fonts; never report an email as sent unless delivery was accepted by the email service.
 - Downloaded and emailed statements use the same PDF generator and fetch the current saved shop profile at export time, so identity details do not become stale after editing the shop.
 - Both file-upload surfaces use the shared bill-upload check and fail closed until actual document extraction is implemented; filenames must never generate synthetic transactions.

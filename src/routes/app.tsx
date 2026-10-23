@@ -30,6 +30,7 @@ const TABS = [
   { to: "/app", label: "Upload" },
   { to: "/app/review", label: "Review & edit" },
   { to: "/app/receipts", label: "Receipts" },
+  { to: "/app/products", label: "Products" },
   { to: "/app/duplicates", label: "Duplicates" },
   { to: "/app/summary", label: "Summary" },
   { to: "/app/ask", label: "Ask" },

@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Add account-owned Products with in-stock/out-of-stock controls and filters; verify saving and layout.
 - [ ] Verify QR order saving in the signed-in account and read it back after reopening — blocked because the requesting user has no matching account session; preview sign-in needed. Simulated camera decoding, permission denial, track cleanup and 15 QR/purchase/account tests passed; physical device camera remains unverified.
 - [x] Add a top-right supplier bill QR scanner to purchased orders; camera/photo reading, strict itemized QR validation and editable review. Real QR photo transferred two item lines and GST without saving; UPI code rejected, seven tests pass. Physical camera and signed-in QR saving remain unverified because no requesting-account session is available.
 - [x] Checked text disguised as a PNG in “Scan a bill”: reproduced fabricated sample results, blocked file-to-demo substitution on both upload surfaces, retested unchanged 28-record count and visible rejection; three validation tests pass. Real document extraction is not connected.
