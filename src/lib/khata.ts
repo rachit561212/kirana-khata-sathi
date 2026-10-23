@@ -5,6 +5,7 @@ export type Cat = "Staples" | "Oils" | "Fresh" | "Snacks" | "Household" | "Dairy
 export type Kind = "spent" | "received";
 export type Status = "new" | "accepted" | "corrected" | "dismissed";
 export type PaidState = "paid" | "unpaid" | "partial";
+export type StockMovement = "purchase" | "sale" | "none";
 export type Item = { name: string; qty: number; rate: number; gst: number; cat: Cat; hike?: string };
 export type Receipt = {
   id: string;
@@ -19,6 +20,7 @@ export type Receipt = {
   status: Status;
   dupOf?: string | undefined;
   paidState?: PaidState;
+  stockMovement?: StockMovement;
 };
 
 export const CATS: Cat[] = ["Staples", "Oils", "Fresh", "Snacks", "Household", "Dairy", "Beverages", "Other"];
@@ -370,7 +372,7 @@ export const khata = {
   patchItem(id: string, idx: number, p: Partial<Item>) {
     setReceipts((rs) => rs.map((r) => (r.id === id ? { ...r, status: "corrected", items: r.items.map((it, i) => (i === idx ? { ...it, ...p } : it)) } : r)));
   },
-  saveReview(id: string, fields: Pick<Receipt, "vendor" | "date" | "payment" | "items">) {
+  saveReview(id: string, fields: Pick<Receipt, "vendor" | "date" | "payment" | "items"> & { stockMovement?: StockMovement }) {
     setReceipts((rs) => rs.map((r) => r.id === id ? { ...r, ...fields, items: fields.items.map((i) => ({ ...i })), status: "corrected" } : r));
   },
   keep(keepId: string, dropId: string) {
@@ -394,12 +396,13 @@ export const khata = {
     });
     return ids;
   },
-  addManual(e: { vendor: string; note: string; amount: number; kind: Kind; payment: string; date: string; items?: Item[]; paymentDetails?: string }): string {
+  addManual(e: { vendor: string; note: string; amount: number; kind: Kind; payment: string; date: string; items?: Item[]; paymentDetails?: string; stockMovement?: StockMovement }): string {
     const id = `R-${crypto.randomUUID()}`;
     setReceipts((rs) => [{
       id, vendor: e.vendor || "Without bill", date: e.date, source: "Spoken / typed, no bill", payment: e.payment, kind: e.kind, conf: 100, status: "new",
       items: e.items?.length ? e.items.map((item) => ({ ...item })) : [{ name: e.note || "Entry", qty: 1, rate: e.amount, gst: 0, cat: "Other" }],
       ...(e.paymentDetails ? { paymentDetails: e.paymentDetails } : {}),
+      ...(e.stockMovement ? { stockMovement: e.stockMovement, status: "corrected" as const } : {}),
     }, ...rs]);
     return id;
   },
