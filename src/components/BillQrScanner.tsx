@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { parseBillQr, type BillQrDraft } from "@/lib/bill-qr";
 
-export function BillQrScanner({ onRead, disabled }: { onRead: (draft: BillQrDraft) => void; disabled?: boolean }) {
+export function BillQrScanner({ onRead, disabled, context = "supplier" }: { onRead: (draft: BillQrDraft) => void; disabled?: boolean; context?: "supplier" | "customer" }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [camera, setCamera] = useState(false);
@@ -19,7 +19,7 @@ export function BillQrScanner({ onRead, disabled }: { onRead: (draft: BillQrDraf
   useEffect(() => () => { generation.current++; controls.current?.stop(); }, []);
   const read = (text: string) => {
     stop();
-    try { setDraft(parseBillQr(text)); setError(""); }
+    try { setDraft(parseBillQr(text, context)); setError(""); }
     catch (e) { setError(e instanceof Error ? e.message : "Could not read this bill QR."); }
   };
   const startCamera = async () => {
@@ -61,7 +61,7 @@ export function BillQrScanner({ onRead, disabled }: { onRead: (draft: BillQrDraf
   return <Dialog open={open} onOpenChange={(value) => { stop(); setOpen(value); setError(""); setDraft(undefined); }}>
     <Button variant="outline" size="icon" title="Scan bill QR" aria-label="Scan bill QR" disabled={disabled} onClick={() => setOpen(true)} className="shrink-0"><QrCode className="h-5 w-5" /></Button>
     <DialogContent className="max-h-[90dvh] overflow-y-auto">
-      <DialogHeader><DialogTitle>Scan bill QR</DialogTitle><DialogDescription>Supplier’s bulk order</DialogDescription></DialogHeader>
+      <DialogHeader><DialogTitle>Scan bill QR</DialogTitle><DialogDescription>{context === "customer" ? "Customer’s itemized bill" : "Supplier’s bulk order"}</DialogDescription></DialogHeader>
       {!draft && <>
         <div className="relative aspect-[4/3] overflow-hidden rounded-md border bg-muted">
           <video ref={video} autoPlay muted playsInline aria-label="QR camera preview" className={`h-full w-full object-cover ${camera ? "" : "hidden"}`} />
@@ -78,7 +78,7 @@ export function BillQrScanner({ onRead, disabled }: { onRead: (draft: BillQrDraf
       {draft && <>
         <div className="border-b pb-3"><p className="break-words font-semibold">{draft.vendor}</p><p className="text-sm text-muted-foreground">{draft.date ?? "Order date not in QR"} · {draft.items.length} items</p></div>
         <ul className="max-h-64 overflow-y-auto divide-y">{draft.items.map((item, i) => <li key={i} className="py-2 text-sm"><p className="break-words font-medium">{item.name}</p><p className="font-mono text-muted-foreground">{item.qty} × ₹{item.rate.toLocaleString("en-IN")} · GST {item.gst}%</p></li>)}</ul>
-        <p className="text-sm text-muted-foreground">Replaces the current supplier and items. Check the date, category and payment before saving.</p>
+        <p className="text-sm text-muted-foreground">Replaces the current {context} and items. Check the date, category and payment before saving.</p>
         <Button onClick={() => { onRead(draft); stop(); setOpen(false); setDraft(undefined); }}>Use these items</Button>
         <Button variant="ghost" onClick={() => { setDraft(undefined); setError(""); }}>Scan another QR</Button>
       </>}

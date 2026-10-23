@@ -8,7 +8,7 @@ const object = (value: unknown): Record<string, unknown> | undefined =>
   typeof value === "object" && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
 
 /** Only explicit item data is importable. Payment links and signed invoice summaries are not itemized bills. */
-export function parseBillQr(text: string): BillQrDraft {
+export function parseBillQr(text: string, context: "supplier" | "customer" = "supplier"): BillQrDraft {
   if (text.length > 100_000) throw new Error("This QR contains too much data. No order was added.");
   if (/^\s*(https?:|upi:)/i.test(text)) {
     throw new Error("This QR is a link or payment code, not an itemized bill. Enter the order manually; no order was added.");
@@ -18,9 +18,10 @@ export function parseBillQr(text: string): BillQrDraft {
   catch { throw new Error("This QR does not contain readable bill items. Use the supplier’s itemized bill; no order was added."); }
   const bill = object(decoded);
   const supplier = object(bill?.["supplier"]);
-  const vendor = bill?.["vendor"] ?? supplier?.["name"] ?? bill?.["supplier"];
+  const customer = object(bill?.["customer"]);
+  const vendor = context === "customer" ? customer?.["name"] ?? bill?.["customer"] ?? bill?.["vendor"] : bill?.["vendor"] ?? supplier?.["name"] ?? bill?.["supplier"];
   if (typeof vendor !== "string" || !vendor.trim() || vendor.length > 300) {
-    throw new Error("The bill QR is missing a valid supplier name. No order was added.");
+    throw new Error(`The bill QR is missing a valid ${context} name. No order was added.`);
   }
   if (!Array.isArray(bill?.["items"]) || !bill["items"].length || bill["items"].length > 200) {
     throw new Error("The bill QR must contain between 1 and 200 item lines. No order was added.");

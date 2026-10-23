@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { loadAccountReceipts, saveAccountReceipts } from "./receipt-storage";
+import { customerReceipt, type CustomerTransaction } from "./sales";
 
 export type Cat = "Staples" | "Oils" | "Fresh" | "Snacks" | "Household" | "Dairy" | "Beverages" | "Other";
 export type Kind = "spent" | "received";
@@ -357,6 +358,13 @@ export function useKhata(): Receipt[] {
 }
 
 export const khata = {
+  addCustomerTransaction(entry: CustomerTransaction): string {
+    if (!accountId) throw new Error("Sign in to save a sale or refund");
+    const id = `R-${crypto.randomUUID()}`;
+    const receipt = customerReceipt(entry, id);
+    setReceipts((rs) => [receipt, ...rs]);
+    return id;
+  },
   accept(id: string) {
     setReceipts((rs) => rs.map((r) => (r.id === id ? { ...r, status: "accepted" } : r)));
   },
