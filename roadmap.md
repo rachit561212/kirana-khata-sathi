@@ -6,3 +6,9 @@
 - [x] Reduced-motion option: stepped scene transitions, readable captions
 - [x] Charts: spent vs received per day/month, online vs offline pie
 - [x] More realistic store and people
+- [x] Skip-intro button on the hero story
+- [x] Remove ₹0 / ₹499 pricing section
+- [x] App pages (front end only, sample data): Upload, Review & edit, Receipts (22 synthetic), Duplicates side-by-side, Summary, Ask
+- [x] CSV export of confirmed receipts: vendor, date, items, category, total
+- [x] Checked every app page in the browser (upload → correct → duplicate → export → summary → ask)
+- [x] Landing page link to the app
