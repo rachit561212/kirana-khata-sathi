@@ -452,20 +452,20 @@ function LedgerFlow({ progress }: { progress: Progress }) {
       const open = seg(p, 0.56, 0.74);
       cover.current.rotation.z = -open * Math.PI * 0.97;
     }
-    if (book.current && !SNAP) book.current.position.y = 1.055 + Math.sin(t * 0.8) * 0.004;
+    if (book.current && !SNAP) book.current.position.y = 1.13 + Math.sin(t * 0.8) * 0.004;
   });
   return (
     <>
       {items.map((it, i) => (
         <mesh key={i} ref={(m) => { refs.current[i] = m; }} rotation-x={it.coin ? Math.PI / 2 : 0}>
-          {it.coin ? <cylinderGeometry args={[0.22, 0.22, 0.05, 28]} /> : <planeGeometry args={[0.38, 0.6]} />}
+          {it.coin ? <cylinderGeometry args={[0.14, 0.14, 0.04, 28]} /> : <planeGeometry args={[0.28, 0.44]} />}
           {it.coin
-            ? <meshStandardMaterial color="#f2b632" metalness={0.95} roughness={0.22} emissive="#8a5500" emissiveIntensity={0.35} />
+            ? <meshStandardMaterial color="#f2b632" metalness={0.35} roughness={0.3} emissive="#b87a10" emissiveIntensity={0.55} />
             : <meshStandardMaterial color="#fffaf0" emissive="#ffe9b0" emissiveIntensity={0.3} side={THREE.DoubleSide} />}
         </mesh>
       ))}
       {/* ledger on the counter, tilted toward the viewer */}
-      <group ref={book} position={[0, 1.055, 0.32]} rotation-x={-0.3}>
+      <group ref={book} position={[0, 1.13, 0.32]} rotation-x={0.22}>
         {/* base: red cloth cover + page block + written page */}
         <mesh position={[0.36, 0, 0]} castShadow receiveShadow><boxGeometry args={[0.72, 0.04, 0.92]} /><meshStandardMaterial map={clothTex} roughness={0.85} /></mesh>
         <mesh position={[0.35, 0.045, 0]}><boxGeometry args={[0.66, 0.05, 0.86]} /><meshStandardMaterial color="#f3e8cd" roughness={0.9} /></mesh>
