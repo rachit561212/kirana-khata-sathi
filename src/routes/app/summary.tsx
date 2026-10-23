@@ -61,7 +61,7 @@ function SummaryScreen() {
             ))}
           </div>
         </div>
-        <div className="h-56">
+        <div className="h-56 min-w-0 overflow-hidden">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={series} margin={{ left: 8, right: 8, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />

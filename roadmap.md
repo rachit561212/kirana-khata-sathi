@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Simplify app navigation and Summary presentation without changing calculations or saving behavior; verify menus, statement access and small-screen layout.
+- [x] Simplify app navigation into four main pages and More; move account actions into a menu and statements into an on-demand window. Summary shows clear totals, money flow and one breakdown at a time. Menus, custom statement dates and light/dark layouts checked; seven regression checks pass. Calculations and saving unchanged.
 - [x] Add Sales page with reviewed customer QR entry, money-in sales, money-out refunds, optional returned stock and confirmed-payment net balance. All 32 targeted tests pass; real signed-in QR → ₹100 sale → ₹30 refund → reload verified, stock reduction checked, phone has no sideways overflow, temporary test entries removed. Build OK. Physical camera was not retested.
 - [x] Add Products with automatic remaining quantities and in-stock/out-of-stock filters derived from reviewed account bills; purchases add stock, sales subtract it, duplicates and payment-only entries are excluded. Stock tests and signed-out desktop/phone layouts checked.
 - [ ] Verify automatic stock through real signed-in purchase → sale → reopen — requesting user has no matching account session; needs preview sign-in.
