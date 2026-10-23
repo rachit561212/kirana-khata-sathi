@@ -10,6 +10,7 @@ import { downloadBlob } from "@/lib/csv";
 import { makeStatement, statementRange, type StatementPeriod } from "@/lib/statements";
 import type { Receipt } from "@/lib/khata";
 import { emailStatement } from "@/lib/statement-email.functions";
+import { statementShop } from "@/lib/statement-shop";
 
 export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
   const [period, setPeriod] = useState<StatementPeriod>("month");
@@ -31,13 +32,22 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
   try { count = makeStatement(receipts, statementRange(period, value, end)).records.length; }
   catch (error) { invalid = error instanceof Error ? error.message : "Check your dates"; }
 
+  async function loadShop() {
+    const { data: auth, error: authError } = await supabase.auth.getUser();
+    if (authError) throw new Error("Could not load your account details. Please try again.");
+    if (!auth.user) return undefined;
+    const { data, error } = await supabase.from("profiles").select("shop_name, display_name, gstin, shop_address, phone").eq("user_id", auth.user.id).maybeSingle();
+    if (error) throw new Error("Could not load your shop details. Please try again.");
+    return statementShop(data, auth.user.email);
+  }
+
   async function download() {
     setBusy(true);
     try {
       const statement = makeStatement(receipts, statementRange(period, value, end));
       if (!statement.records.length) throw new Error("No confirmed records in this period.");
       const { createStatementPdf } = await import("@/lib/statement-pdf");
-      const bytes = await createStatementPdf(statement);
+      const bytes = await createStatementPdf(statement, undefined, await loadShop());
       downloadBlob(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), `hisaab-${statement.range.start}-to-${statement.range.end}.pdf`);
       toast.success("PDF statement downloaded");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not create statement"); }
@@ -50,7 +60,7 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
       const statement = makeStatement(receipts, statementRange(period, value, end));
       if (!statement.records.length) throw new Error("No confirmed records in this period.");
       const { createStatementPdf } = await import("@/lib/statement-pdf");
-      const bytes = await createStatementPdf(statement);
+      const bytes = await createStatementPdf(statement, undefined, await loadShop());
       const path = `${account.id}/hisaab-${statement.range.start}-to-${statement.range.end}-${Date.now()}.pdf`;
       const { error } = await supabase.storage.from("statements").upload(path, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), { contentType: "application/pdf" });
       if (error) throw new Error("Could not save the statement. Please try again.");
@@ -70,7 +80,7 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
       <div className="space-y-2"><Label htmlFor="statement-start">{period === "year" ? "Year" : period === "month" ? "Month" : period === "custom" ? "From" : "Date"}</Label><Input id="statement-start" type={period === "year" ? "number" : period === "month" ? "month" : "date"} min={period === "year" ? "1000" : undefined} max={period === "year" ? "9999" : undefined} value={value} onChange={(e) => setValue(e.target.value)} /></div>
       {period === "custom" && <div className="space-y-2"><Label htmlFor="statement-end">To</Label><Input id="statement-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} /></div>}
     </div>
-    <p className="mt-3 text-sm text-muted-foreground" role="status">{invalid ? "Choose a valid date range." : `${count} confirmed records · current visit`}</p>
+    <p className="mt-3 text-sm text-muted-foreground" role="status">{invalid ? "Choose a valid date range." : `${count} confirmed records`}</p>
     <div className="mt-4 flex flex-wrap gap-3">
       <Button disabled={busy || !!invalid || !count} onClick={download}><Download className="h-4 w-4" />{busy ? "Creating PDF…" : "Download PDF"}</Button>
       <Button variant="outline" disabled={busy || !!invalid || !count || !account} onClick={sendEmail}><Mail className="h-4 w-4" />Email statement</Button>
