@@ -14,6 +14,7 @@
 - Statements filter confirmed, non-duplicate account records into an explicit date-range snapshot and generate PDFs with embedded Hindi fonts; never report an email as sent unless delivery was accepted by the email service.
 - Downloaded and emailed statements use the same PDF generator and fetch the current saved shop profile at export time, so identity details do not become stale after editing the shop.
 - Both file-upload surfaces use the shared bill-upload check and fail closed until actual document extraction is implemented; filenames must never generate synthetic transactions.
+- Purchase-order QR scanning uses browser-only ZXing decoding and a strict itemized-data parser; never fetch QR links, import payment claims or save before review, because supplier QR formats are not universal.
 - On phones, receipt lists use compact records and editable items use stacked fields; retain desktop tables so no page requires sideways scrolling to read or edit receipts.
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
 - Transaction extraction uses the user's Gemini credential only inside server functions, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
