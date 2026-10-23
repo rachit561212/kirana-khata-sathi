@@ -11,9 +11,9 @@ describe('Automatic product stock', () => {
  it('ignores drafts until reviewed', () => { expect(receiptProducts([{...purchase,status:'new'}])).toEqual([]); });
  it('excludes duplicates and dismissed bills', () => { expect(receiptProducts([{...purchase,dupOf:'other'}, {...purchase,status:'dismissed'}])).toEqual([]); });
  it('recalculates edits without counting the old quantity twice', () => { expect(receiptProducts([{...purchase,items: [{...item,qty: 7}]}])[0]?.quantity).toBe(7); });
- it('does not infer purchases from money spent or pending orders', () => { expect(receiptProducts([{...purchase,stockMovement:'none'}, {...purchase,stockMovement:'none'}])).toEqual([]); });
+ it('does not infer purchases from money spent or pending orders', () => { const { stockMovement: ignored, ...legacy } = purchase; expect(ignored).toBe('purchase'); expect(receiptProducts([legacy, {...purchase,stockMovement:'none'}])).toEqual([]); });
  it('subtracts credit sales irrespective of payment direction', () => { expect(receiptProducts([purchase,{...sale,kind:'spent',payment:'Credit'}])[0]?.quantity).toBe(6); });
  it('preserves negative balance for missing-purchase warning', () => { expect(receiptProducts([sale])[0]).toMatchObject({quantity:-4,in_stock:false}); });
  it('keeps different pack sizes separate', () => { expect(receiptProducts([purchase,{...purchase,id:'pack',items:[{...item,name:'Rice 25kg'}]}])).toHaveLength(2); });
- it('matches same product ignoring case and extra spaces', () => { expect(receiptProducts([purchase,{...sale,items:[{...item,name:' rice  1kg '}]}])[0]?.quantity).toBe(6); });
+ it('matches same product ignoring case and extra spaces', () => { expect(receiptProducts([purchase,{...sale,items:[{...item,qty:4,name:' rice  1kg '}]}])[0]?.quantity).toBe(6); });
 });
