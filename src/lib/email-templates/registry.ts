@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { template as welcomeTemplate } from './welcome'
+import { template as statementReadyTemplate } from './statement-ready'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -16,8 +17,10 @@ export interface TemplateEntry {
  *
  * Example:
  *   import { template as welcomeTemplate } from './welcome'
+import { template as statementReadyTemplate } from './statement-ready'
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   welcome: welcomeTemplate,
+  'statement-ready': statementReadyTemplate,
 }

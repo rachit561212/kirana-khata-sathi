@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { downloadBlob } from "@/lib/csv";
 import { makeStatement, statementRange, type StatementPeriod } from "@/lib/statements";
 import type { Receipt } from "@/lib/khata";
+import { emailStatement } from "@/lib/statement-email.functions";
 
 export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
   const [period, setPeriod] = useState<StatementPeriod>("month");
@@ -17,7 +18,7 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
   const [busy, setBusy] = useState(false);
   const account = useQuery({ queryKey: ["statement-account"], queryFn: async () => {
     const { data } = await supabase.auth.getUser();
-    return data.user ? { email: data.user.email ?? "" } : null;
+    return data.user ? { id: data.user.id, email: data.user.email ?? "" } : null;
   }, staleTime: 60_000 }).data;
   const choosePeriod = (next: StatementPeriod) => {
     setPeriod(next);
@@ -42,6 +43,24 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not create statement"); }
     finally { setBusy(false); }
   }
+  async function sendEmail() {
+    if (!account) return;
+    setBusy(true);
+    try {
+      const statement = makeStatement(receipts, statementRange(period, value, end));
+      if (!statement.records.length) throw new Error("No confirmed records in this period.");
+      const { createStatementPdf } = await import("@/lib/statement-pdf");
+      const bytes = await createStatementPdf(statement);
+      const path = `${account.id}/hisaab-${statement.range.start}-to-${statement.range.end}-${Date.now()}.pdf`;
+      const { error } = await supabase.storage.from("statements").upload(path, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), { contentType: "application/pdf" });
+      if (error) throw new Error("Could not save the statement. Please try again.");
+      const result = await emailStatement({ data: { path, start: statement.range.start, end: statement.range.end, count: statement.records.length } });
+      if (result.status === "sent") toast.success(`Statement link sent to ${result.email}`);
+      else if (result.status === "pending_domain") toast.warning("Email not sent: the sender domain is still being verified. Try again later.");
+      else toast.warning("This email address has opted out of Hisaab emails.");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not email statement"); }
+    finally { setBusy(false); }
+  }
   return <section aria-labelledby="statement-title" className="border-y py-6">
     <h2 id="statement-title" className="font-display text-xl font-bold">Your statement</h2>
     <div className="mt-4 flex flex-wrap gap-1" role="group" aria-label="Statement period">
@@ -54,9 +73,9 @@ export default function StatementExport({ receipts }: { receipts: Receipt[] }) {
     <p className="mt-3 text-sm text-muted-foreground" role="status">{invalid ? "Choose a valid date range." : `${count} confirmed records · current visit`}</p>
     <div className="mt-4 flex flex-wrap gap-3">
       <Button disabled={busy || !!invalid || !count} onClick={download}><Download className="h-4 w-4" />{busy ? "Creating PDF…" : "Download PDF"}</Button>
-      <Button variant="outline" disabled title="Email sending awaits sender domain setup"><Mail className="h-4 w-4" />Email statement</Button>
+      <Button variant="outline" disabled={busy || !!invalid || !count || !account} onClick={sendEmail}><Mail className="h-4 w-4" />Email statement</Button>
     </div>
     <p className="mt-3 break-words text-sm text-muted-foreground">{account?.email ? `Send to: ${account.email}` : "Sign in to use your account email."}</p>
-    <p className="mt-1 text-sm text-muted-foreground">Email delivery awaits sender setup. PDF download is available now.</p>
+    <p className="mt-1 text-sm text-muted-foreground">You'll get a download link that works for 7 days.</p>
   </section>;
 }
