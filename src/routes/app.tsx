@@ -1,12 +1,11 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Moon, ReceiptText, Sun } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/components/SiteChrome";
 import { SignupDialog } from "@/components/SiteChrome";
-import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { getXanoAccount, signOutXano } from "@/lib/xano.functions";
-import type { XanoAccount } from "@/lib/xano";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -33,14 +32,40 @@ const TABS = [
   { to: "/app/ask", label: "Ask" },
 ];
 
+async function loadAccount() {
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  if (!user) return null;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  return {
+    name: profile?.display_name || String(user.user_metadata?.display_name || "") || user.email || "Your shop",
+    email: user.email || "",
+  };
+}
+
 function AppShell() {
   const { dark, toggle } = useTheme();
-  const [account, setAccount] = useState<XanoAccount | null>(null);
   const [signup, setSignup] = useState(false);
-  const fetchAccount = useServerFn(getXanoAccount);
-  const signOut = useServerFn(signOutXano);
-  useEffect(() => { void fetchAccount().then(setAccount).catch(() => setAccount(null)); }, [fetchAccount]);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const accountQuery = useQuery({ queryKey: ["account"], queryFn: loadAccount, staleTime: 60_000 });
+  const account = accountQuery.data ?? null;
   const path = useLocation({ select: (l) => l.pathname });
+  const handleSignOut = async () => {
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      toast.success("Signed out");
+      navigate({ to: "/", replace: true });
+    } catch {
+      toast.error("Could not sign out. Try again.");
+    }
+  };
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
@@ -67,7 +92,7 @@ function AppShell() {
           <div className="order-2 flex shrink-0 items-center gap-1 sm:ml-auto sm:gap-2 lg:order-3">
             {account ? <>
               <span className="hidden max-w-28 truncate text-xs text-muted-foreground sm:block" title={account.email}>{account.name}</span>
-              <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={async () => { try { await signOut(); setAccount(null); toast.success("Signed out"); } catch { toast.error("Could not sign out. Try again."); } }}>Sign out</Button>
+              <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={handleSignOut}>Sign out</Button>
             </> : <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={() => setSignup(true)}>Sign in</Button>}
             <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle dark mode" className="h-11 w-11">
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
