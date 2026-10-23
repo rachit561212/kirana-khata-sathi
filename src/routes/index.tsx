@@ -239,17 +239,14 @@ function Sandbox() {
 
   return (
     <section id="sandbox" className="mx-auto max-w-7xl px-6 py-24">
-      <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <h2 className="text-4xl font-bold md:text-5xl">What a bill looks like after we read it</h2>
-          <p className="mt-2 max-w-lg text-muted-foreground">A sample distributor invoice, and the entries it turns into.</p>
-        </div>
-        <div className="flex rounded-lg border bg-card p-1">
+      <SectionHead eyebrow="Sample bill" title="Paper on the left." soft="Khata on the right." body="A sample distributor invoice, and the entries it turns into." />
+      <div className="mb-10 mt-8 flex justify-center">
+        <div className="flex rounded-full border bg-card p-1">
           {(["spent", "received"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition ${tab === t ? (t === "spent" ? "bg-spent text-accent-foreground" : "bg-received text-secondary-foreground") : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              className={`rounded-full px-5 py-2 text-sm font-semibold transition ${tab === t ? (t === "spent" ? "bg-spent text-accent-foreground" : "bg-received text-secondary-foreground") : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             >
               {t === "spent" ? "Money spent" : "Money received"}
             </button>
@@ -325,10 +322,10 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section id="features" className="bg-secondary py-24 text-secondary-foreground">
-      <div className="mx-auto max-w-7xl px-6">
-        <h2 className="max-w-2xl text-4xl font-bold md:text-5xl">What it does for your shop</h2>
-        <div className="mt-12 grid gap-px overflow-hidden rounded-lg bg-secondary-foreground/15 md:grid-cols-2 lg:grid-cols-4">
+    <section id="features" className="px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-7xl rounded-[28px] bg-secondary px-6 py-20 text-secondary-foreground md:px-12">
+        <SectionHead dark eyebrow="Built for kirana" title="Made for the counter." soft="Not for an office." />
+        <div className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-secondary-foreground/15 md:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (
             <div key={f.title} className="bg-secondary p-7 transition hover:bg-secondary-foreground/5">
               <f.icon className="h-7 w-7 text-primary" />
@@ -351,10 +348,10 @@ const REVIEWS = [
 function Reviews() {
   return (
     <section className="mx-auto max-w-7xl px-6 py-24">
-      <h2 className="text-4xl font-bold md:text-5xl">From shops already using it</h2>
+      <SectionHead eyebrow="Shopkeepers" title="From shops" soft="already using it." />
       <div className="mt-10 grid gap-6 md:grid-cols-3">
         {REVIEWS.map((r) => (
-          <figure key={r.name} className="rounded-lg border bg-card p-6">
+          <figure key={r.name} className="rounded-2xl border bg-card p-6 transition hover:-translate-y-0.5 hover:border-foreground/30">
             <blockquote className=" font-display text-lg leading-snug">“{r.text}”</blockquote>
             <figcaption className="mt-5 text-sm">
               <div className="flex items-center gap-1 font-semibold">{r.name} <BadgeCheck aria-label="Verified shop" className="h-4 w-4 text-received" /></div>
@@ -377,7 +374,7 @@ const FAQS = [
 function Faq() {
   return (
     <section id="faq" className="mx-auto max-w-3xl px-6 py-24">
-      <h2 className="text-4xl font-bold md:text-5xl">Common questions</h2>
+      <SectionHead eyebrow="FAQ" title="Common questions." />
       <Accordion type="single" collapsible className="mt-8">
         {FAQS.map((f) => (
           <AccordionItem key={f.q} value={f.q}>
