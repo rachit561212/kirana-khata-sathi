@@ -180,7 +180,7 @@ function Index() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 text-sm">
           <span className="font-display text-lg">Kirana Khata</span>
           <div className="flex flex-wrap items-center gap-5 opacity-90">
-            <Shortcuts onUpload={openUpload} onTheme={toggle} />
+            <Shortcuts onUpload={openUpload} onTheme={toggle} onSkip={skipIntro} />
             <button onClick={toggleMotion} className="opacity-80 hover:opacity-100">{reduced ? "Full motion" : "Reduce motion"}</button>
             <span className="opacity-70">© 2026 Kirana Khata, Pune</span>
           </div>
