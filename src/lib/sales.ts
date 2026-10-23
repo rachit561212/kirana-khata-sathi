@@ -1,4 +1,6 @@
-import { totalOf, type Item, type Receipt } from "@/lib/khata";
+import type { Item, Receipt } from "@/lib/khata";
+
+const totalOf = (receipt: Receipt) => receipt.items.reduce((sum, item) => sum + item.qty * item.rate * (1 + item.gst / 100), 0);
 
 export type CustomerTransaction = {
   type: "sale" | "refund";

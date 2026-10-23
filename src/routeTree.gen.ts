@@ -17,6 +17,7 @@ import { Route as AppDuplicatesRouteImport } from './routes/app/duplicates'
 import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppReceiptsRouteImport } from './routes/app/receipts'
 import { Route as AppReviewRouteImport } from './routes/app/review'
+import { Route as AppSalesRouteImport } from './routes/app/sales'
 import { Route as AppSummaryRouteImport } from './routes/app/summary'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -60,6 +61,11 @@ const AppReviewRoute = AppReviewRouteImport.update({
   path: '/review',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSalesRoute = AppSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSummaryRoute = AppSummaryRouteImport.update({
   id: '/summary',
   path: '/summary',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
   '/app/review': typeof AppReviewRoute
+  '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
   '/app/': typeof AppIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
   '/app/review': typeof AppReviewRoute
+  '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
   '/app': typeof AppIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
   '/app/review': typeof AppReviewRoute
+  '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
   '/app/': typeof AppIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/app/products'
     | '/app/receipts'
     | '/app/review'
+    | '/app/sales'
     | '/app/summary'
     | '/app/'
     | '/lovable/email/transactional/preview'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/app/products'
     | '/app/receipts'
     | '/app/review'
+    | '/app/sales'
     | '/app/summary'
     | '/app'
     | '/lovable/email/transactional/preview'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/app/products'
     | '/app/receipts'
     | '/app/review'
+    | '/app/sales'
     | '/app/summary'
     | '/app/'
     | '/lovable/email/transactional/preview'
@@ -210,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReviewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/sales': {
+      id: '/app/sales'
+      path: '/sales'
+      fullPath: '/app/sales'
+      preLoaderRoute: typeof AppSalesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/summary': {
       id: '/app/summary'
       path: '/summary'
@@ -233,6 +252,7 @@ interface AppRouteChildren {
   AppProductsRoute: typeof AppProductsRoute
   AppReceiptsRoute: typeof AppReceiptsRoute
   AppReviewRoute: typeof AppReviewRoute
+  AppSalesRoute: typeof AppSalesRoute
   AppSummaryRoute: typeof AppSummaryRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -243,6 +263,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProductsRoute: AppProductsRoute,
   AppReceiptsRoute: AppReceiptsRoute,
   AppReviewRoute: AppReviewRoute,
+  AppSalesRoute: AppSalesRoute,
   AppSummaryRoute: AppSummaryRoute,
   AppIndexRoute: AppIndexRoute,
 }

@@ -30,7 +30,7 @@ const emptyLine = (): Line => ({ name: "", qty: "", rate: "", gst: "0" });
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
 function SalesScreen() {
-  const account = useQuery({ queryKey: ["account"], queryFn: async () => {
+  const account = useQuery({ queryKey: ["sales-account"], queryFn: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error) throw error;
     return data.user ? { id: data.user.id } : null;
