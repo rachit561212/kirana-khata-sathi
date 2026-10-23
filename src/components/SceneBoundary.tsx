@@ -39,17 +39,17 @@ type State = { failed: boolean };
 
 /** Catches any 3D scene crash (WebGL context loss, model load failure) so the page itself never goes down. */
 export class SceneBoundary extends Component<Props, State> {
-  state: State = { failed: false };
+  override state: State = { failed: false };
 
   static getDerivedStateFromError(): State {
     return { failed: true };
   }
 
-  componentDidCatch(error: unknown) {
+  override componentDidCatch(error: unknown) {
     console.error("Shop scene failed to render; showing static backdrop instead.", error);
   }
 
-  render() {
+  override render() {
     if (this.state.failed || !webglAvailable()) return <StaticShopBackdrop />;
     return this.props.children;
   }

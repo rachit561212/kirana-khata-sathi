@@ -240,7 +240,7 @@ export const khata = {
     setReceipts((rs) => [{
       id, vendor: e.vendor || "Without bill", date: e.date, source: "Spoken / typed, no bill", payment: e.payment, kind: e.kind, conf: 100, status: "new",
       items: e.items?.length ? e.items.map((item) => ({ ...item })) : [{ name: e.note || "Entry", qty: 1, rate: e.amount, gst: 0, cat: "Other" }],
-      paymentDetails: e.paymentDetails,
+      ...(e.paymentDetails ? { paymentDetails: e.paymentDetails } : {}),
     }, ...rs]);
     return id;
   },
