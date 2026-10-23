@@ -502,15 +502,15 @@ function CameraRig({ progress }: { progress: Progress }) {
     let x: number, y: number, z: number, lx: number, ly: number, lz: number;
     if (framing.mobile) {
       x = THREE.MathUtils.lerp(2.6, 2.52, c);
-      y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.1, 0.6, b), 0.15, c);
-      z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(framing.distance + (1 - a) * 0.8, 3.4, b), 2.3, c);
-      lx = 2.55; ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, -0.2, b), -0.5, c); lz = THREE.MathUtils.lerp(0, 0.33, c);
+      y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.1, 0.6, b), 0.55, c);
+      z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(framing.distance + (1 - a) * 0.8, 3.4, b), 2.0, c);
+      lx = 2.52; ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, -0.2, b), -0.5, c); lz = THREE.MathUtils.lerp(0, 0.33, c);
     } else {
-      x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 1.7, b), 2.25, c) + pointer.x * 0.4 * par;
-      y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 0.7, b), 0.12, c) + pointer.y * 0.2 * par;
-      z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 4.4, b), 2.3, c);
+      x = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(-1.5, 0.2, a), 1.7, b), 2.3, c) + pointer.x * 0.4 * par;
+      y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(2.8, 1.9, a), 0.7, b), 0.5, c) + pointer.y * 0.2 * par;
+      z = THREE.MathUtils.lerp(THREE.MathUtils.lerp(THREE.MathUtils.lerp(13, 10.5, a), 4.4, b), 2.0, c);
       lx = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.4, 1.8, b), 2.5, c);
-      ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.9, -0.1, b), -0.5, c);
+      ly = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.9, -0.1, b), -0.52, c);
       lz = THREE.MathUtils.lerp(0, 0.33, c);
     }
     camera.position.set(damp(camera.position.x, x, 4, dt), damp(camera.position.y, y, 4, dt), damp(camera.position.z, z, 4, dt));
