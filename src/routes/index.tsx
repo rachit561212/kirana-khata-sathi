@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Upload, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, BadgeCheck, Pause, Play } from "lucide-react";
+import { Upload, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, BadgeCheck, Pause, Play, ChevronsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MoneyCharts } from "@/components/MoneyCharts";
@@ -89,6 +89,9 @@ function Index() {
     document.getElementById("upload")?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
     setTimeout(() => uploadRef.current?.click(), reduced ? 0 : 500);
   };
+  const skipIntro = () => {
+    document.getElementById("upload")?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
   const st = STAGES[stage]!;
 
   return (
@@ -135,14 +138,24 @@ function Index() {
                   <Metric label="Received today" value="₹27,960" sub="UPI ₹21,300 + cash ₹6,660" tone="received" />
                 </div>
               </div>
-              <button
-                onClick={toggleMotion}
-                aria-pressed={reduced}
-                className="pointer-events-auto absolute right-5 top-20 inline-flex items-center gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 py-1.5 text-xs transition hover:bg-ink"
-              >
-                {reduced ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-                {reduced ? "Play full animation" : "Reduce motion"}
-              </button>
+              <div className="pointer-events-auto absolute right-5 top-20 flex flex-col items-end gap-2">
+                {stage < STAGES.length - 1 && (
+                  <button
+                    onClick={skipIntro}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 py-1.5 text-xs font-semibold transition hover:bg-ink"
+                  >
+                    Skip intro <ChevronsDown className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                <button
+                  onClick={toggleMotion}
+                  aria-pressed={reduced}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-ink-foreground/25 bg-ink/70 px-3 py-1.5 text-xs transition hover:bg-ink"
+                >
+                  {reduced ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+                  {reduced ? "Play full animation" : "Reduce motion"}
+                </button>
+              </div>
               <div className="absolute inset-x-0 bottom-0 h-1 bg-ink/40">
                 <div ref={barRef} className={`h-full origin-left bg-primary ${reduced ? "transition-transform duration-300" : ""}`} style={{ transform: "scaleX(0)" }} />
               </div>
@@ -160,7 +173,6 @@ function Index() {
         <MoneyCharts />
         <Features />
         <Reviews />
-        <Pricing onSignup={() => setSignup(true)} />
         <Faq />
       </main>
 
@@ -353,37 +365,10 @@ function Reviews() {
   );
 }
 
-function Pricing({ onSignup }: { onSignup: () => void }) {
-  const tiers = [
-    { name: "Chhota Khata", price: "₹0", note: "forever", items: ["50 bills a month", "Daily money in and out", "1 language", "WhatsApp upload"], cta: "Start free", featured: false },
-    { name: "Pura Hisaab", price: "₹499", note: "/ month", items: ["Unlimited bills and settlements", "Udhaar khata with WhatsApp reminders", "Alerts when supplier prices go up", "All 7 languages", "GST-ready export for your CA"], cta: "Try 30 days free", featured: true },
-  ];
-  return (
-    <section id="pricing" className="bg-muted py-24">
-      <div className="mx-auto max-w-4xl px-6">
-        <h2 className="text-center text-4xl font-bold md:text-5xl">Pricing</h2>
-        <p className="mt-3 text-center text-muted-foreground">Start free. Upgrade when the free limit feels small.</p>
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
-          {tiers.map((t) => (
-            <div key={t.name} className={`rounded-lg border p-8 ${t.featured ? "bg-ink text-ink-foreground shadow-ledger" : "bg-card"}`}>
-              <div className="font-semibold">{t.name}</div>
-              <div className="mt-3 flex items-baseline gap-1"><span className="font-display text-5xl font-bold">{t.price}</span><span className="opacity-70">{t.note}</span></div>
-              <ul className="mt-6 space-y-3 text-sm">
-                {t.items.map((i) => <li key={i} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{i}</li>)}
-              </ul>
-              <Button className="mt-8 w-full font-semibold" variant={t.featured ? "default" : "outline"} onClick={onSignup}>{t.cta}</Button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 const FAQS = [
   { q: "Does it read handwritten bills?", a: "Yes. Clear handwritten vouchers and mandi parchis are read with a confidence score. Anything uncertain is flagged for a quick check." },
   { q: "Is my shop data safe?", a: "Your bills and ledger stay private to your account and are encrypted. We never share them with distributors or anyone else." },
-  { q: "Can my CA use this?", a: "On Pura Hisaab you can export a GST-ready report in one tap, or share read-only access with your accountant." },
+  { q: "Can my CA use this?", a: "Yes. Export a GST-ready report in one tap, or share read-only access with your accountant." },
   { q: "Do I need a computer?", a: "No. Everything works on your phone. Forward a PDF on WhatsApp or take a photo of the bill." },
 ];
 

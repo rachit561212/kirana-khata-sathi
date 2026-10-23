@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 const NAV = [
   { href: "#sandbox", label: "Demo" },
   { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -238,13 +237,14 @@ const SHORTCUTS = [
   ["U", "Upload a bill"],
   ["D", "Toggle dark mode"],
   ["T", "Back to top"],
+  ["S", "Skip the intro"],
   ["?", "Show shortcuts"],
 ] as const;
 
-export function Shortcuts({ onUpload, onTheme }: { onUpload: () => void; onTheme: () => void }) {
+export function Shortcuts({ onUpload, onTheme, onSkip }: { onUpload: () => void; onTheme: () => void; onSkip: () => void }) {
   const [open, setOpen] = useState(false);
-  const handlers = useRef({ onUpload, onTheme });
-  handlers.current = { onUpload, onTheme };
+  const handlers = useRef({ onUpload, onTheme, onSkip });
+  handlers.current = { onUpload, onTheme, onSkip };
   useEffect(() => {
     const f = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
@@ -253,6 +253,7 @@ export function Shortcuts({ onUpload, onTheme }: { onUpload: () => void; onTheme
       else if (e.key === "u") handlers.current.onUpload();
       else if (e.key === "d") handlers.current.onTheme();
       else if (e.key === "t") window.scrollTo({ top: 0, behavior: "smooth" });
+      else if (e.key === "s") handlers.current.onSkip();
     };
     window.addEventListener("keydown", f);
     return () => window.removeEventListener("keydown", f);
