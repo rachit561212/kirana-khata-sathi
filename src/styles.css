@@ -36,6 +36,7 @@
   --color-paper: var(--paper);
   --color-ink: var(--ink);
   --color-ink-foreground: var(--ink-foreground);
+  --color-hero-foreground: var(--hero-foreground);
 }
 
 :root {
