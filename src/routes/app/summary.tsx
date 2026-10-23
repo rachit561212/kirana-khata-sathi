@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChevronDown, FileText, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { categoryTotals, daySeries, MONTH_LABEL, sums, useKhata, vendorTotals, type Receipt } from "@/lib/khata";
+import { categoryTotals, daySeries, MONTH_LABEL, monthSeries, sums, useKhata, vendorTotals, type Receipt } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/summary")({
   head: () => ({
@@ -24,7 +24,10 @@ function SummaryScreen() {
   const s = sums(receipts);
   const cats = categoryTotals(receipts);
   const vendors = vendorTotals(receipts);
+  const [range, setRange] = useState<"day" | "month">("day");
   const days = daySeries(receipts);
+  const months = monthSeries(receipts);
+  const series = range === "day" ? days : months;
   const [open, setOpen] = useState<string | null>(null);
   const [made, setMade] = useState(false);
   const top = cats[0];
@@ -44,10 +47,19 @@ function SummaryScreen() {
       </div>
 
       <div className="rounded-xl border bg-card p-5">
-        <div className="mb-4 text-sm font-semibold">Money out and money in, day by day</div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm font-semibold">{range === "day" ? "Money out and money in, day by day" : "Money out and money in, month by month"}</div>
+          <div className="grid grid-cols-2 rounded-lg border p-1 text-sm">
+            {(["day", "month"] as const).map((r) => (
+              <Button variant="ghost" key={r} aria-pressed={range === r} onClick={() => setRange(r)} className={`min-h-9 rounded-md px-3 font-medium transition ${range === r ? "bg-foreground text-background hover:bg-foreground/90 hover:text-background" : "text-muted-foreground hover:bg-muted"}`}>
+                {r === "day" ? "Per day" : "Per month"}
+              </Button>
+            ))}
+          </div>
+        </div>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={days} margin={{ left: 8, right: 8, top: 4 }}>
+            <BarChart data={series} margin={{ left: 8, right: 8, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={11} />
               <YAxis tickLine={false} axisLine={false} fontSize={11} width={54} tickFormatter={(v: number) => `${Math.round(v / 1000)}k`} />
