@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { dateLabel, flushKhata, fmt, khata, totalOf, useKhata, type Receipt } from "@/lib/khata";
+import { dateLabel, flushKhata, fmt, khata, totalOf, useKhata, type Receipt, type StockMovement } from "@/lib/khata";
+import { StockMovementField } from "@/components/StockMovementField";
 
 export const Route = createFileRoute("/app/review")({
   head: () => ({
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/app/review")({
 
 function ReviewScreen() {
   const receipts = useKhata();
-  const need = receipts.filter((r) => r.status === "new" || r.status === "corrected");
+  const need = receipts.filter((r) => r.status === "new" || r.status === "corrected" || (r.status === "accepted" && !r.stockMovement && r.items.length > 0));
   const [sel, setSel] = useState<string | null>(null);
   const active = need.find((r) => r.id === sel) ?? need[0];
 
@@ -79,23 +80,26 @@ function EditForm({ r }: { r: Receipt }) {
   const [payment, setPayment] = useState(r.payment);
   const [items, setItems] = useState(r.items.map((i) => ({ ...i })));
   const [saving, setSaving] = useState(false);
-  const dirty = vendor !== r.vendor || date !== r.date || payment !== r.payment || JSON.stringify(items) !== JSON.stringify(r.items);
+  const [stockMovement, setStockMovement] = useState<StockMovement | "">(r.stockMovement ?? "");
+  const dirty = stockMovement !== (r.stockMovement ?? "") || vendor !== r.vendor || date !== r.date || payment !== r.payment || JSON.stringify(items) !== JSON.stringify(r.items);
 
   const set = (idx: number, key: "name" | "qty" | "rate" | "gst", v: string | number) =>
     setItems((its) => its.map((it, i) => (i === idx ? { ...it, [key]: v } : it)));
 
   const save = async () => {
+    if (!stockMovement) { toast.error("Choose the stock movement first"); return; }
     setSaving(true);
     try {
-      khata.saveReview(r.id, { vendor, date, payment, items });
+      khata.saveReview(r.id, { vendor, date, payment, items, stockMovement });
       await flushKhata();
       toast.success("Saved to your khata", { description: `${vendor} · ${dateLabel(date)}` });
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save changes"); }
     finally { setSaving(false); }
   };
   const accept = async () => {
+    if (!stockMovement) { toast.error("Choose the stock movement first"); return; }
     setSaving(true);
-    try { khata.accept(r.id); await flushKhata(); toast("Accepted as it is", { description: `${vendor} · ${dateLabel(date)}` }); }
+    try { khata.saveReview(r.id, { vendor: r.vendor, date: r.date, payment: r.payment, items: r.items, stockMovement }); khata.accept(r.id); await flushKhata(); toast("Accepted as it is", { description: `${r.vendor} · ${dateLabel(r.date)}` }); }
     catch (error) { toast.error(error instanceof Error ? error.message : "Could not accept this bill"); }
     finally { setSaving(false); }
   };
@@ -108,6 +112,7 @@ function EditForm({ r }: { r: Receipt }) {
       </div>
 
       {r.paymentDetails && <p className="border-b px-4 py-3 text-sm text-muted-foreground sm:px-5">{r.paymentDetails}</p>}
+      <div className="border-b p-4 sm:p-5"><StockMovementField id="bill-stock-movement" value={stockMovement} onChange={setStockMovement} disabled={saving} /></div>
 
       <div className="grid min-w-0 gap-4 border-b p-4 sm:grid-cols-3 sm:p-5 [&>div]:min-w-0">
         <div className="space-y-1.5">
