@@ -112,7 +112,7 @@ function Floaters() {
   const coins: [number, number, number][] = [[-3.2, 3.4, 1.5], [3.4, 3.0, 1.2], [-2.4, 4.2, 0.4], [2.6, 4.4, 0.6], [0.4, 4.6, 1.6]];
   const receipts: [number, number, number][] = [[-3.8, 2.2, 2], [3.9, 1.9, 2.2], [1.6, 3.9, 2.4]];
   return (
-    <group ref={group}>
+    <group ref={group} position={[2.4, -0.6, 0]}>
       {coins.map((p, i) => (
         <Float key={i} speed={2} rotationIntensity={1.5} floatIntensity={1.2}>
           <mesh position={p} rotation-x={Math.PI / 2}>
@@ -135,7 +135,7 @@ function Floaters() {
 
 export default function ShopScene({ open }: { open: boolean }) {
   return (
-    <Canvas onCreated={({ camera }) => camera.lookAt(-0.6, 0.6, 0)} shadows dpr={[1, 2]} camera={{ position: [-2.6, 2.4, 9], fov: 42 }}>
+    <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 1.6, 12.5], fov: 40 }}>
       <fog attach="fog" args={["#3b2618", 10, 22]} />
       <ambientLight intensity={0.45} />
       <directionalLight position={[4, 8, 6]} intensity={1.4} castShadow shadow-mapSize={[1024, 1024]} color="#ffd9a8" />
@@ -144,7 +144,7 @@ export default function ShopScene({ open }: { open: boolean }) {
         <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} />
         <Lightformer intensity={1} color="#ffcf8a" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
       </Environment>
-      <group position={[0, -1.5, 0]}>
+      <group position={[2.6, -1.6, 0]} rotation-y={-0.25}>
         {/* street */}
         <mesh rotation-x={-Math.PI / 2} receiveShadow position={[0, 0, 2]}>
           <planeGeometry args={[30, 12]} />
