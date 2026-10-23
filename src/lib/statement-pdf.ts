@@ -44,22 +44,30 @@ export async function createStatementPdf(statement: Statement, hindiBytes?: Arra
     y -= 24;
   };
   const fontFor = (text: string): PDFFont => /[\u0900-\u097f]/.test(text) ? hindi : latin;
+  const runs = (text: string) => text.match(/[\u0900-\u097f]+|[^\u0900-\u097f]+/g) ?? [];
+  const width = (text: string, size: number) => runs(text).reduce((sum, run) => sum + fontFor(run).widthOfTextAtSize(run, size), 0);
   const line = (text: string, size = 10) => {
-    const font = fontFor(text);
-    const supported = new Set(font.getCharacterSet());
     // Never silently replace unsupported characters with missing-glyph boxes.
-    if ([...text].some((c) => !supported.has(c.codePointAt(0) ?? 0))) throw new Error("This statement contains text in an unsupported script. Hindi and English PDF export are currently supported.");
+    for (const run of runs(text)) {
+      const supported = new Set(fontFor(run).getCharacterSet());
+      if ([...run].some((c) => !supported.has(c.codePointAt(0) ?? 0))) throw new Error("This statement contains text in an unsupported script. Hindi and English PDF export are currently supported.");
+    }
     let rest = text.replace(/[\r\n\t]+/g, " ");
     while (rest.length) {
       let chars = [...rest];
       let take = chars.length;
-      while (take > 1 && font.widthOfTextAtSize(chars.slice(0, take).join(""), size) > 510) take--;
+      while (take > 1 && width(chars.slice(0, take).join(""), size) > 510) take--;
       if (take < chars.length) {
         const space = chars.slice(0, take).lastIndexOf(" ");
         if (space > 0) take = space;
       }
       if (y < 65) nextPage();
-      page.drawText(chars.slice(0, take).join(""), { x: 42, y, size, font });
+      let x = 42;
+      for (const run of runs(chars.slice(0, take).join(""))) {
+        const font = fontFor(run);
+        page.drawText(run, { x, y, size, font });
+        x += font.widthOfTextAtSize(run, size);
+      }
       y -= size + 6;
       rest = chars.slice(take).join("").trimStart();
     }
