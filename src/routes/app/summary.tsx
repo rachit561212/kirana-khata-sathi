@@ -59,18 +59,18 @@ function SummaryScreen() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-2">
+        <div className="min-w-0 rounded-xl border bg-card">
           <div className="border-b px-5 py-3 text-sm font-semibold">Where the money went</div>
           <ul className="divide-y">
             {cats.map((c) => (
               <li key={c.cat}>
-                <button onClick={() => setOpen(open === c.cat ? null : c.cat)} className="flex w-full items-center gap-3 px-5 py-3 text-left text-sm transition hover:bg-muted/60">
-                  <span className="w-24 font-medium">{c.cat}</span>
-                  <span className="h-2 flex-1 overflow-hidden rounded bg-muted"><span className="block h-full bg-primary" style={{ width: `${(c.total / cats[0]!.total) * 100}%` }} /></span>
-                  <span className="w-28 text-right font-mono">{Math.round(c.total).toLocaleString("en-IN")}</span>
+                <Button variant="ghost" onClick={() => setOpen(open === c.cat ? null : c.cat)} aria-expanded={open === c.cat} className="grid h-auto min-h-14 w-full grid-cols-[minmax(0,1fr)_auto_auto] gap-x-3 gap-y-2 rounded-none px-4 py-3 text-left text-sm hover:bg-muted/60 sm:flex sm:px-5">
+                  <span className="min-w-0 font-medium sm:w-24">{c.cat}</span>
+                  <span className="order-4 col-span-3 h-2 w-full overflow-hidden rounded bg-muted sm:order-none sm:w-auto sm:flex-1"><span className="block h-full bg-primary" style={{ width: `${(c.total / (top?.total || 1)) * 100}%` }} /></span>
+                  <span className="text-right font-mono sm:w-28">{Math.round(c.total).toLocaleString("en-IN")}</span>
                   <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition ${open === c.cat ? "rotate-180" : ""}`} />
-                </button>
+                </Button>
                 {open === c.cat && (
                   <ul className="bg-muted/40 px-5 pb-3">
                     {c.ids.map((id) => {
@@ -79,7 +79,7 @@ function SummaryScreen() {
                         <li key={id} className="flex items-center gap-2 py-1.5 text-xs">
                           <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                           <span className="font-mono text-muted-foreground">{r.id}</span>
-                          <span className="flex-1 truncate">{r.vendor} · {dateish(r)}</span>
+                          <span className="min-w-0 flex-1 truncate">{r.vendor} · {dateish(r)}</span>
                           <Link to="/app/receipts" search={{ vendor: r.vendor, q: "" }} className="underline-offset-4 hover:underline">open</Link>
                         </li>
                       ) : null;
@@ -91,15 +91,15 @@ function SummaryScreen() {
           </ul>
         </div>
 
-        <div className="rounded-xl border bg-card">
+        <div className="min-w-0 rounded-xl border bg-card">
           <div className="border-b px-5 py-3 text-sm font-semibold">Your biggest suppliers</div>
           <ul className="divide-y">
             {vendors.map((v) => (
-              <li key={v.vendor} className="flex items-center gap-3 px-5 py-3 text-sm transition hover:bg-muted/60">
-                <span className="flex-1 truncate font-medium">{v.vendor}</span>
-                <span className="text-xs text-muted-foreground">{v.count} bill{v.count > 1 ? "s" : ""}</span>
-                <span className="w-28 text-right font-mono">{Math.round(v.total).toLocaleString("en-IN")}</span>
-                <Link to="/app/receipts" search={{ vendor: v.vendor, q: "" }} className="text-xs underline-offset-4 hover:underline">bills</Link>
+              <li key={v.vendor} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3 text-sm transition hover:bg-muted/60 sm:flex sm:px-5">
+                <span className="min-w-0 flex-1 break-words font-medium">{v.vendor}</span>
+                <span className="order-3 text-xs text-muted-foreground sm:order-none">{v.count} bill{v.count > 1 ? "s" : ""}</span>
+                <span className="shrink-0 text-right font-mono sm:w-28">{Math.round(v.total).toLocaleString("en-IN")}</span>
+                <Link to="/app/receipts" search={{ vendor: v.vendor, q: "" }} className="order-4 flex min-h-11 items-center justify-end text-xs underline-offset-4 hover:underline sm:order-none">bills</Link>
               </li>
             ))}
           </ul>

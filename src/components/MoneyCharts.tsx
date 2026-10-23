@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Button } from "@/components/ui/button";
 
 const DAILY = [
   { label: "Mon", spent: 14200, received: 22100 },
@@ -35,15 +36,15 @@ export function MoneyCharts() {
     <section id="reports" className="mx-auto max-w-7xl px-6 pb-24">
       <h2 className="text-4xl font-bold md:text-5xl">Your shop, in two charts</h2>
       <p className="mt-2 text-muted-foreground">Sample numbers. Yours fill in as bills come in.</p>
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="rounded-lg border bg-card p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-10 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <div className="min-w-0 rounded-lg border bg-card p-3 sm:p-6">
+          <div className="mb-4 grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
             <div className="font-semibold">Spent vs received {range === "day" ? "this week" : "last 6 months"}</div>
-            <div className="flex rounded-lg border p-1 text-sm">
+            <div className="grid grid-cols-2 rounded-lg border p-1 text-sm sm:flex">
               {(["day", "month"] as const).map((r) => (
-                <button key={r} onClick={() => setRange(r)} className={`rounded-md px-3 py-1.5 font-medium transition ${range === r ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
+                <Button variant="ghost" key={r} aria-pressed={range === r} onClick={() => setRange(r)} className={`min-h-11 rounded-md px-3 font-medium transition ${range === r ? "bg-foreground text-background hover:bg-foreground/90 hover:text-background" : "text-muted-foreground hover:bg-muted"}`}>
                   {r === "day" ? "Per day" : "Per month"}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -61,7 +62,7 @@ export function MoneyCharts() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6">
+        <div className="min-w-0 rounded-lg border bg-card p-3 sm:p-6">
           <div className="font-semibold">How customers paid in October</div>
           <div className="relative h-64">
             <ResponsiveContainer width="100%" height="100%">

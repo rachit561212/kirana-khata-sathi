@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Phone layouts: app navigation, upload, review, receipts, duplicates, summary, ask and landing page; checked at 320, 360, 390, 812 and 1280px, including sample upload → edit → CSV and duplicate review
 - [x] Scroll-driven, more realistic 3D shop story
 - [x] Remove "Watch 3D Shutter Demo" button
 - [x] Remove AI-looking styling/copy

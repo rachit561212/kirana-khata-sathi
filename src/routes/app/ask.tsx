@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileText, MessageSquareQuote, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { answer, fmt, MONTH_LABEL, sums, SUGGESTIONS, totalOf, useKhata, vendorTotals } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/ask")({
@@ -40,22 +41,23 @@ function AskScreen() {
 
       <form
         onSubmit={(e) => { e.preventDefault(); if (q.trim()) ask(q.trim()); }}
-        className="flex gap-2"
+        className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"
       >
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="How much did I spend on oil?"
-          className="h-11 flex-1 rounded-md border bg-background px-4 text-sm outline-none transition focus:border-foreground"
+          aria-label="Question about your receipts"
+          className="h-11 min-w-0 rounded-md border bg-background px-3 text-base outline-none transition focus:border-foreground sm:text-sm"
         />
-        <button type="submit" className="inline-flex h-11 items-center gap-2 rounded-md bg-foreground px-5 text-sm font-semibold text-background transition hover:opacity-90">
-          <Send className="h-4 w-4" /> Ask
-        </button>
+        <Button type="submit" aria-label="Ask" className="h-11 w-11 bg-foreground p-0 text-background hover:bg-foreground/90 sm:w-auto sm:px-5">
+          <Send className="h-4 w-4" /> <span className="hidden sm:inline">Ask</span>
+        </Button>
       </form>
 
       <div className="flex flex-wrap gap-2">
         {SUGGESTIONS.map((t) => (
-          <button key={t} onClick={() => ask(t)} className="rounded-full border bg-card px-3 py-1.5 text-xs transition hover:bg-muted">{t}</button>
+          <Button key={t} variant="outline" onClick={() => ask(t)} className="h-auto min-h-11 max-w-full whitespace-normal rounded-full bg-card px-3 py-2 text-left text-xs hover:bg-muted">{t}</Button>
         ))}
       </div>
 
@@ -63,7 +65,7 @@ function AskScreen() {
         <div className="rounded-xl border bg-card">
           <div className="flex items-start gap-3 border-b px-5 py-4">
             <MessageSquareQuote className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-            <div>
+            <div className="min-w-0 break-words">
               <div className="text-xs text-muted-foreground">{asked}</div>
               <p className="mt-1.5 text-[15px] leading-relaxed">{res.text}</p>
             </div>
@@ -73,11 +75,11 @@ function AskScreen() {
               <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">From these bills</div>
               <ul className="divide-y rounded-md border">
                 {res.cites.map((r) => (
-                  <li key={r.id} className="flex items-center gap-3 px-4 py-2.5 text-sm transition hover:bg-muted/60">
-                    <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="font-mono text-xs text-muted-foreground">{r.id}</span>
-                    <span className="flex-1 truncate">{r.vendor} · {r.date.slice(8, 10)}/{r.date.slice(5, 7)}</span>
-                    <span className={`font-mono font-semibold ${r.kind === "spent" ? "text-spent" : "text-received"}`}>{fmt(totalOf(r))}</span>
+                  <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-3 text-sm transition hover:bg-muted/60 sm:flex sm:gap-3 sm:px-4">
+                    <FileText className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
+                    <span className="order-3 font-mono text-xs text-muted-foreground sm:order-none">{r.id}</span>
+                    <span className="min-w-0 flex-1 break-words">{r.vendor} · {r.date.slice(8, 10)}/{r.date.slice(5, 7)}</span>
+                    <span className={`shrink-0 font-mono text-sm font-semibold ${r.kind === "spent" ? "text-spent" : "text-received"}`}>{fmt(totalOf(r))}</span>
                   </li>
                 ))}
               </ul>

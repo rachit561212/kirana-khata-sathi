@@ -4,6 +4,7 @@ import { Download, FileSearch } from "lucide-react";
 import { toast } from "sonner";
 import { CopyButton } from "@/components/SiteChrome";
 import { deliverCsv } from "@/lib/csv";
+import { Button } from "@/components/ui/button";
 import { dateLabel, fmt, totalOf, useKhata } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/receipts")({
@@ -66,39 +67,41 @@ function ReceiptsScreen() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="grid min-w-0 gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <h1 className="font-display text-3xl font-bold">Receipts</h1>
           <p className="mt-1 text-muted-foreground">{rows.length} of {live.length} records shown · {confirmed.length} confirmed.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 [&>button]:min-h-11">
           <CopyButton label="Copy CSV" text={csvText} />
-          <button
+          <Button variant="default" size="sm"
             onClick={download}
             disabled={!confirmed.length}
-            className="inline-flex items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition hover:opacity-90 disabled:opacity-40"
+            className="min-h-11 gap-1.5 bg-foreground text-xs font-semibold text-background hover:bg-foreground/90"
           >
             <Download className="h-3.5 w-3.5" /> Download CSV ({confirmed.length})
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid min-w-0 gap-3 sm:flex sm:flex-wrap sm:items-center">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search vendor, item or bill number"
-          className="h-9 min-w-[220px] flex-1 rounded-md border bg-background px-3 text-sm outline-none transition focus:border-foreground"
+          aria-label="Search receipts"
+          className="h-11 min-w-0 flex-1 rounded-md border bg-background px-3 text-base outline-none transition focus:border-foreground sm:text-sm"
         />
-        <div className="flex rounded-md border p-0.5">
+        <div className="grid grid-cols-3 rounded-md border p-0.5 sm:flex">
           {(["all", "spent", "received"] as const).map((t) => (
-            <button
+            <Button variant="ghost" size="sm"
               key={t}
               onClick={() => setKind(t)}
-              className={`rounded px-3 py-1.5 text-xs font-semibold capitalize transition ${kind === t ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}
+              aria-pressed={kind === t}
+              className={`min-h-11 rounded px-3 text-xs font-semibold capitalize transition ${kind === t ? "bg-foreground text-background hover:bg-foreground/90 hover:text-background" : "text-muted-foreground hover:bg-muted"}`}
             >
               {t}
-            </button>
+            </Button>
           ))}
         </div>
         {vendor && (
@@ -115,7 +118,20 @@ function ReceiptsScreen() {
           <p className="mt-1 text-sm text-muted-foreground">Clear the search or pick another filter.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border bg-card">
+        <>
+        <ul aria-label="Receipt records" className="divide-y rounded-lg border bg-card sm:hidden">
+          {rows.map((r) => (
+            <li key={r.id} className="space-y-2 p-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                <span className="min-w-0 break-words text-sm font-semibold">{r.vendor}</span>
+                <span className={`shrink-0 font-mono text-sm font-semibold ${r.kind === "spent" ? "text-spent" : "text-received"}`}>{r.kind === "spent" ? "−" : "+"}{fmt(totalOf(r))}</span>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"><span>{dateLabel(r.date)}</span><span>{r.items.length} items</span><span>{r.payment}</span></div>
+              <div className="flex items-center justify-between gap-3 text-xs"><span className="font-mono text-muted-foreground">{r.id}</span><span className={r.status === "new" ? "text-primary" : "text-received"}>{r.status === "new" ? "To check" : "Confirmed"}</span></div>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto rounded-xl border bg-card sm:block">
           <table className="w-full text-sm">
             <thead className="bg-muted/60 text-left text-xs text-muted-foreground">
               <tr>
@@ -147,6 +163,7 @@ function ReceiptsScreen() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );
