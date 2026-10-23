@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
+import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
 
 function NotFoundComponent() {
   return (
@@ -127,6 +128,11 @@ function RootComponent() {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event === "SIGNED_IN") {
+        setTimeout(() => {
+          sendWelcomeEmail().catch(() => {});
+        }, 0);
+      }
     });
     return () => subscription.unsubscribe();
   }, [router, queryClient]);
