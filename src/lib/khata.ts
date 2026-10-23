@@ -226,8 +226,28 @@ const emit = () => listeners.forEach((l) => l());
 const sub = (l: () => void) => { listeners.add(l); return () => { listeners.delete(l); }; };
 const snap = () => state;
 
+// Signed-out visitors see sample data; each signed-in account gets its own list, starting empty.
+let accountId: string | null = null;
+const accountKey = (id: string) => `hisaab-receipts-${id}`;
+
+export function setKhataAccount(id: string | null) {
+  if (id === accountId) return;
+  accountId = id;
+  if (!id) {
+    state = { receipts: SEED.map((r) => ({ ...r, items: r.items.map((i) => ({ ...i })) })) };
+  } else {
+    let saved: Receipt[] = [];
+    try { saved = JSON.parse(sessionStorage.getItem(accountKey(id)) || "[]"); } catch { saved = []; }
+    state = { receipts: Array.isArray(saved) ? saved : [] };
+  }
+  emit();
+}
+
 function setReceipts(fn: (rs: Receipt[]) => Receipt[]) {
   state = { receipts: fn(state.receipts) };
+  if (accountId) {
+    try { sessionStorage.setItem(accountKey(accountId), JSON.stringify(state.receipts)); } catch { /* storage full */ }
+  }
   emit();
 }
 
