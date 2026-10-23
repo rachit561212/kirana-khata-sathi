@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Upload, MessageCircle, ScanLine, BookOpen, Moon, Languages, AlertTriangle, Check, BadgeCheck, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { MoneyCharts } from "@/components/MoneyCharts";
 import { Toaster } from "@/components/ui/sonner";
 import { BackToTop, CookieBanner, CopyButton, Shortcuts, SignupDialog, SiteHeader, SkipLink, UploadBox, useTheme } from "@/components/SiteChrome";
 
@@ -156,6 +157,7 @@ function Index() {
         </section>
 
         <Sandbox />
+        <MoneyCharts />
         <Features />
         <Reviews />
         <Pricing onSignup={() => setSignup(true)} />
