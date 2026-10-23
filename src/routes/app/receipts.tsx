@@ -1,34 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { FileSearch } from "lucide-react";
+import { Download, FileSearch } from "lucide-react";
+import { toast } from "sonner";
 import { CopyButton } from "@/components/SiteChrome";
+import { deliverCsv } from "@/lib/csv";
 import { dateLabel, fmt, totalOf, useKhata } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/receipts")({
-  validateSearch: (search: Record<string, unknown>): { vendor: string; q: string } => ({
-    vendor: typeof search.vendor === "string" ? search.vendor : "",
-    q: typeof search.q === "string" ? search.q : "",
+  validateSearch: (search: Record<string, unknown>): { vendor?: string; q?: string } => ({
+    vendor: typeof search["vendor"] === "string" ? search["vendor"] : "",
+    q: typeof search["q"] === "string" ? search["q"] : "",
   }),
   head: () => ({
     meta: [
       { title: "All receipts — ShopLedger" },
-      { name: "description", content: "Every bill you sent, turned into a record you can search, filter and copy out." },
+      { name: "description", content: "Every bill you sent, turned into a record you can search, filter and export as CSV." },
     ],
   }),
   component: ReceiptsScreen,
 });
 
+const confirmedRow = (r: Parameters<typeof totalOf>[0]) => [
+  r.vendor,
+  r.date,
+  r.items.map((i) => `${i.name} x${i.qty}`).join("; "),
+  [...new Set(r.items.map((i) => i.cat))].join("; "),
+  Math.round(totalOf(r)),
+];
+
 function ReceiptsScreen() {
   const receipts = useKhata();
   const init = Route.useSearch();
-  const [q, setQ] = useState(init.q);
+  const [q, setQ] = useState(init.q ?? "");
   const [kind, setKind] = useState<"all" | "spent" | "received">("all");
-  const [vendor, setVendor] = useState(init.vendor);
+  const [vendor, setVendor] = useState(init.vendor ?? "");
 
+  const live = useMemo(() => receipts.filter((r) => r.status !== "dismissed"), [receipts]);
   const rows = useMemo(
     () =>
-      receipts
-        .filter((r) => r.status !== "dismissed")
+      live
         .filter((r) => kind === "all" || r.kind === kind)
         .filter((r) => !vendor || r.vendor === vendor)
         .filter((r) => {
@@ -37,19 +47,36 @@ function ReceiptsScreen() {
           return r.vendor.toLowerCase().includes(s) || r.items.some((i) => i.name.toLowerCase().includes(s)) || r.id.toLowerCase().includes(s);
         })
         .sort((a, b) => (a.date < b.date ? 1 : -1)),
-    [receipts, kind, vendor, q],
+    [live, kind, vendor, q],
   );
 
-  const csv = rows.map((r) => [r.id, r.date, r.vendor, r.kind, r.payment, Math.round(totalOf(r))].join(",")).join("\n");
+  const confirmed = useMemo(() => live.filter((r) => r.status === "accepted" || r.status === "corrected"), [live]);
+  const csv = useMemo(() => [["vendor", "date", "items", "category", "total"], ...confirmed.map(confirmedRow)], [confirmed]);
+  const csvText = csv.map((r) => r.join(",")).join("\n");
+
+  const download = () => {
+    if (!confirmed.length) return;
+    deliverCsv(csv, "shopledger-confirmed-receipts.csv");
+    toast.success("CSV downloaded", { description: `${confirmed.length} confirmed records · vendor, date, items, category, total.` });
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold">Receipts</h1>
-          <p className="mt-1 text-muted-foreground">{rows.length} of {receipts.filter((r) => r.status !== "dismissed").length} records shown.</p>
+          <p className="mt-1 text-muted-foreground">{rows.length} of {live.length} records shown · {confirmed.length} confirmed.</p>
         </div>
-        <CopyButton label="Copy as CSV" text={csv} />
+        <div className="flex flex-wrap gap-2">
+          <CopyButton label="Copy CSV" text={csvText} />
+          <button
+            onClick={download}
+            disabled={!confirmed.length}
+            className="inline-flex items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition hover:opacity-90 disabled:opacity-40"
+          >
+            <Download className="h-3.5 w-3.5" /> Download CSV ({confirmed.length})
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -57,7 +84,7 @@ function ReceiptsScreen() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search vendor, item or bill number"
-          className="h-9 flex-1 min-w-[220px] rounded-md border bg-background px-3 text-sm outline-none transition focus:border-foreground"
+          className="h-9 min-w-[220px] flex-1 rounded-md border bg-background px-3 text-sm outline-none transition focus:border-foreground"
         />
         <div className="flex rounded-md border p-0.5">
           {(["all", "spent", "received"] as const).map((t) => (
@@ -93,6 +120,7 @@ function ReceiptsScreen() {
                 <th className="px-3 py-2.5 font-medium">Vendor</th>
                 <th className="px-3 py-2.5 font-medium">Items</th>
                 <th className="px-3 py-2.5 font-medium">Paid by</th>
+                <th className="px-3 py-2.5 font-medium">Checked</th>
                 <th className="px-5 py-2.5 text-right font-medium">Amount</th>
               </tr>
             </thead>
@@ -100,10 +128,13 @@ function ReceiptsScreen() {
               {rows.map((r) => (
                 <tr key={r.id} className="transition hover:bg-muted/60">
                   <td className="px-5 py-2.5 font-mono text-xs text-muted-foreground">{r.id}</td>
-                  <td className="px-3 py-2.5 whitespace-nowrap">{dateLabel(r.date)}</td>
+                  <td className="whitespace-nowrap px-3 py-2.5">{dateLabel(r.date)}</td>
                   <td className="px-3 py-2.5 font-medium">{r.vendor}</td>
                   <td className="px-3 py-2.5 text-muted-foreground">{r.items.length}</td>
                   <td className="px-3 py-2.5">{r.payment}</td>
+                  <td className="px-3 py-2.5 text-xs">
+                    {r.status === "new" ? <span className="text-primary">to check</span> : <span className="text-received">yes</span>}
+                  </td>
                   <td className={`px-5 py-2.5 text-right font-mono font-semibold ${r.kind === "spent" ? "text-spent" : "text-received"}`}>
                     {r.kind === "spent" ? "−" : "+"}{fmt(totalOf(r))}
                   </td>
