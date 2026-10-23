@@ -116,7 +116,7 @@ function Metric({ label, value, sub, tone }: { label: string; value: string; sub
 }
 
 type Row = { item: string; qty: number; rate: number; gst: number; conf: number; alert?: string };
-const SPENT: { doc: Record<string, string>; rows: Row[] } = {
+const SPENT: { doc: { from: string; no: string; date: string; gstin: string }; rows: Row[] } = {
   doc: { from: "Shree Ganesh Distributors", no: "SGD/24-25/1187", date: "21 Oct 2026", gstin: "27AAKFS4471M1ZP" },
   rows: [
     { item: "Aashirvaad Atta 10kg", qty: 12, rate: 438, gst: 5, conf: 99 },
@@ -126,7 +126,7 @@ const SPENT: { doc: Record<string, string>; rows: Row[] } = {
     { item: "Surf Excel 1kg", qty: 10, rate: 132, gst: 18, conf: 88, alert: "+12% vs last bill" },
   ],
 };
-const RECEIVED: { doc: Record<string, string>; rows: Row[] } = {
+const RECEIVED: { doc: { from: string; no: string; date: string; gstin: string }; rows: Row[] } = {
   doc: { from: "PhonePe Business Settlement", no: "SETL-88214039", date: "21 Oct 2026", gstin: "UPI · HDFC ****4410" },
   rows: [
     { item: "UPI collections (142 txns)", qty: 1, rate: 21300, gst: 0, conf: 99 },
