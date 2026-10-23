@@ -16,4 +16,5 @@ it("decodes a data URL back to exactly the bytes that were recorded", () => {
   const dataUrl = `data:audio/webm;base64,${btoa(String.fromCharCode(...payload))}`;
   expect(Array.from(decodeAudioBase64(dataUrl))).toEqual(Array.from(payload));
   expect(Array.from(decodeAudioBase64(btoa(String.fromCharCode(...payload))))).toEqual(Array.from(payload));
+  expect(() => decodeAudioBase64("!!!! not audio !!!!")).toThrow();
 });
