@@ -12,6 +12,7 @@ export function geminiFailureMessage(error: unknown, voice: boolean): string {
   if (error instanceof GeminiRequestError) {
     if (error.status === 401 || error.status === 403) return `${action} cannot access Gemini. Check the API key and its permissions in Google AI Studio.`;
     if (error.status === 429) return `${action} has reached Google's usage limit. Check your Google AI Studio quota, then try again later.`;
+    if (error.status === 503) return `${action} is temporarily unavailable at Google. Your details are kept; try again later or enter them manually.`;
   }
   return `${action} is unavailable right now. Your details are kept; you can type them instead.`;
 }
