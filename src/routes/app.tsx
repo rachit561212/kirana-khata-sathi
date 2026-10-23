@@ -42,7 +42,7 @@ async function loadAccount() {
     .eq("user_id", user.id)
     .maybeSingle();
   return {
-    name: profile?.display_name || String(user.user_metadata?.display_name || "") || user.email || "Your shop",
+    name: profile?.display_name || String(user.user_metadata?.["display_name"] || "") || user.email || "Your shop",
     email: user.email || "",
   };
 }
