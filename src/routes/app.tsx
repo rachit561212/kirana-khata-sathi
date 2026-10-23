@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Moon, ReceiptText, Sun } from "lucide-react";
+import { ArrowLeft, ChevronDown, LogOut, Moon, ReceiptText, Sun, UserRound } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/components/SiteChrome";
 import { SignupDialog } from "@/components/SiteChrome";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import ShopProfileDialog from "@/components/ShopProfileDialog";
 import { BillSyncGate } from "@/components/BillSyncGate";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -27,13 +28,15 @@ export const Route = createFileRoute("/app")({
 });
 
 const TABS = [
-  { to: "/app", label: "Upload" },
-  { to: "/app/review", label: "Review & edit" },
-  { to: "/app/receipts", label: "Receipts" },
+  { to: "/app", label: "Add bill" },
   { to: "/app/sales", label: "Sales" },
-  { to: "/app/products", label: "Products" },
-  { to: "/app/duplicates", label: "Duplicates" },
+  { to: "/app/receipts", label: "Bills" },
   { to: "/app/summary", label: "Summary" },
+];
+const MORE_TABS = [
+  { to: "/app/products", label: "Products" },
+  { to: "/app/review", label: "Review & edit" },
+  { to: "/app/duplicates", label: "Duplicates" },
   { to: "/app/ask", label: "Ask" },
 ];
 
@@ -95,7 +98,7 @@ function AppShell() {
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground"><ReceiptText className="h-4 w-4" /></span>
             <span className="truncate">हिसाब</span>
           </Link>
-          <nav aria-label="Ledger pages" className="order-3 col-span-2 grid w-full grid-cols-3 items-center gap-1 text-sm sm:flex sm:overflow-x-auto lg:order-2 lg:w-auto">
+          <nav aria-label="Ledger pages" className="order-3 col-span-2 grid w-full grid-cols-5 items-center gap-1 text-xs sm:flex sm:text-sm lg:order-2 lg:w-auto">
             {TABS.map((t) => {
               const on = t.to === "/app" ? path === "/app" : path.startsWith(t.to);
               return (
@@ -103,23 +106,27 @@ function AppShell() {
                   key={t.to}
                   to={t.to}
                   aria-current={on ? "page" : undefined}
-                  className={`flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-2 py-2 font-medium transition sm:px-3 ${on ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  className={`flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-1 py-2 font-medium transition sm:px-3 ${on ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                 >
                   {t.label}
                 </Link>
               );
             })}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild><Button variant="ghost" className={`min-h-11 gap-1 px-1 text-xs sm:px-3 sm:text-sm ${MORE_TABS.some((t) => path.startsWith(t.to)) ? "bg-muted text-foreground" : "text-muted-foreground"}`}>More<ChevronDown className="h-3 w-3" /></Button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end">{MORE_TABS.map((t) => <DropdownMenuItem key={t.to} asChild><Link to={t.to} className="min-h-11">{t.label}</Link></DropdownMenuItem>)}</DropdownMenuContent>
+            </DropdownMenu>
           </nav>
           <div className="order-2 flex shrink-0 items-center gap-1 sm:ml-auto sm:gap-2 lg:order-3">
-            {account ? <>
-              <Button size="sm" variant="ghost" className="min-h-11 max-w-32 px-2 sm:px-3" title="Edit shop details" onClick={() => setEditShop(true)}><span className="truncate">{account.name}</span></Button>
-              <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={handleSignOut}>Sign out</Button>
-            </> : <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={() => setSignup(true)}>Sign in</Button>}
+            {account ? <DropdownMenu>
+              <DropdownMenuTrigger asChild><Button variant="outline" aria-label="Shop account" className="min-h-11 gap-2 px-3"><UserRound className="h-4 w-4" /><span className="hidden max-w-28 truncate xl:inline">{account.name}</span><ChevronDown className="h-3 w-3" /></Button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end"><DropdownMenuItem className="min-h-11" onSelect={() => setEditShop(true)}><UserRound />Edit shop details</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem className="min-h-11" onSelect={() => void handleSignOut()}><LogOut />Sign out</DropdownMenuItem></DropdownMenuContent>
+            </DropdownMenu> : <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={() => setSignup(true)}>Sign in</Button>}
             <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle dark mode" className="h-11 w-11">
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Link to="/" aria-label="Landing page" title="Landing page" className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-1.5 rounded-md border text-xs font-medium transition hover:bg-muted sm:w-auto sm:px-3">
-              <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Landing page</span>
+            <Link to="/" aria-label="Landing page" title="Landing page" className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" />
             </Link>
           </div>
         </div>
