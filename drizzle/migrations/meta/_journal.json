@@ -57,6 +57,13 @@
       "when": 1792805061893,
       "tag": "0007_reminder_details",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792819067000,
+      "tag": "0008_company_name_on_signup",
+      "breakpoints": true
     }
   ]
 }

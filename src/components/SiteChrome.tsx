@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ArrowRight, ArrowUp, Check, Copy, FileText, Menu, Moon, Sun, Upload, X, Keyboard } from "lucide-react";
+import { ArrowRight, ArrowUp, Check, Copy, Eye, EyeOff, FileText, Menu, Moon, Sun, Upload, X, Keyboard } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { checkBillUpload } from "@/lib/bill-upload";
 
@@ -110,40 +113,62 @@ export function SiteHeader({ dark, onToggleTheme, onSignup }: { dark: boolean; o
   );
 }
 
-/* ---------- Google OAuth sign-in ---------- */
+/* ---------- email and password sign-in ---------- */
 export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const [mode, setMode] = useState<"signup" | "login">("signup");
+  const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const google = async () => {
+  const [confirmSent, setConfirmSent] = useState(false);
+  const navigate = useNavigate();
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const values = new FormData(event.currentTarget);
+    const email = String(values.get("email") || "").trim();
+    const password = String(values.get("password") || "");
+    const company = String(values.get("company") || "").trim();
     setBusy(true); setError("");
     try {
-      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}/app`, skipBrowserRedirect: true },
-      });
-      if (oauthError) {
-        setError("Google sign-in is unavailable. Check that Google is enabled in Supabase Auth and this app URL is allowed.");
-        return;
+      if (mode === "signup") {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { display_name: company, shop_name: company }, emailRedirectTo: window.location.origin },
+        });
+        if (signUpError) { setError(signUpError.message); return; }
+        if (!data.session) { setConfirmSent(true); return; }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) { setError(signInError.message); return; }
       }
-      if (!data.url) {
-        setError("Google sign-in could not start. Please try again.");
-        return;
-      }
-      window.location.assign(data.url);
-    } catch { setError("Google sign-in is unavailable. Check the Supabase Google provider settings and try again."); }
+      onOpenChange(false);
+      toast.success(mode === "signup" ? "Account created" : "Signed in");
+      navigate({ to: "/app" });
+    } catch { setError("Unable to reach the server. Please try again."); }
     finally { setBusy(false); }
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Open your khata</DialogTitle>
-          <DialogDescription>Continue securely with your Google account. Your shop data stays private to your account.</DialogDescription>
+          <DialogTitle className="font-display text-2xl">{mode === "signup" ? "Open your khata" : "Sign in to your khata"}</DialogTitle>
+          <DialogDescription>{mode === "signup" ? "Create an account for your company." : "Use your email and password to sign in."}</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        {confirmSent ? <div className="space-y-4 py-2 text-center">
+          <p className="font-semibold">Email confirmation is required</p>
+          <p className="text-sm text-muted-foreground">To create accounts without a verification link, turn off “Confirm email” in Supabase Authentication settings.</p>
+          <Button className="w-full" onClick={() => { setConfirmSent(false); setMode("login"); }}>Back to sign in</Button>
+        </div> : <form className="space-y-4" onSubmit={submit}>
+          {mode === "signup" && <div className="space-y-1.5"><Label htmlFor="company">Company name</Label><Input id="company" name="company" required maxLength={120} autoComplete="organization" placeholder="Sharma General Store" /></div>}
+          <div className="space-y-1.5"><Label htmlFor="email">Email address</Label><Input id="email" name="email" required type="email" autoComplete="email" placeholder="you@example.com" /></div>
+          <div className="space-y-1.5"><Label htmlFor="pw">Password</Label><div className="relative">
+            <Input id="pw" name="password" required maxLength={256} autoComplete={mode === "signup" ? "new-password" : "current-password"} type={show ? "text" : "password"} className="pr-10" />
+            <Button variant="ghost" size="icon" type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground">{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
+          </div></div>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          <Button type="button" variant="outline" disabled={busy} className="w-full font-semibold" onClick={() => void google()}>{busy ? "Connecting…" : "Continue with Google"}</Button>
-        </div>
+          <Button type="submit" disabled={busy} className="w-full font-semibold">{busy ? "Connecting…" : mode === "signup" ? "Create account" : "Sign in"}</Button>
+          <Button type="button" variant="ghost" disabled={busy} className="w-full" onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setConfirmSent(false); setError(""); }}>{mode === "signup" ? "Already have an account? Sign in" : "Create a new account"}</Button>
+        </form>}
       </DialogContent>
     </Dialog>
   );
