@@ -1,9 +1,12 @@
 import { useSyncExternalStore } from "react";
+import { loadAccountReceipts, saveAccountReceipts } from "./receipt-storage";
+import { customerReceipt, type CustomerTransaction } from "./sales";
 
 export type Cat = "Staples" | "Oils" | "Fresh" | "Snacks" | "Household" | "Dairy" | "Beverages" | "Other";
 export type Kind = "spent" | "received";
 export type Status = "new" | "accepted" | "corrected" | "dismissed";
 export type PaidState = "paid" | "unpaid" | "partial";
+export type StockMovement = "purchase" | "sale" | "none";
 export type Item = { name: string; qty: number; rate: number; gst: number; cat: Cat; hike?: string };
 export type Receipt = {
   id: string;
@@ -18,6 +21,7 @@ export type Receipt = {
   status: Status;
   dupOf?: string | undefined;
   paidState?: PaidState;
+  stockMovement?: StockMovement;
 };
 
 export const CATS: Cat[] = ["Staples", "Oils", "Fresh", "Snacks", "Household", "Dairy", "Beverages", "Other"];
@@ -218,17 +222,135 @@ const SEED: Receipt[] = [
   },
 ];
 
-/* ---------- tiny client store (sample data only, nothing saved) ---------- */
-type State = { receipts: Receipt[] };
-let state: State = { receipts: SEED.map((r) => ({ ...r, items: r.items.map((i) => ({ ...i })) })) };
+/* Account-backed client store; signed-out samples are never uploaded. */
+type State = { receipts: Receipt[]; loading: boolean; saving: boolean; error: string | null };
+const samples = () => SEED.map((r) => ({ ...r, items: r.items.map((i) => ({ ...i })) }));
+let state: State = { receipts: samples(), loading: true, saving: false, error: null };
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 const sub = (l: () => void) => { listeners.add(l); return () => { listeners.delete(l); }; };
 const snap = () => state;
 
-function setReceipts(fn: (rs: Receipt[]) => Receipt[]) {
-  state = { receipts: fn(state.receipts) };
+let accountId: string | null = null;
+let initialized = false;
+let generation = 0;
+let pending = new Map<string, Receipt>();
+let queue: Promise<void> = Promise.resolve();
+const accountKey = (id: string) => `hisaab-receipts-${id}`;
+const pendingKey = (id: string) => `hisaab-pending-${id}`;
+
+function cached(key: string): Receipt[] {
+  try {
+    const value: unknown = JSON.parse(sessionStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value.filter((r) => r && typeof r.id === "string" && Array.isArray(r.items)) : [];
+  } catch { return []; }
+}
+
+function rememberPending(id: string) {
+  try {
+    if (pending.size) sessionStorage.setItem(pendingKey(id), JSON.stringify([...pending.values()]));
+    else sessionStorage.removeItem(pendingKey(id));
+  } catch { /* Cloud remains the durable source of truth. */ }
+}
+
+export function setKhataAccount(id: string | null) {
+  if (initialized && id === accountId) return;
+  initialized = true;
+  accountId = id;
+  generation++;
+  pending = new Map();
+  queue = Promise.resolve();
+  if (!id) {
+    state = { receipts: samples(), loading: false, saving: false, error: null };
+    emit();
+  } else {
+    state = { receipts: [], loading: true, saving: false, error: null };
+    emit();
+    // Auth notifications must return before making further authenticated requests.
+    setTimeout(() => { void refreshKhata(); }, 0);
+  }
+}
+
+export async function refreshKhata() {
+  const id = accountId;
+  const version = generation;
+  if (!id || state.saving) return;
+  state = { ...state, loading: true, error: null };
   emit();
+  try {
+    let receipts = await loadAccountReceipts(id);
+    if (version !== generation) return;
+    const cloudIds = new Set(receipts.map((r) => r.id));
+    const legacy = cached(accountKey(id)).filter((r) => !cloudIds.has(r.id));
+    if (legacy.length) {
+      await saveAccountReceipts(id, legacy, true);
+      receipts = await loadAccountReceipts(id);
+    }
+    if (version !== generation) return;
+    try { sessionStorage.removeItem(accountKey(id)); } catch { /* no legacy cache */ }
+    pending = new Map([...cached(pendingKey(id)), ...pending.values()].map((r) => [r.id, r]));
+    const merged = new Map(receipts.map((r) => [r.id, r]));
+    pending.forEach((r) => merged.set(r.id, r));
+    state = { receipts: [...merged.values()], loading: false, saving: false, error: null };
+    emit();
+    if (pending.size) scheduleSave();
+  } catch (error) {
+    if (version !== generation) return;
+    state = { ...state, loading: false, error: error instanceof Error ? error.message : "Could not load your bills." };
+    emit();
+  }
+}
+
+function scheduleSave() {
+  const id = accountId;
+  const version = generation;
+  if (!id) return;
+  state = { ...state, saving: true, error: null };
+  rememberPending(id);
+  emit();
+  queue = queue.then(async () => {
+    if (version !== generation || !pending.size) return;
+    const batch = [...pending.values()];
+    try {
+      await saveAccountReceipts(id, batch);
+      if (version !== generation) return;
+      batch.forEach((r) => { if (pending.get(r.id) === r) pending.delete(r.id); });
+      rememberPending(id);
+      state = { ...state, saving: pending.size > 0, error: null };
+    } catch (error) {
+      if (version !== generation) return;
+      state = { ...state, saving: false, error: error instanceof Error ? error.message : "Could not save your bills." };
+    }
+    emit();
+  });
+}
+
+export async function flushKhata() {
+  const version = generation;
+  await queue;
+  if (version !== generation) throw new Error("The signed-in account changed. Please check your bills.");
+  if (state.error || pending.size) throw new Error(state.error ?? "Your bills are still waiting to save.");
+}
+
+export function retryKhata() {
+  if (pending.size) scheduleSave();
+  else void refreshKhata();
+}
+
+function setReceipts(fn: (rs: Receipt[]) => Receipt[]) {
+  if (state.loading || (state.error && !pending.size)) throw new Error("Wait for your bills to load, then try again.");
+  const before = new Map(state.receipts.map((r) => [r.id, r]));
+  const receipts = fn(state.receipts);
+  state = { ...state, receipts };
+  if (accountId) {
+    receipts.forEach((r) => { if (before.get(r.id) !== r) pending.set(r.id, r); });
+    scheduleSave();
+  }
+  emit();
+}
+
+export function useKhataStatus() {
+  return useSyncExternalStore(sub, snap, snap);
 }
 
 export function useKhata(): Receipt[] {
@@ -236,6 +358,13 @@ export function useKhata(): Receipt[] {
 }
 
 export const khata = {
+  addCustomerTransaction(entry: CustomerTransaction): string {
+    if (!accountId) throw new Error("Sign in to save a sale or refund");
+    const id = `R-${crypto.randomUUID()}`;
+    const receipt = customerReceipt(entry, id);
+    setReceipts((rs) => [receipt, ...rs]);
+    return id;
+  },
   accept(id: string) {
     setReceipts((rs) => rs.map((r) => (r.id === id ? { ...r, status: "accepted" } : r)));
   },
@@ -251,6 +380,9 @@ export const khata = {
   patchItem(id: string, idx: number, p: Partial<Item>) {
     setReceipts((rs) => rs.map((r) => (r.id === id ? { ...r, status: "corrected", items: r.items.map((it, i) => (i === idx ? { ...it, ...p } : it)) } : r)));
   },
+  saveReview(id: string, fields: Pick<Receipt, "vendor" | "date" | "payment" | "items"> & { stockMovement?: StockMovement }) {
+    setReceipts((rs) => rs.map((r) => r.id === id ? { ...r, ...fields, items: fields.items.map((i) => ({ ...i })), status: "corrected" } : r));
+  },
   keep(keepId: string, dropId: string) {
     setReceipts((rs) => rs.map((r) => (r.id === keepId ? { ...r, dupOf: undefined, status: "accepted" } : r.id === dropId ? { ...r, status: "dismissed" } : r)));
   },
@@ -262,8 +394,9 @@ export const khata = {
     setReceipts((rs) => {
       const out = [...rs];
       names.forEach((n, k) => {
-        const tpl = INCOMING[(rs.length + k) % INCOMING.length]!;
-        const id = `R-${900 + rs.length + k}`;
+        const tpl = INCOMING[(rs.length + k) % INCOMING.length];
+        if (!tpl) return;
+        const id = `R-${crypto.randomUUID()}`;
         ids.push(id);
         out.unshift({ ...tpl.receipt, id, status: "new", source: n.endsWith(".pdf") ? "PDF upload" : "Photo upload", items: tpl.receipt.items.map((i) => ({ ...i })) });
       });
@@ -271,18 +404,19 @@ export const khata = {
     });
     return ids;
   },
-  addManual(e: { vendor: string; note: string; amount: number; kind: Kind; payment: string; date: string; items?: Item[]; paymentDetails?: string }): string {
-    const id = `R-${900 + state.receipts.length}`;
+  addManual(e: { vendor: string; note: string; amount: number; kind: Kind; payment: string; date: string; items?: Item[]; paymentDetails?: string; stockMovement?: StockMovement }): string {
+    const id = `R-${crypto.randomUUID()}`;
     setReceipts((rs) => [{
       id, vendor: e.vendor || "Without bill", date: e.date, source: "Spoken / typed, no bill", payment: e.payment, kind: e.kind, conf: 100, status: "new",
       items: e.items?.length ? e.items.map((item) => ({ ...item })) : [{ name: e.note || "Entry", qty: 1, rate: e.amount, gst: 0, cat: "Other" }],
       ...(e.paymentDetails ? { paymentDetails: e.paymentDetails } : {}),
+      ...(e.stockMovement ? { stockMovement: e.stockMovement, status: "corrected" as const } : {}),
     }, ...rs]);
     return id;
   },
   addRepeat(original: Receipt, items: Item[], date: string, payment: string): string {
     if (!items.length || items.some((i) => !Number.isFinite(i.qty) || i.qty <= 0 || !Number.isFinite(i.rate) || i.rate < 0)) throw new Error("Check quantities and rates");
-    const id = `R-${900 + state.receipts.length}`;
+    const id = `R-${crypto.randomUUID()}`;
     setReceipts((rs) => [{ id, vendor: original.vendor, date, source: "Repeat order", payment, kind: original.kind, conf: 100, status: "new", items: items.map(({ hike: _hike, ...item }) => ({ ...item })) }, ...rs]);
     return id;
   },
@@ -290,7 +424,7 @@ export const khata = {
   addPurchaseOrder(e: { vendor: string; date: string; items: Item[]; paidState: PaidState; payment: string }): string {
     if (!e.vendor.trim()) throw new Error("Say which supplier");
     if (!e.items.length || e.items.some((i) => !i.name.trim() || !Number.isFinite(i.qty) || i.qty <= 0 || !Number.isFinite(i.rate) || i.rate < 0)) throw new Error("Check items, quantities and rates");
-    const id = `R-${900 + state.receipts.length}`;
+    const id = `R-${crypto.randomUUID()}`;
     const payment = e.paidState === "unpaid" ? "Not paid yet" : e.payment;
     setReceipts((rs) => [{
       id, vendor: e.vendor.trim(), date: e.date, source: "Purchase order", payment,

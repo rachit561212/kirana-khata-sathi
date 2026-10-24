@@ -8,6 +8,55 @@
       "when": 1792775119296,
       "tag": "0000_create_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792781099871,
+      "tag": "0001_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792781373085,
+      "tag": "0002_shop_profile_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792783353008,
+      "tag": "0003_account_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792788428617,
+      "tag": "0004_account_product_stock",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792788726783,
+      "tag": "0005_deprecate_manual_products",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792804831433,
+      "tag": "0006_create_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792805061893,
+      "tag": "0007_reminder_details",
+      "breakpoints": true
     }
   ]
 }

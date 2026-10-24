@@ -13,6 +13,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
+import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
+import { setKhataAccount } from "@/lib/khata";
 
 function NotFoundComponent() {
   return (
@@ -123,12 +125,26 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    let active = true;
+    let identityChanged = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && !identityChanged) setKhataAccount(data.session?.user.id ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "INITIAL_SESSION") {
+        identityChanged = true;
+        setKhataAccount(session?.user.id ?? null);
+      }
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      if (event === "SIGNED_IN") {
+        setTimeout(() => {
+          sendWelcomeEmail().catch(() => {});
+        }, 0);
+      }
     });
-    return () => subscription.unsubscribe();
+    return () => { active = false; subscription.unsubscribe(); };
   }, [router, queryClient]);
 
   return (

@@ -12,7 +12,7 @@ import { createLiveConnectConfig } from "@/lib/gemini-live";
 import { arrayBufferToBase64, mergeTranscriptChunk } from "../../vendor/gemini-live-audio-nextjs-template/apps/web/src/components/realtime-voice-chat/audio-utils";
 import { useAudioIo } from "../../vendor/gemini-live-audio-nextjs-template/apps/web/src/components/realtime-voice-chat/use-audio-io";
 import { AUTO_LANGUAGE, INDIAN_LANGUAGES, WORLD_LANGUAGES, languageLabel } from "@/lib/speech-languages";
-import { khata, type Item } from "@/lib/khata";
+import { flushKhata, khata, type Item } from "@/lib/khata";
 import type { TransactionDraft } from "@/lib/transaction-entry";
 
 export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
@@ -66,7 +66,7 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
 
       await audio.setupPlayback();
       await audio.setupCapture();
-      const ai = new GoogleGenAI({ apiKey: tokenResult.token, httpOptions: { apiVersion: "v1beta" } });
+      const ai = new GoogleGenAI({ apiKey: tokenResult.token, httpOptions: { apiVersion: "v1alpha" } });
       let setupComplete = false;
       let sessionAssigned = false;
       let activated = false;
@@ -236,21 +236,27 @@ function ManualEntry({ hi, onAdded }: { hi: boolean; onAdded: (id: string) => vo
   const [kind, setKind] = useState("");
   const [payment, setPayment] = useState("");
   const [details, setDetails] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const save = () => {
+  const save = async () => {
     const n = Number(amount);
     if (!vendor.trim() || !Number.isFinite(n) || n <= 0 || !payment || (kind !== "spent" && kind !== "received")) {
       toast.error(hi ? "नाम, रकम, किसको/किससे और भुगतान भरें" : "Fill person, amount, paid/received and payment");
       return;
     }
     const lines: Item[] = [{ name: "Manual entry", qty: 1, rate: n, gst: 0, cat: "Other" }];
+    setSaving(true);
+    try {
     const id = khata.addManual({
       vendor: vendor.trim(), amount: n, kind, payment, paymentDetails: details, note: "Typed by shopkeeper",
       date: new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }), items: lines,
     });
-    toast.success(hi ? "इस सत्र के खाते में जुड़ गया" : "Added to this session’s khata");
+    await flushKhata();
+    toast.success(hi ? "आपके खाते में जुड़ गया" : "Added to your khata");
     onAdded(id);
     setVendor(""); setAmount(""); setKind(""); setPayment(""); setDetails("");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save your bill"); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -272,7 +278,7 @@ function ManualEntry({ hi, onAdded }: { hi: boolean; onAdded: (id: string) => vo
         </div>
       </div>
       <div className="space-y-1"><Label htmlFor="man-details">{hi ? "भुगतान का विवरण" : "Payment reference / details"}</Label><Input id="man-details" value={details} onChange={(e) => setDetails(e.target.value)} /></div>
-      <Button className="min-h-11 w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={save}>{hi ? "खात सें जोड़ें" : "Add to this session’s khata"}</Button>
+      <Button className="min-h-11 w-full bg-accent text-accent-foreground hover:bg-accent/90" disabled={saving} onClick={save}>{hi ? "खाते में जोड़ें" : "Add to khata"}</Button>
     </div>
   );
 }

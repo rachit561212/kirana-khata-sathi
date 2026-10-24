@@ -14,25 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
+      contacts: {
+        Row: {
+          credit_limit: number | null
+          key: string
+          name: string
+          phone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          credit_limit?: number | null
+          key: string
+          name: string
+          phone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          credit_limit?: number | null
+          key?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      product_settings: {
+        Row: {
+          low_stock: number
+          product_key: string
+          user_id: string
+        }
+        Insert: {
+          low_stock?: number
+          product_key: string
+          user_id: string
+        }
+        Update: {
+          low_stock?: number
+          product_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          created_at: string
+          id: string
+          in_stock: boolean
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          in_stock?: boolean
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          in_stock?: boolean
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
           display_name: string
+          gstin: string
           id: string
+          phone: string
+          shop_address: string
+          shop_name: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           display_name?: string
+          gstin?: string
           id?: string
+          phone?: string
+          shop_address?: string
+          shop_name?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           display_name?: string
+          gstin?: string
           id?: string
+          phone?: string
+          shop_address?: string
+          shop_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      receipts: {
+        Row: {
+          created_at: string
+          id: string
+          record: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          record: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          record?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string | null
+          entry_date: string
+          id: string
+          kind: string
+          note: string
+          paid: number
+          quantity: number | null
+          status: string
+          supplier_name: string
+          supplier_phone: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          entry_date?: string
+          id?: string
+          kind: string
+          note?: string
+          paid?: number
+          quantity?: number | null
+          status?: string
+          supplier_name?: string
+          supplier_phone?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          entry_date?: string
+          id?: string
+          kind?: string
+          note?: string
+          paid?: number
+          quantity?: number | null
+          status?: string
+          supplier_name?: string
+          supplier_phone?: string
+          title?: string
           updated_at?: string
           user_id?: string
         }

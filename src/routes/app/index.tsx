@@ -4,10 +4,12 @@ import { Check, FileText, ScanLine, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { dateLabel, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
+import { dateLabel, flushKhata, fmt, khata, SAMPLE_FILES, totalOf, useKhata } from "@/lib/khata";
 import { VoiceEntry } from "@/components/VoiceEntry";
 import { PurchaseOrder } from "@/components/PurchaseOrder";
 import { RepeatOrder } from "@/components/RepeatOrder";
+import { ReminderBanner } from "@/components/ReminderAlerts";
+import { checkBillUpload } from "@/lib/bill-upload";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -29,15 +31,31 @@ function UploadScreen() {
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState<string[]>([]);
   const [over, setOver] = useState(false);
+  const [scanError, setScanError] = useState("");
+
+  const scan = async (files: File[]) => {
+    if (!files.length || loading) return;
+    setLoading(true);
+    setScanError("");
+    try { await checkBillUpload(files); }
+    catch (error) {
+      const message = error instanceof Error ? error.message : "Could not read this file. No bill was added.";
+      setScanError(message);
+      toast.error(message);
+    } finally { setLoading(false); }
+  };
 
   const add = (names: string[]) => {
-    if (!names.length) return;
+    if (!names.length || loading) return;
     setLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
+      try {
       const ids = khata.addIncoming(names);
+      await flushKhata();
       setAdded((a) => [...ids, ...a]);
-      setLoading(false);
       toast.success(`${ids.length} bill${ids.length > 1 ? "s" : ""} read`, { description: "Check the details before they go into your khata." });
+      } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save your bills"); }
+      finally { setLoading(false); }
     }, 900);
   };
 
@@ -50,13 +68,14 @@ function UploadScreen() {
         <p className="mt-1 text-muted-foreground">{receipts.length} records already in your khata.</p>
       </div>
 
+      <ReminderBanner />
       <VoiceEntry onAdded={(id) => setAdded((a) => [id, ...a])} />
 
       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <label
           onDragOver={(e) => { e.preventDefault(); setOver(true); }}
           onDragLeave={() => setOver(false)}
-          onDrop={(e) => { e.preventDefault(); setOver(false); add(Array.from(e.dataTransfer.files).map((f) => f.name)); }}
+          onDrop={(e) => { e.preventDefault(); setOver(false); void scan(Array.from(e.dataTransfer.files)); }}
           className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed px-4 py-3 transition ${over ? "border-primary bg-primary/10" : "hover:border-foreground/40 hover:bg-muted"}`}
         >
           <Upload className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -67,10 +86,10 @@ function UploadScreen() {
           <input
             ref={inputRef}
             type="file"
-            accept=".pdf,image/*"
+            accept=".pdf,.jpg,.jpeg,.png"
             multiple
             className="sr-only"
-            onChange={(e) => add(Array.from(e.target.files ?? []).map((f) => f.name))}
+            onChange={(e) => { void scan(Array.from(e.target.files ?? [])); e.target.value = ""; }}
           />
         </label>
         <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border bg-card px-4 py-3">
@@ -84,6 +103,7 @@ function UploadScreen() {
         </div>
       </div>
 
+      {scanError && <p role="alert" className="text-sm text-destructive">{scanError}</p>}
       <PurchaseOrder onAdded={(id) => setAdded((a) => [id, ...a])} />
       <RepeatOrder receipts={receipts} onAdded={(id) => setAdded((a) => [id, ...a])} />
 

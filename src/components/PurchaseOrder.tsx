@@ -4,12 +4,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CATS, khata, useKhata, type Cat, type PaidState } from "@/lib/khata";
+import { BillQrScanner } from "@/components/BillQrScanner";
+import { CATS, flushKhata, khata, useKhata, type Cat, type PaidState } from "@/lib/khata";
 
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 const addDays = (days: number) => new Date(Date.now() + days * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
-type Line = { name: string; qty: string; rate: string };
+type Line = { name: string; qty: string; rate: string; gst: string };
 
 /** Goods ordered from a supplier — often paid for later, so “what is still owed” is the point. */
 export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
@@ -22,28 +23,30 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
   const [cat, setCat] = useState<Cat>("Staples");
   const [paidState, setPaidState] = useState<PaidState>("unpaid");
   const [payment, setPayment] = useState("UPI");
-  const [lines, setLines] = useState<Line[]>([{ name: "", qty: "", rate: "" }]);
+  const [lines, setLines] = useState<Line[]>([{ name: "", qty: "", rate: "", gst: "0" }]);
   const [saving, setSaving] = useState(false);
 
-  const total = lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.rate) || 0), 0);
+  const total = lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.rate) || 0) * (1 + (Number(l.gst) || 0) / 100), 0);
 
   const edit = (i: number, field: keyof Line, value: string) => setLines((old) => old.map((l, k) => (k === i ? { ...l, [field]: value } : l)));
 
-  const save = () => {
+  const save = async () => {
     const items = lines
       .filter((l) => l.name.trim())
-      .map((l) => ({ name: l.name.trim(), qty: Number(l.qty), rate: Number(l.rate), gst: 0, cat }));
+      .map((l) => ({ name: l.name.trim(), qty: Number(l.qty), rate: Number(l.rate), gst: Number(l.gst), cat }));
     if (!vendor.trim()) { toast.error("Which supplier?"); return; }
     if (!items.length) { toast.error("Add at least one item"); return; }
     if (items.some((i) => !Number.isFinite(i.qty) || i.qty <= 0 || !Number.isFinite(i.rate) || i.rate < 0)) { toast.error("Enter a quantity and rate for every item"); return; }
+    if (items.some((i) => !Number.isFinite(i.gst) || i.gst < 0 || i.gst > 100)) { toast.error("GST must be between 0 and 100%"); return; }
     setSaving(true);
     try {
       const id = khata.addPurchaseOrder({ vendor, date, items, paidState, payment });
+      await flushKhata();
       toast.success("Purchase order saved", {
         description: paidState === "unpaid" ? `${items.length} items · nothing paid yet · ${id}` : `${items.length} items · ${paidState === "partial" ? "part paid" : "paid"} · ${id}`,
       });
       onAdded(id);
-      setVendor(""); setLines([{ name: "", qty: "", rate: "" }]);
+      setVendor(""); setLines([{ name: "", qty: "", rate: "", gst: "0" }]);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save the order");
     } finally {
@@ -53,7 +56,14 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
 
   return (
     <section className="rounded-2xl border bg-card p-5 sm:p-6">
-      <h2 className="font-display text-xl font-bold sm:text-2xl">Purchased order</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-display text-xl font-bold sm:text-2xl">Purchased order</h2>
+        <BillQrScanner disabled={saving} onRead={(draft) => {
+          setVendor(draft.vendor); setDate(draft.date ?? today());
+          setLines(draft.items.map((item) => ({ name: item.name, qty: String(item.qty), rate: String(item.rate), gst: String(item.gst) })));
+          setPaidState("unpaid");
+        }} />
+      </div>
       <p className="mt-1 text-sm text-muted-foreground">What you ordered from a supplier — and whether it is paid for yet.</p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -81,7 +91,7 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
       <div className="mt-5 space-y-3">
         <div className="flex items-center justify-between">
           <Label>Items ordered</Label>
-          <Button variant="ghost" size="sm" onClick={() => setLines((old) => [...old, { name: "", qty: "", rate: "" }])}>
+          <Button variant="ghost" size="sm" onClick={() => setLines((old) => [...old, { name: "", qty: "", rate: "", gst: "0" }])}>
             <Plus className="h-4 w-4" /> Add item
           </Button>
         </div>
@@ -90,7 +100,7 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
             <div className="space-y-1"><Label htmlFor={`po-name-${i}`} className="text-xs">Item {i + 1}</Label><Input id={`po-name-${i}`} value={l.name} onChange={(e) => edit(i, "name", e.target.value)} placeholder="Rice 25kg" /></div>
             <div className="space-y-1"><Label htmlFor={`po-qty-${i}`} className="text-xs">Qty</Label><Input id={`po-qty-${i}`} type="number" inputMode="decimal" min="0" value={l.qty} onChange={(e) => edit(i, "qty", e.target.value)} /></div>
             <div className="space-y-1"><Label htmlFor={`po-rate-${i}`} className="text-xs">Rate ₹</Label><Input id={`po-rate-${i}`} type="number" inputMode="decimal" min="0" value={l.rate} onChange={(e) => edit(i, "rate", e.target.value)} /></div>
-            <div className="pb-2 text-right font-mono text-sm">₹{Math.round((Number(l.qty) || 0) * (Number(l.rate) || 0)).toLocaleString("en-IN")}</div>
+            <div className="space-y-1"><Label htmlFor={`po-gst-${i}`} className="text-xs">GST %</Label><Input id={`po-gst-${i}`} type="number" inputMode="decimal" min="0" max="100" value={l.gst} onChange={(e) => edit(i, "gst", e.target.value)} /></div>
             <Button variant="ghost" size="icon" className="self-end" aria-label={`Remove item ${i + 1}`} title="Remove item" onClick={() => setLines((old) => old.filter((_, k) => k !== i))}>
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -127,7 +137,6 @@ export function PurchaseOrder({ onAdded }: { onAdded: (id: string) => void }) {
           Save purchase order
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">Session only — this order disappears when the page is reloaded.</p>
     </section>
   );
 }

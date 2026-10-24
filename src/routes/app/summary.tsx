@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChevronDown, FileText, Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { categoryTotals, daySeries, MONTH_LABEL, monthSeries, sums, useKhata, vendorTotals, type Receipt } from "@/lib/khata";
+import StatementExport from "@/components/StatementExport";
 
 export const Route = createFileRoute("/app/summary")({
   head: () => ({
@@ -30,25 +32,27 @@ function SummaryScreen() {
   const series = range === "day" ? days : months;
   const [open, setOpen] = useState<string | null>(null);
   const [made, setMade] = useState(false);
+  const [breakdown, setBreakdown] = useState<"categories" | "suppliers">("categories");
   const top = cats[0];
   const topVendor = vendors[0];
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-3xl font-bold">Spending summary</h1>
-        <p className="mt-1 text-muted-foreground">{MONTH_LABEL} · every figure below comes from the bills listed under it.</p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div><h1 className="font-display text-3xl font-bold">Summary</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{MONTH_LABEL}</p></div>
+        <Dialog><DialogTrigger asChild><Button variant="outline"><FileText className="h-4 w-4" />Statement</Button></DialogTrigger><DialogContent className="max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle>Download or email statement</DialogTitle></DialogHeader><StatementExport receipts={receipts} /></DialogContent></Dialog>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Money out" value={s.spent} sub={`${s.bills} supplier, mandi and distributor bills`} tone="spent" />
-        <Stat label="Money in" value={s.received} sub={`UPI ${Math.round(s.online).toLocaleString("en-IN")} · cash ${Math.round(s.offline).toLocaleString("en-IN")}`} tone="received" />
-        <Stat label="Left with you" value={s.received - s.spent} sub="Money in minus money out" tone={s.received >= s.spent ? "received" : "spent"} />
+        <Stat label="Money in" value={s.received} sub="Received" tone="received" />
+        <Stat label="Money out" value={s.spent} sub={`${s.bills} bills`} tone="spent" />
+        <Stat label="Net balance" value={s.received - s.spent} sub="In − out" tone={s.received >= s.spent ? "received" : "spent"} />
       </div>
 
-      <div className="rounded-xl border bg-card p-5">
+      <section className="border-y py-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold">{range === "day" ? "Money out and money in, day by day" : "Money out and money in, month by month"}</div>
+          <div><h2 className="text-lg font-semibold">Money flow</h2><div className="mt-2 flex gap-4 text-xs text-muted-foreground"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-received" />Money in</span><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-spent" />Money out</span></div></div>
           <div className="grid grid-cols-2 rounded-lg border p-1 text-sm">
             {(["day", "month"] as const).map((r) => (
               <Button variant="ghost" key={r} aria-pressed={range === r} onClick={() => setRange(r)} className={`min-h-9 rounded-md px-3 font-medium transition ${range === r ? "bg-foreground text-background hover:bg-foreground/90 hover:text-background" : "text-muted-foreground hover:bg-muted"}`}>
@@ -57,7 +61,7 @@ function SummaryScreen() {
             ))}
           </div>
         </div>
-        <div className="h-56">
+        <div className="h-56 min-w-0 overflow-hidden">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={series} margin={{ left: 8, right: 8, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -69,11 +73,11 @@ function SummaryScreen() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </section>
 
-      <div className="grid min-w-0 gap-6 lg:grid-cols-2">
-        <div className="min-w-0 rounded-xl border bg-card">
-          <div className="border-b px-5 py-3 text-sm font-semibold">Where the money went</div>
+      <section className="min-w-0 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">Spending breakdown</h2><div className="flex gap-1" role="group" aria-label="Spending breakdown">{([['categories', 'Categories'], ['suppliers', 'Suppliers']] as const).map(([value, label]) => <Button key={value} size="sm" variant={breakdown === value ? "default" : "outline"} aria-pressed={breakdown === value} onClick={() => setBreakdown(value)}>{label}</Button>)}</div></div>
+        {breakdown === "categories" ? <div className="min-w-0">
           <ul className="divide-y">
             {cats.map((c) => (
               <li key={c.cat}>
@@ -101,10 +105,10 @@ function SummaryScreen() {
               </li>
             ))}
           </ul>
-        </div>
+          {!cats.length && <p className="py-6 text-sm text-muted-foreground">No spending yet</p>}
+        </div> :
 
-        <div className="min-w-0 rounded-xl border bg-card">
-          <div className="border-b px-5 py-3 text-sm font-semibold">Your biggest suppliers</div>
+        <div className="min-w-0">
           <ul className="divide-y">
             {vendors.map((v) => (
               <li key={v.vendor} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3 text-sm transition hover:bg-muted/60 sm:flex sm:px-5">
@@ -115,13 +119,13 @@ function SummaryScreen() {
               </li>
             ))}
           </ul>
-        </div>
-      </div>
+          {!vendors.length && <p className="py-6 text-sm text-muted-foreground">No suppliers yet</p>}
+        </div>}
+      </section>
 
-      <div className="rounded-xl border bg-card p-5">
+      <div className="border-t pt-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold">Written summary</div>
-          <Button size="sm" className="font-semibold" onClick={() => setMade(true)}><Sparkles className="h-4 w-4" /> Make summary</Button>
+          <Button variant="ghost" size="sm" className="px-0 font-semibold" aria-expanded={made} onClick={() => setMade(!made)}><Sparkles className="h-4 w-4" />{made ? "Hide overview" : "Quick overview"}<ChevronDown className={`h-4 w-4 ${made ? "rotate-180" : ""}`} /></Button>
         </div>
         {made && top && topVendor ? (
           <p className="mt-4 text-[15px] leading-relaxed">
@@ -129,9 +133,7 @@ function SummaryScreen() {
             {" "}{top.cat} was your biggest spending group at {fmt(top.total)}, and {topVendor.vendor} supplied you the most — {fmt(topVendor.total)} over {topVendor.count} bills.
             {" "}UPI covered {Math.round((s.online / s.received) * 100)}% of what came in.
           </p>
-        ) : (
-          <p className="mt-3 text-sm text-muted-foreground">A short paragraph you could send to your son, partner or accountant. It only uses the bills above.</p>
-        )}
+        ) : made ? <p className="mt-3 text-sm text-muted-foreground">No spending to summarize yet.</p> : null}
       </div>
     </div>
   );
@@ -141,7 +143,7 @@ const dateish = (r: Receipt) => r.date.slice(8, 10) + "/" + r.date.slice(5, 7);
 
 function Stat({ label, value, sub, tone }: { label: string; value: number; sub: string; tone: "spent" | "received" }) {
   return (
-    <div className="rounded-xl border bg-card p-5">
+    <div className="min-w-0 rounded-lg bg-card p-5">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className={`mt-1 font-mono text-2xl font-bold ${tone === "spent" ? "text-spent" : "text-received"}`}>
         {value < 0 ? "−" : ""}{"₹"}{Math.round(Math.abs(value)).toLocaleString("en-IN")}

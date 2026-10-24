@@ -1,0 +1,1 @@
+alter table public.profiles add column if not exists shop_name text not null default '', add column if not exists phone text not null default '', add column if not exists shop_address text not null default '', add column if not exists gstin text not null default '';

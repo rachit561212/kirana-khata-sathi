@@ -24,7 +24,7 @@ export const createLiveVoiceToken = createServerFn({ method: "POST" })
             model: LIVE_MODEL_ID,
             config: createLiveConnectConfig(data.language),
           },
-          httpOptions: { apiVersion: "v1beta" },
+          httpOptions: { apiVersion: "v1alpha" },
         },
       });
       if (!token.name) throw new Error("Gemini did not return a live token");

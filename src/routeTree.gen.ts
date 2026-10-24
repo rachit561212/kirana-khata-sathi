@@ -14,9 +14,15 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppAskRouteImport } from './routes/app/ask'
 import { Route as AppDuplicatesRouteImport } from './routes/app/duplicates'
+import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppReceiptsRouteImport } from './routes/app/receipts'
+import { Route as AppRemindersRouteImport } from './routes/app/reminders'
 import { Route as AppReviewRouteImport } from './routes/app/review'
+import { Route as AppSalesRouteImport } from './routes/app/sales'
 import { Route as AppSummaryRouteImport } from './routes/app/summary'
+import { Route as AppSuppliersRouteImport } from './routes/app/suppliers'
+import { Route as AppSuppliersSupplierRouteImport } from './routes/app/suppliers_.$supplier'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -43,9 +49,19 @@ const AppDuplicatesRoute = AppDuplicatesRouteImport.update({
   path: '/duplicates',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProductsRoute = AppProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReceiptsRoute = AppReceiptsRouteImport.update({
   id: '/receipts',
   path: '/receipts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRemindersRoute = AppRemindersRouteImport.update({
+  id: '/reminders',
+  path: '/reminders',
   getParentRoute: () => AppRoute,
 } as any)
 const AppReviewRoute = AppReviewRouteImport.update({
@@ -53,30 +69,63 @@ const AppReviewRoute = AppReviewRouteImport.update({
   path: '/review',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSalesRoute = AppSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSummaryRoute = AppSummaryRouteImport.update({
   id: '/summary',
   path: '/summary',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSuppliersRoute = AppSuppliersRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSuppliersSupplierRoute = AppSuppliersSupplierRouteImport.update({
+  id: '/suppliers_/$supplier',
+  path: '/suppliers/$supplier',
+  getParentRoute: () => AppRoute,
+} as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/app/ask': typeof AppAskRoute
   '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
+  '/app/reminders': typeof AppRemindersRoute
   '/app/review': typeof AppReviewRoute
+  '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
+  '/app/suppliers': typeof AppSuppliersRoute
   '/app/': typeof AppIndexRoute
+  '/app/suppliers/$supplier': typeof AppSuppliersSupplierRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app/ask': typeof AppAskRoute
   '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
+  '/app/reminders': typeof AppRemindersRoute
   '/app/review': typeof AppReviewRoute
+  '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
+  '/app/suppliers': typeof AppSuppliersRoute
   '/app': typeof AppIndexRoute
+  '/app/suppliers/$supplier': typeof AppSuppliersSupplierRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -84,10 +133,16 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/app/ask': typeof AppAskRoute
   '/app/duplicates': typeof AppDuplicatesRoute
+  '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
+  '/app/reminders': typeof AppRemindersRoute
   '/app/review': typeof AppReviewRoute
+  '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
+  '/app/suppliers': typeof AppSuppliersRoute
   '/app/': typeof AppIndexRoute
+  '/app/suppliers_/$supplier': typeof AppSuppliersSupplierRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,34 +151,53 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/ask'
     | '/app/duplicates'
+    | '/app/products'
     | '/app/receipts'
+    | '/app/reminders'
     | '/app/review'
+    | '/app/sales'
     | '/app/summary'
+    | '/app/suppliers'
     | '/app/'
+    | '/app/suppliers/$supplier'
+    | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/app/ask'
     | '/app/duplicates'
+    | '/app/products'
     | '/app/receipts'
+    | '/app/reminders'
     | '/app/review'
+    | '/app/sales'
     | '/app/summary'
+    | '/app/suppliers'
     | '/app'
+    | '/app/suppliers/$supplier'
+    | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/app/ask'
     | '/app/duplicates'
+    | '/app/products'
     | '/app/receipts'
+    | '/app/reminders'
     | '/app/review'
+    | '/app/sales'
     | '/app/summary'
+    | '/app/suppliers'
     | '/app/'
+    | '/app/suppliers_/$supplier'
+    | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -163,11 +237,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDuplicatesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/products': {
+      id: '/app/products'
+      path: '/products'
+      fullPath: '/app/products'
+      preLoaderRoute: typeof AppProductsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/receipts': {
       id: '/app/receipts'
       path: '/receipts'
       fullPath: '/app/receipts'
       preLoaderRoute: typeof AppReceiptsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/reminders': {
+      id: '/app/reminders'
+      path: '/reminders'
+      fullPath: '/app/reminders'
+      preLoaderRoute: typeof AppRemindersRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/review': {
@@ -177,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReviewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/sales': {
+      id: '/app/sales'
+      path: '/sales'
+      fullPath: '/app/sales'
+      preLoaderRoute: typeof AppSalesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/summary': {
       id: '/app/summary'
       path: '/summary'
@@ -184,25 +279,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSummaryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/suppliers': {
+      id: '/app/suppliers'
+      path: '/suppliers'
+      fullPath: '/app/suppliers'
+      preLoaderRoute: typeof AppSuppliersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/suppliers_/$supplier': {
+      id: '/app/suppliers_/$supplier'
+      path: '/suppliers/$supplier'
+      fullPath: '/app/suppliers/$supplier'
+      preLoaderRoute: typeof AppSuppliersSupplierRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AppRouteChildren {
   AppAskRoute: typeof AppAskRoute
   AppDuplicatesRoute: typeof AppDuplicatesRoute
+  AppProductsRoute: typeof AppProductsRoute
   AppReceiptsRoute: typeof AppReceiptsRoute
+  AppRemindersRoute: typeof AppRemindersRoute
   AppReviewRoute: typeof AppReviewRoute
+  AppSalesRoute: typeof AppSalesRoute
   AppSummaryRoute: typeof AppSummaryRoute
+  AppSuppliersRoute: typeof AppSuppliersRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppSuppliersSupplierRoute: typeof AppSuppliersSupplierRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAskRoute: AppAskRoute,
   AppDuplicatesRoute: AppDuplicatesRoute,
+  AppProductsRoute: AppProductsRoute,
   AppReceiptsRoute: AppReceiptsRoute,
+  AppRemindersRoute: AppRemindersRoute,
   AppReviewRoute: AppReviewRoute,
+  AppSalesRoute: AppSalesRoute,
   AppSummaryRoute: AppSummaryRoute,
+  AppSuppliersRoute: AppSuppliersRoute,
   AppIndexRoute: AppIndexRoute,
+  AppSuppliersSupplierRoute: AppSuppliersSupplierRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -210,6 +336,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileText, MessageSquareQuote, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ReminderChat } from "@/components/ReminderChat";
+import { isReminderCommand } from "@/lib/reminder-chat";
 import { answer, fmt, MONTH_LABEL, sums, SUGGESTIONS, totalOf, useKhata, vendorTotals } from "@/lib/khata";
 
 export const Route = createFileRoute("/app/ask")({
@@ -22,12 +24,14 @@ function AskScreen() {
   const receipts = useKhata();
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState("");
+  const [command, setCommand] = useState("");
 
-  const res = asked ? answer(asked, receipts) : null;
+  const res = asked && !command ? answer(asked, receipts) : null;
   const s = sums(receipts);
   const topVendor = vendorTotals(receipts)[0];
 
   const ask = (text: string) => {
+    setCommand(isReminderCommand(text) ? text : "");
     setAsked(text);
     setQ("");
   };
@@ -46,7 +50,7 @@ function AskScreen() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="How much did I spend on oil?"
+          placeholder="Ask, or say: Khata, cheeni khatam hai, add kar do"
           aria-label="Question about your receipts"
           className="h-11 min-w-0 rounded-md border bg-background px-3 text-base outline-none transition focus:border-foreground sm:text-sm"
         />
@@ -61,7 +65,7 @@ function AskScreen() {
         ))}
       </div>
 
-      {res ? (
+      {command ? <ReminderChat key={command} command={command} onDone={() => { setCommand(""); setAsked(""); }} /> : res ? (
         <div className="rounded-xl border bg-card">
           <div className="flex items-start gap-3 border-b px-5 py-4">
             <MessageSquareQuote className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
