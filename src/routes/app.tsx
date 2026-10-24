@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ChevronDown, LogOut, Moon, ReceiptText, Sun, UserRound } from "lucide-react";
+import { ArrowLeft, ChevronDown, LogOut, Mail, Moon, ReceiptText, Sun, UserRound } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { useTheme } from "@/components/SiteChrome";
 import { SignupDialog } from "@/components/SiteChrome";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import ShopProfileDialog from "@/components/ShopProfileDialog";
+import AccountEmailDialog from "@/components/AccountEmailDialog";
 import { useDueNotifications, useReminderAlerts } from "@/components/ReminderAlerts";
 import { BillSyncGate } from "@/components/BillSyncGate";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -75,6 +76,7 @@ function AppShell() {
   const accountQuery = useQuery({ queryKey: ["account"], queryFn: loadAccount, staleTime: 60_000 });
   const account = accountQuery.data ?? null;
   const [editShop, setEditShop] = useState(false);
+  const [editEmail, setEditEmail] = useState(false);
   useEffect(() => {
     if (account?.hasProfile && !account.profile.shop_name && sessionStorage.getItem("shop-prompted") !== account.id) {
       sessionStorage.setItem("shop-prompted", account.id);
@@ -125,7 +127,7 @@ function AppShell() {
           <div className="order-2 flex shrink-0 items-center gap-1 sm:ml-auto sm:gap-2 lg:order-3">
             {account ? <DropdownMenu>
               <DropdownMenuTrigger asChild><Button variant="outline" aria-label="Shop account" className="min-h-11 gap-2 px-3"><UserRound className="h-4 w-4" /><span className="hidden max-w-28 truncate xl:inline">{account.name}</span><ChevronDown className="h-3 w-3" /></Button></DropdownMenuTrigger>
-              <DropdownMenuContent align="end"><DropdownMenuItem className="min-h-11" onSelect={() => setEditShop(true)}><UserRound />Edit shop details</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem className="min-h-11" onSelect={() => void handleSignOut()}><LogOut />Sign out</DropdownMenuItem></DropdownMenuContent>
+              <DropdownMenuContent align="end"><DropdownMenuItem className="min-h-11" onSelect={() => setEditShop(true)}><UserRound />Edit shop details</DropdownMenuItem><DropdownMenuItem className="min-h-11" onSelect={() => setEditEmail(true)}><Mail />{account.email ? "Change account email" : "Add account email"}</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem className="min-h-11" onSelect={() => void handleSignOut()}><LogOut />Sign out</DropdownMenuItem></DropdownMenuContent>
             </DropdownMenu> : <Button size="sm" variant="outline" className="min-h-11 px-2 sm:px-3" onClick={() => setSignup(true)}>Sign in</Button>}
             <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle dark mode" className="h-11 w-11">
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -142,6 +144,7 @@ function AppShell() {
       <Toaster position="top-center" />
       <SignupDialog open={signup} onOpenChange={setSignup} />
       {account && <ShopProfileDialog open={editShop} onOpenChange={setEditShop} userId={account.id} initial={account.profile} />}
+      {account && <AccountEmailDialog open={editEmail} onOpenChange={setEditEmail} currentEmail={account.email} />}
     </div>
   );
 }
