@@ -20,7 +20,7 @@
 - Purchase-order QR scanning uses browser-only ZXing decoding and a strict itemized-data parser; never fetch QR links, import payment claims or save before review, because supplier QR formats are not universal.
 - On phones, receipt lists use compact records and editable items use stacked fields; retain desktop tables so no page requires sideways scrolling to read or edit receipts.
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
-- Transaction extraction uses the user's Gemini credential only inside server functions, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
+- Transaction extraction uses the user's Groq credential only inside server functions, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
 - AI entries, purchased orders, review edits and repeat orders share account bill persistence and await saving before success feedback; repeat orders copy item lines so edits cannot alter their source bill.
-- Spoken bill entry uses Gemini Live for real-time two-way voice with a short-lived, single-use token minted server-side; keep audio transient, transcripts editable, and entries in review until the shopkeeper confirms them.
+- Spoken bill entry records a short browser audio clip and sends it to the Groq transcription endpoint through a server function; keep audio transient, transcripts editable, and entries in review until the shopkeeper confirms them.
 - Reminders, contacts (phone, credit limit) and per-product low-stock levels live in owner-only tables; low stock and unpaid purchased orders are derived from receipts, not stored, so they never drift.
