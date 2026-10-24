@@ -129,7 +129,7 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
     setBusy(true); setError("");
     try {
       if (mode === "signup") {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -138,6 +138,12 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
           },
         });
         if (signUpError) { setError(signUpError.message); return; }
+        if (signUpData.session) {
+          onOpenChange(false);
+          toast.success("Account created");
+          navigate({ to: "/app" });
+          return;
+        }
         setConfirmSent(true);
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
@@ -178,7 +184,7 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         {confirmSent ? (
           <div className="space-y-4 py-2 text-center">
             <p className="font-semibold">Check your email</p>
-            <p className="text-sm text-muted-foreground">We sent you a confirmation link. Open it, then come back and sign in.</p>
+            <p className="text-sm text-muted-foreground">Email confirmation is enabled for this project. To create accounts without a link, the project owner must turn off “Confirm email” in Supabase Authentication settings.</p>
             <Button className="w-full" onClick={() => { setConfirmSent(false); setMode("login"); }}>Back to sign in</Button>
           </div>
         ) : (
