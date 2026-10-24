@@ -10,7 +10,7 @@ import { ReminderForm } from "./ReminderForm";
 import { attempt, CallButton, DeleteButton, type SectionProps } from "./shared";
 import { useLeadDays } from "@/components/ReminderAlerts";
 
-const BADGE = { Pending: "bg-muted text-foreground", Paid: "bg-received/15 text-received", Overdue: "bg-destructive text-destructive-foreground" } as const;
+const BADGE = { Pending: "bg-muted text-foreground", Paid: "bg-secondary text-secondary-foreground", Overdue: "bg-destructive text-destructive-foreground" } as const;
 
 export function PaySection({ data, refresh }: SectionProps) {
   const receipts = useKhata();
