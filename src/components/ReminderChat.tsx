@@ -62,7 +62,7 @@ export function ReminderChat({ command, onDone }: { command: string; onDone: () 
       const dup = findOpenDuplicate(data.reminders, draft.kind, draft.title, draft.amount);
       if (dup) { say(`This is already in your reminders (${dup.title}${dup.amount ? `, ${fmt(dup.amount)}` : ""}), so I didn't add it again.`); setSaved(draft.kind); return; }
       if (draft.kind === "collect") {
-        const owed = data.reminders.filter((r) => r.kind === "collect" && r.status !== "done" && r.title.trim().toLocaleLowerCase() === draft.title.trim().toLocaleLowerCase()).reduce((s, r) => s + r.amount - r.paid, 0);
+        const owed = data.reminders.filter((r) => r.kind === "collect" && r.status !== "done" && r.title.trim().toLocaleLowerCase() === draft.title!.trim().toLocaleLowerCase()).reduce((s, r) => s + r.amount - r.paid, 0);
         const lim = data.contacts.find((c) => c.name.trim().toLocaleLowerCase() === draft.title!.trim().toLocaleLowerCase())?.credit_limit;
         if (lim != null && owed + (draft.amount ?? 0) > lim && !window.confirm(`Credit limit exceeded! This customer would owe ${fmt(owed + draft.amount!)}, exceeding their ${fmt(lim)} limit by ${fmt(owed + draft.amount! - lim)}. Proceed anyway?`)) { say("Cancelled. Nothing was added."); return; }
       }
