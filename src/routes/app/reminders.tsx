@@ -56,17 +56,17 @@ function RemindersScreen() {
     setBusy(true);
     const { error } = await supabase.from("reminders").insert({ user_id: userId, kind: tab, title: form.title.trim(), amount: Number(form.amount) || 0, due_date: form.due || null, note: form.note.trim() });
     setBusy(false);
-    if (error) return toast.error("Could not save. Try again.");
+    if (error) { toast.error("Could not save. Try again."); return; }
     toast.success("Reminder saved"); setForm({ title: "", amount: "", due: "", note: "" }); setWarn(null); void refresh();
   };
   const add = async () => {
-    if (!form.title.trim()) return toast.error(tab === "stock" ? "Enter the product" : "Enter the name");
-    if (tab !== "stock" && !(Number(form.amount) > 0)) return toast.error("Enter an amount greater than zero");
+    if (!form.title.trim()) { toast.error(tab === "stock" ? "Enter the product" : "Enter the name"); return; }
+    if (tab !== "stock" && !(Number(form.amount) > 0)) { toast.error("Enter an amount greater than zero"); return; }
     if (tab === "collect") {
       const owed = collect.find((p) => p.key === supplierKey(form.title))?.amount ?? 0;
       const lim = contact(form.title)?.credit_limit;
       const c = creditCheck(owed, Number(form.amount), lim);
-      if (c.exceeds && lim != null) return setWarn({ over: c.over, total: c.total, limit: lim });
+      if (c.exceeds && lim != null) { setWarn({ over: c.over, total: c.total, limit: lim }); return; }
     }
     await insert();
   };
@@ -87,7 +87,7 @@ function RemindersScreen() {
     setReading(true);
     try {
       const res = await readReminder({ data: { text: ai } });
-      if (!res.draft) return toast.error(res.error ?? "Could not read that");
+      if (!res.draft) { toast.error(res.error ?? "Could not read that"); return; }
       const d = res.draft;
       if (d.kind) setTab(d.kind);
       setForm({ title: d.title ?? "", amount: d.amount ? String(d.amount) : "", due: d.due_date ?? "", note: "" });
@@ -97,7 +97,7 @@ function RemindersScreen() {
   const promptPart = async (id: string, left: number) => {
     const v = window.prompt(`Amount received/paid now (₹, up to ${left})`, String(left));
     if (v == null) return; const n = Number(v);
-    if (!(n > 0) || n > left) return toast.error("Enter an amount up to " + left);
+    if (!(n > 0) || n > left) { toast.error("Enter an amount up to " + left); return; }
     const r = reminders.find((x) => x.id === id)!; await update(id, { paid: r.paid + n, ...(n >= left ? { status: "done" } : {}) });
   };
   const askPhone = (name: string) => { const v = window.prompt(`Phone number for ${name}`, contact(name)?.phone ?? ""); if (v != null) void saveContact(name, { phone: v.replace(/[^\d+]/g, "") }); };
