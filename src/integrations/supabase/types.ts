@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      contacts: {
+        Row: {
+          credit_limit: number | null
+          key: string
+          name: string
+          phone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          credit_limit?: number | null
+          key: string
+          name: string
+          phone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          credit_limit?: number | null
+          key?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      product_settings: {
+        Row: {
+          low_stock: number
+          product_key: string
+          user_id: string
+        }
+        Insert: {
+          low_stock?: number
+          product_key: string
+          user_id: string
+        }
+        Update: {
+          low_stock?: number
+          product_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           created_at: string
@@ -94,6 +139,45 @@ export type Database = {
           id?: string
           record?: Json
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string | null
+          id: string
+          kind: string
+          note: string
+          paid: number
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          kind: string
+          note?: string
+          paid?: number
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          kind?: string
+          note?: string
+          paid?: number
+          status?: string
+          title?: string
           user_id?: string
         }
         Relationships: []
