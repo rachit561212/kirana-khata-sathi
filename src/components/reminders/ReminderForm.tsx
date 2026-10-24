@@ -63,7 +63,7 @@ export function ReminderForm({ open, onOpenChange, kind, initial, preset, onSubm
   </Dialog>;
 }
 
-export function AmountDialog({ open, onOpenChange, title, max, label, onSubmit }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; max?: number; label: string; onSubmit: (n: number) => Promise<void> }) {
+export function AmountDialog({ open, onOpenChange, title, max, label, onSubmit }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; max?: number | undefined; label: string; onSubmit: (n: number) => Promise<void> }) {
   const [v, setV] = useState(""); const [err, setErr] = useState(""); const [busy, setBusy] = useState(false);
   useEffect(() => { if (open) { setV(max ? String(max) : ""); setErr(""); } }, [open, max]);
   const go = async () => {
