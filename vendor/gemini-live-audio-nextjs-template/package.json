@@ -1,0 +1,18 @@
+{
+  "name": "gemini-live-audio-nextjs-template",
+  "description": "A Next.js boilerplate for building realtime voice apps with the Google Gemini Live API.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "packageManager": "pnpm@10.28.1",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.0",
+    "typescript": "^5.9.3"
+  }
+}

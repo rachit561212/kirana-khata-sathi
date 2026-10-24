@@ -22,5 +22,5 @@
 - Fit the phone shop camera to the storefront width and scale fog with its distance; desktop retains the cinematic dolly, while the sticky story uses stable viewport height for scroll progress.
 - Transaction extraction uses the user's Gemini credential only inside server functions, returning a validated editable draft; never automatically save model output or infer missing payment fields as confirmed facts.
 - AI entries, purchased orders, review edits and repeat orders share account bill persistence and await saving before success feedback; repeat orders copy item lines so edits cannot alter their source bill.
-- Spoken bill entry sends transient inline audio to Gemini's Interactions transcription surface with store disabled; keep the language hint optional and credentials server-only so recordings are not retained by the app.
+- Spoken bill entry uses Gemini Live for real-time two-way voice with a short-lived, single-use token minted server-side; keep audio transient, transcripts editable, and entries in review until the shopkeeper confirms them.
 - Reminders, contacts (phone, credit limit) and per-product low-stock levels live in owner-only tables; low stock and unpaid purchased orders are derived from receipts, not stored, so they never drift.

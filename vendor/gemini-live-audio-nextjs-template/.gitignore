@@ -1,0 +1,13 @@
+node_modules/
+.next/
+dist/
+.turbo/
+apps/web/tsconfig.tsbuildinfo
+.env
+.env.*
+!.env.example
+!apps/**/.env.example
+.DS_Store
+npm-debug.log*
+pnpm-debug.log*
+package-lock.json
