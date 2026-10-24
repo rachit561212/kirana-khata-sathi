@@ -1,16 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { LoaderCircle, Mic, Pencil, Square } from "lucide-react";
 import { toast } from "sonner";
-import { GoogleGenAI, type Session } from "@google/genai";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TransactionReview } from "@/components/TransactionReview";
 import { extractTransaction } from "@/lib/transaction-entry.functions";
-import { createLiveVoiceToken } from "@/lib/gemini-live.functions";
-import { createLiveConnectConfig } from "@/lib/gemini-live";
-import { arrayBufferToBase64, mergeTranscriptChunk } from "../../vendor/gemini-live-audio-nextjs-template/apps/web/src/components/realtime-voice-chat/audio-utils";
-import { useAudioIo } from "../../vendor/gemini-live-audio-nextjs-template/apps/web/src/components/realtime-voice-chat/use-audio-io";
+import { transcribeEntry } from "@/lib/audio-entry.functions";
+import { blobToBase64 } from "@/lib/audio-entry";
 import { AUTO_LANGUAGE, INDIAN_LANGUAGES, WORLD_LANGUAGES, languageLabel } from "@/lib/speech-languages";
 import { flushKhata, khata, type Item } from "@/lib/khata";
 import type { TransactionDraft } from "@/lib/transaction-entry";
@@ -25,123 +22,59 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
   const [draft, setDraft] = useState<TransactionDraft | null>(null);
   const [manual, setManual] = useState(false);
 
-  const sessionRef = useRef<Session | undefined>(undefined);
-  const generationRef = useRef(0);
-  const audio = useAudioIo({
-    onInputLevel: () => {},
-    onOutputLevel: () => {},
-    onPcmInput: (buffer) => {
-      try {
-        sessionRef.current?.sendRealtimeInput({
-          audio: { data: arrayBufferToBase64(buffer), mimeType: "audio/pcm;rate=16000" },
-        });
-      } catch {
-        // Ignore the last capture chunk if the live connection is closing.
-      }
-    },
-  });
-  const audioRef = useRef(audio);
-  audioRef.current = audio;
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const hi = /[\u0900-\u097F]/.test(note) || hint.startsWith("hi");
 
   useEffect(() => () => {
-    generationRef.current += 1;
-    sessionRef.current?.close();
-    audioRef.current.stopCapture();
-    void audioRef.current.cleanupAudio();
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
   }, []);
 
   async function startLive() {
     setError("");
     setDraft(null);
-    setAssistantText("");
     setLiveStatus("connecting");
-    const generation = generationRef.current + 1;
-    generationRef.current = generation;
-
     try {
-      const tokenResult = await createLiveVoiceToken({ data: { language: hint } });
-      if (!tokenResult.token) throw new Error(tokenResult.error ?? "Could not start voice chat.");
-
-      await audio.setupPlayback();
-      await audio.setupCapture();
-      const ai = new GoogleGenAI({ apiKey: tokenResult.token, httpOptions: { apiVersion: "v1alpha" } });
-      let setupComplete = false;
-      let sessionAssigned = false;
-      let activated = false;
-      const activateAfterSetup = () => {
-        if (!setupComplete || !sessionAssigned || activated || generationRef.current !== generation) return;
-        activated = true;
-        setLiveStatus("live");
-        audio.startCapture();
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) throw new Error("This browser cannot record audio.");
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const supportedType = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find((type) => MediaRecorder.isTypeSupported(type));
+      const recorder = new MediaRecorder(stream, supportedType ? { mimeType: supportedType } : undefined);
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = (event) => { if (event.data.size) chunks.push(event.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setLiveStatus("idle");
+        const clip = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+        if (!clip.size) return;
+        setBusy(true);
+        try {
+          const encoded = await blobToBase64(clip);
+          const result = await transcribeEntry({ data: { audio: encoded, mime: clip.type || "audio/webm", language: hint } });
+          if (result.error) setError(result.error);
+          else if (result.text) setNote((current) => current.trim() ? `${current.trim()} ${result.text}` : result.text);
+        } catch {
+          setError("Voice transcription failed. You can type the details instead.");
+        } finally { setBusy(false); }
       };
-
-      const session = await ai.live.connect({
-        model: tokenResult.model,
-        config: createLiveConnectConfig(hint),
-        callbacks: {
-          onmessage: (message) => {
-            if (generationRef.current !== generation) return;
-            if (message.setupComplete) {
-              setupComplete = true;
-              activateAfterSetup();
-              return;
-            }
-            const content = message.serverContent;
-            if (!content) return;
-            if (content.interrupted) audio.resetPlayback();
-            if (content.inputTranscription?.text) {
-              setNote((current) => mergeTranscriptChunk(current, content.inputTranscription!.text!));
-            }
-            if (content.outputTranscription?.text) {
-              setAssistantText((current) => mergeTranscriptChunk(current, content.outputTranscription!.text!));
-            }
-            for (const part of content.modelTurn?.parts ?? []) {
-              if (part.inlineData?.data) audio.playPcmChunk(part.inlineData.data);
-            }
-          },
-          onerror: (event) => {
-            if (generationRef.current !== generation) return;
-            setError(event.message || "Gemini voice connection failed. You can type the details instead.");
-            void stopLive();
-          },
-          onclose: (event) => {
-            if (generationRef.current !== generation) return;
-            sessionRef.current = undefined;
-            audio.stopCapture();
-            void audio.cleanupAudio();
-            setLiveStatus("idle");
-            if (event.reason) setError("Voice chat ended. You can still review the transcript or type the details.");
-          },
-        },
-      });
-
-      if (generationRef.current !== generation) {
-        session.close();
-        return;
-      }
-      sessionRef.current = session;
-      sessionAssigned = true;
-      activateAfterSetup();
-    } catch (cause) {
-      if (generationRef.current !== generation) return;
-      const message = cause instanceof Error ? cause.message : "Voice chat could not start.";
-      setError(message.includes("GEMINI_API_KEY")
-        ? "Voice service is not configured. You can type the details instead."
-        : "Voice chat could not start. Check microphone access or try typing the details.");
-      await stopLive();
+      recorderRef.current = recorder;
+      recorder.start();
+      setLiveStatus("live");
+    } catch {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      setLiveStatus("idle");
+      setError("Could not start recording. Check microphone permission or type the details instead.");
     }
   }
 
   async function stopLive() {
-    generationRef.current += 1;
-    const session = sessionRef.current;
-    sessionRef.current = undefined;
-    try { session?.close(); } catch { /* The connection may already be closing. */ }
-    audio.stopCapture();
-    await audio.cleanupAudio();
-    setLiveStatus("idle");
+    const recorder = recorderRef.current;
+    if (recorder?.state === "recording") recorder.stop();
+    else setLiveStatus("idle");
   }
 
   async function read() {
@@ -149,8 +82,7 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
     setBusy(true);
     setError("");
     try {
-      // Typing is allowed while Gemini is listening; stop the live session
-      // before using the transcript review action.
+      // Stop recording before sending the transcript for review.
       if (liveStatus !== "idle") await stopLive();
       const result = await extractTransaction({ data: { description: note, language: hint } });
       if (result.error) setError(result.error);
@@ -186,24 +118,18 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
           type="button"
           onClick={liveStatus === "live" ? stopLive : startLive}
           disabled={busy || liveStatus === "connecting"}
-          aria-label={liveStatus === "live" ? (hi ? "बातचीत बंद करें" : "Stop voice chat") : (hi ? "Gemini से बात शुरू करें" : "Start Gemini voice chat")}
+          aria-label={liveStatus === "live" ? (hi ? "रिकॉर्डिंग बंद करें" : "Stop recording") : (hi ? "बोलकर लिखें" : "Record transaction")}
           aria-pressed={liveStatus === "live"}
           className={`grid h-24 w-24 place-items-center rounded-full border-2 transition active:scale-95 disabled:cursor-wait disabled:opacity-70 ${liveStatus === "live" ? "animate-pulse border-accent bg-accent text-accent-foreground" : "border-accent/40 bg-accent/10 text-accent hover:border-accent hover:bg-accent/20"}`}
         >
           {liveStatus === "connecting" ? <LoaderCircle className="h-9 w-9 animate-spin" /> : liveStatus === "live" ? <Square className="h-8 w-8 fill-current" /> : <Mic className="h-9 w-9" />}
         </button>
         <p className="text-center text-sm text-muted-foreground">
-          {liveStatus === "connecting" ? (hi ? "Gemini से जुड़ रहे हैं…" : "Connecting to Gemini…")
-            : liveStatus === "live" ? (hi ? "Gemini सुन रहा है — बोलें, या बातचीत रोकें" : "Gemini is listening — speak naturally, or stop the chat")
-            : hi ? "Gemini से बात करें — वह सुनेगा और जवाब देगा" : "Talk with Gemini — it listens and replies in real time"}
+          {liveStatus === "connecting" ? (hi ? "माइक चालू हो रहा है…" : "Starting microphone…")
+            : liveStatus === "live" ? (hi ? "बोलें, फिर रिकॉर्डिंग रोकें" : "Speak, then stop recording to transcribe")
+            : hi ? "बोलकर लिखें — Groq आवाज़ को लिखेगा" : "Record a transaction; Groq will transcribe it"}
         </p>
       </div>
-
-      {assistantText && (
-        <p className="mt-3 rounded-lg bg-muted/60 px-3 py-2 text-sm" aria-live="polite">
-          <span className="font-medium">Gemini: </span>{assistantText}
-        </p>
-      )}
 
       <div className="mt-4 space-y-1.5">
         <Label htmlFor="voice-note">{hi ? "आपकी बातचीत का लेख" : "Your spoken transcript"}</Label>
@@ -212,7 +138,7 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
-          placeholder={hi ? "माइक दबाकर Gemini से बोलें, या यहाँ लिखें" : "Talk with Gemini, or type the transaction here"}
+          placeholder={hi ? "बोलकर लिखें, या लेनदेन यहाँ टाइप करें" : "Record your transaction, or type it here"}
           className="w-full resize-y rounded-md border bg-background px-3 py-2.5 text-base outline-none transition focus:border-foreground sm:text-sm"
         />
       </div>
