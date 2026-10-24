@@ -24,7 +24,8 @@ export function ReminderChat({ command, onDone }: { command: string; onDone: () 
   const say = (text: string) => setMsgs((m) => [...m, { from: "hisaab", text }]);
   const advance = (d: ChatDraft) => { setDraft(d); const q = nextQuestion(d); setField(q?.field ?? null); if (q) say(q.question); };
 
-  useEffect(() => { void (async () => {
+  const started = useRef(false);
+  useEffect(() => { if (started.current) return; started.current = true; void (async () => {
     try {
       const r = await readReminder({ data: { text: command } });
       const d = r.draft;
