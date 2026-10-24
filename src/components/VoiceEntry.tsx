@@ -219,7 +219,7 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
       <div className="mt-4 flex flex-wrap gap-2 [&>button]:min-h-11">
         <Button onClick={read} disabled={busy || liveStatus !== "idle" || note.trim().length < 3} className="min-h-11 gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90">
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
-          {hi ? "पढ़कर जाँचें" : "Read it back for checking"}
+          {busy ? (hi ? "जाँच रहे हैं…" : "Reading your entry…") : hi ? "पढ़कर जाँचें" : "Read it back for checking"}
         </Button>
         <Button variant="outline" size="sm" onClick={() => { setManual((m) => !m); setDraft(null); }}>{hi ? "खुद लिखें" : "Type it myself"}</Button>
       </div>

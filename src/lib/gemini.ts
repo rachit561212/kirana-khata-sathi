@@ -24,6 +24,7 @@ export async function generateGeminiContent(
         : {}),
     }),
     cache: "no-store",
+    signal: AbortSignal.timeout(45_000),
   });
   if (!response.ok) throw new Error(`Gemini request failed (${response.status})`);
   const result = await response.json() as GeminiResponse;
