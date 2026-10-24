@@ -34,7 +34,7 @@ export const extractTransaction = createServerFn({ method: "POST" })
       console.error("Gemini transaction extraction failed", error instanceof Error ? error.name : "unknown error");
       const keep = " Your description is still here; try again or enter the details manually.";
       const status = typeof error === "object" && error !== null && "status" in error ? error.status : undefined;
-      if (status === 429) return { draft: null, error: "Gemini is busy right now. Please wait a moment and try again." + keep, retryAfter: null };
+      if (status === 429) return { draft: null, error: "A Gemini API usage limit was reached for this project. Wait for it to reset or check Usage & Billing → Rate Limit in Google AI Studio." + keep, retryAfter: null };
       if (status === 503) return { draft: null, error: "Gemini is temporarily unavailable." + keep, retryAfter: null };
       return { draft: null, error: "Gemini could not read this entry right now." + keep, retryAfter: null };
     }
