@@ -149,6 +149,9 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
     setBusy(true);
     setError("");
     try {
+      // Typing is allowed while Gemini is listening; stop the live session
+      // before using the transcript review action.
+      if (liveStatus !== "idle") await stopLive();
       const result = await extractTransaction({ data: { description: note, language: hint } });
       if (result.error) setError(result.error);
       else if (result.draft) { setDraft(result.draft); setManual(false); }
@@ -217,7 +220,7 @@ export function VoiceEntry({ onAdded }: { onAdded: (id: string) => void }) {
       {error && <p className="mt-2 flex items-center gap-2 text-sm text-destructive">{error}</p>}
 
       <div className="mt-4 flex flex-wrap gap-2 [&>button]:min-h-11">
-        <Button onClick={read} disabled={busy || liveStatus !== "idle" || note.trim().length < 3} className="min-h-11 gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90">
+        <Button onClick={read} disabled={busy || liveStatus === "connecting" || note.trim().length < 3} className="min-h-11 gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90">
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
           {busy ? (hi ? "जाँच रहे हैं…" : "Reading your entry…") : hi ? "पढ़कर जाँचें" : "Read it back for checking"}
         </Button>
