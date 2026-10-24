@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import ShopProfileDialog from "@/components/ShopProfileDialog";
-import { useReminderAlerts } from "@/components/ReminderAlerts";
+import { useDueNotifications, useReminderAlerts } from "@/components/ReminderAlerts";
 import { BillSyncGate } from "@/components/BillSyncGate";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -82,6 +82,7 @@ function AppShell() {
     }
   }, [account]);
   const alerts = useReminderAlerts();
+  useDueNotifications(alerts.items);
   const path = useLocation({ select: (l) => l.pathname });
   const handleSignOut = async () => {
     try {

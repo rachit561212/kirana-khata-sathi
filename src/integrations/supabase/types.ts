@@ -148,36 +148,51 @@ export type Database = {
           amount: number
           created_at: string
           due_date: string | null
+          entry_date: string
           id: string
           kind: string
           note: string
           paid: number
+          quantity: number | null
           status: string
+          supplier_name: string
+          supplier_phone: string
           title: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           amount?: number
           created_at?: string
           due_date?: string | null
+          entry_date?: string
           id?: string
           kind: string
           note?: string
           paid?: number
+          quantity?: number | null
           status?: string
+          supplier_name?: string
+          supplier_phone?: string
           title: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
           created_at?: string
           due_date?: string | null
+          entry_date?: string
           id?: string
           kind?: string
           note?: string
           paid?: number
+          quantity?: number | null
           status?: string
+          supplier_name?: string
+          supplier_phone?: string
           title?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
