@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { checkBillUpload } from "@/lib/bill-upload";
 
 const NAV: { href: string; label: string; cta?: boolean }[] = [
@@ -153,13 +152,20 @@ export function SignupDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   const google = async () => {
     setBusy(true); setError("");
     try {
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-      if (result.error) { setError("Google sign-in did not work. Please try again."); return; }
-      if (result.redirected) return;
-      onOpenChange(false);
-      toast.success("Signed in");
-      navigate({ to: "/app" });
-    } catch { setError("Google sign-in did not work. Please try again."); }
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/app`, skipBrowserRedirect: true },
+      });
+      if (oauthError) {
+        setError("Google sign-in is unavailable. Check that Google is enabled in Supabase Auth and this app URL is allowed.");
+        return;
+      }
+      if (!data.url) {
+        setError("Google sign-in could not start. Please try again.");
+        return;
+      }
+      window.location.assign(data.url);
+    } catch { setError("Google sign-in is unavailable. Check the Supabase Google provider settings and try again."); }
     finally { setBusy(false); }
   };
   return (
