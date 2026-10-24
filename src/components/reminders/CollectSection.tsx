@@ -34,7 +34,7 @@ export function CollectSection({ data, refresh }: SectionProps) {
     const prev = form?.initial;
     const add = prev ? (v.amount ?? 0) - prev.amount : (v.amount ?? 0);
     if (prev && (v.amount ?? 0) < prev.paid) throw new Error(`Amount cannot be less than the ₹${prev.paid} already repaid`);
-    if (add > 0 && !(await confirmLimit(v.title, prev ? owed - outstanding(prev) + (prev.amount - prev.paid) : owed, add))) return;
+    if (add > 0 && !(await confirmLimit(v.title, owed, add))) return;
     const ok = await attempt(() => prev ? updateReminder(prev.id, { title: v.title.trim(), amount: v.amount!, due_date: v.due_date ?? null, note: v.note ?? "", entry_date: v.entry_date! }) : createReminder(data.userId, v), prev ? "Updated" : `Recorded ${fmt(v.amount ?? 0)} for ${v.title.trim()}`, refresh);
     if (ok) setForm(null);
   };
