@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import ShopProfileDialog from "@/components/ShopProfileDialog";
+import { useReminderAlerts } from "@/components/ReminderAlerts";
 import { BillSyncGate } from "@/components/BillSyncGate";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -32,6 +33,7 @@ const TABS = [
   { to: "/app/sales", label: "Sales" },
   { to: "/app/receipts", label: "Bills" },
   { to: "/app/summary", label: "Summary" },
+  { to: "/app/reminders", label: "Reminders" },
 ];
 const MORE_TABS = [
   { to: "/app/suppliers", label: "Suppliers" },
@@ -79,6 +81,7 @@ function AppShell() {
       setEditShop(true);
     }
   }, [account]);
+  const alerts = useReminderAlerts();
   const path = useLocation({ select: (l) => l.pathname });
   const handleSignOut = async () => {
     try {
@@ -99,7 +102,7 @@ function AppShell() {
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground"><ReceiptText className="h-4 w-4" /></span>
             <span className="truncate">हिसाब</span>
           </Link>
-          <nav aria-label="Ledger pages" className="order-3 col-span-2 grid w-full grid-cols-5 items-center gap-1 text-xs sm:flex sm:text-sm lg:order-2 lg:w-auto">
+          <nav aria-label="Ledger pages" className="order-3 col-span-2 grid w-full grid-cols-6 items-center gap-1 text-xs sm:flex sm:text-sm lg:order-2 lg:w-auto">
             {TABS.map((t) => {
               const on = t.to === "/app" ? path === "/app" : path.startsWith(t.to);
               return (
@@ -109,7 +112,7 @@ function AppShell() {
                   aria-current={on ? "page" : undefined}
                   className={`flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-1 py-2 font-medium transition sm:px-3 ${on ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                 >
-                  {t.label}
+                  {t.label}{t.to === "/app/reminders" && alerts.total > 0 && <span aria-label={`${alerts.total} reminders`} className="ml-1 rounded-full bg-destructive px-1.5 text-[10px] text-destructive-foreground">{alerts.total}</span>}
                 </Link>
               );
             })}

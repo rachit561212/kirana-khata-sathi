@@ -8,6 +8,7 @@ import { dateLabel, flushKhata, fmt, khata, SAMPLE_FILES, totalOf, useKhata } fr
 import { VoiceEntry } from "@/components/VoiceEntry";
 import { PurchaseOrder } from "@/components/PurchaseOrder";
 import { RepeatOrder } from "@/components/RepeatOrder";
+import { ReminderBanner } from "@/components/ReminderAlerts";
 import { checkBillUpload } from "@/lib/bill-upload";
 
 export const Route = createFileRoute("/app/")({
@@ -67,6 +68,7 @@ function UploadScreen() {
         <p className="mt-1 text-muted-foreground">{receipts.length} records already in your khata.</p>
       </div>
 
+      <ReminderBanner />
       <VoiceEntry onAdded={(id) => setAdded((a) => [id, ...a])} />
 
       <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

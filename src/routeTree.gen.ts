@@ -16,6 +16,7 @@ import { Route as AppAskRouteImport } from './routes/app/ask'
 import { Route as AppDuplicatesRouteImport } from './routes/app/duplicates'
 import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppReceiptsRouteImport } from './routes/app/receipts'
+import { Route as AppRemindersRouteImport } from './routes/app/reminders'
 import { Route as AppReviewRouteImport } from './routes/app/review'
 import { Route as AppSalesRouteImport } from './routes/app/sales'
 import { Route as AppSummaryRouteImport } from './routes/app/summary'
@@ -58,6 +59,11 @@ const AppReceiptsRoute = AppReceiptsRouteImport.update({
   path: '/receipts',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRemindersRoute = AppRemindersRouteImport.update({
+  id: '/reminders',
+  path: '/reminders',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReviewRoute = AppReviewRouteImport.update({
   id: '/review',
   path: '/review',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/app/duplicates': typeof AppDuplicatesRoute
   '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
+  '/app/reminders': typeof AppRemindersRoute
   '/app/review': typeof AppReviewRoute
   '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/app/duplicates': typeof AppDuplicatesRoute
   '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
+  '/app/reminders': typeof AppRemindersRoute
   '/app/review': typeof AppReviewRoute
   '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/app/duplicates': typeof AppDuplicatesRoute
   '/app/products': typeof AppProductsRoute
   '/app/receipts': typeof AppReceiptsRoute
+  '/app/reminders': typeof AppRemindersRoute
   '/app/review': typeof AppReviewRoute
   '/app/sales': typeof AppSalesRoute
   '/app/summary': typeof AppSummaryRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/app/duplicates'
     | '/app/products'
     | '/app/receipts'
+    | '/app/reminders'
     | '/app/review'
     | '/app/sales'
     | '/app/summary'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/app/duplicates'
     | '/app/products'
     | '/app/receipts'
+    | '/app/reminders'
     | '/app/review'
     | '/app/sales'
     | '/app/summary'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/app/duplicates'
     | '/app/products'
     | '/app/receipts'
+    | '/app/reminders'
     | '/app/review'
     | '/app/sales'
     | '/app/summary'
@@ -239,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReceiptsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/reminders': {
+      id: '/app/reminders'
+      path: '/reminders'
+      fullPath: '/app/reminders'
+      preLoaderRoute: typeof AppRemindersRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/review': {
       id: '/app/review'
       path: '/review'
@@ -289,6 +308,7 @@ interface AppRouteChildren {
   AppDuplicatesRoute: typeof AppDuplicatesRoute
   AppProductsRoute: typeof AppProductsRoute
   AppReceiptsRoute: typeof AppReceiptsRoute
+  AppRemindersRoute: typeof AppRemindersRoute
   AppReviewRoute: typeof AppReviewRoute
   AppSalesRoute: typeof AppSalesRoute
   AppSummaryRoute: typeof AppSummaryRoute
@@ -302,6 +322,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDuplicatesRoute: AppDuplicatesRoute,
   AppProductsRoute: AppProductsRoute,
   AppReceiptsRoute: AppReceiptsRoute,
+  AppRemindersRoute: AppRemindersRoute,
   AppReviewRoute: AppReviewRoute,
   AppSalesRoute: AppSalesRoute,
   AppSummaryRoute: AppSummaryRoute,
