@@ -37,7 +37,10 @@ describe("Groq AI integrations", () => {
     vi.stubGlobal("fetch", fetchMock);
     expect(await generateGroqJson("system rules", "Raju paid 50")).toBe('{"kind":"collect"}');
     const [, options] = fetchMock.mock.calls[0] ?? [];
-    expect(JSON.parse(options.body).response_format).toEqual({ type: "json_object" });
+    const body = JSON.parse(options.body);
+    expect(body.model).toBe("openai/gpt-oss-120b");
+    expect(body.max_completion_tokens).toBe(1200);
+    expect(body.response_format).toEqual({ type: "json_object" });
     expect(options.headers.Authorization).toBe("Bearer test-only-placeholder");
   });
 

@@ -1,5 +1,3 @@
-type GroqPart = { text?: string; inlineData?: { mimeType: string; data: string } };
-
 export class GroqRequestError extends Error {
   constructor(public readonly status: number) {
     super(`Groq request failed (${status})`);
@@ -60,11 +58,12 @@ export async function generateGroqJson(system: string, user: string): Promise<st
     method: "POST",
     headers: { Authorization: `Bearer ${groqKey()}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       messages: [
         { role: "system", content: system },
         { role: "user", content: user },
       ],
+      max_completion_tokens: 1200,
       response_format: { type: "json_object" },
       temperature: 0.1,
     }),
